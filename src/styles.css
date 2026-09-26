@@ -63,3 +63,16 @@
 .ainui-chat form > button { align-self:flex-end; min-width:80px; }
 
 @media(max-width:600px){.ainui-segmented button:has(svg) span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.ainui-segmented button:has(svg){min-width:36px;padding:6px}}
+
+/* Agent replies are Markdown: keep blocks compact inside a chat bubble; tables scroll instead of squeezing. */
+.ainui-chat-markdown p { margin: 0 0 .5em; }
+.ainui-chat-markdown p:last-child { margin-bottom: 0; }
+.ainui-chat-markdown h1, .ainui-chat-markdown h2, .ainui-chat-markdown h3, .ainui-chat-markdown h4 { margin: .6em 0 .3em; font-size: 1.05em; font-weight: 700; }
+.ainui-chat-markdown ul, .ainui-chat-markdown ol { margin: 0 0 .5em; padding-left: 1.4em; }
+.ainui-chat-markdown code { font-family: ui-monospace, Menlo, monospace; font-size: .9em; background: rgba(0, 0, 0, .06); padding: .05em .35em; border-radius: 4px; }
+.ainui-chat-markdown pre { background: rgba(0, 0, 0, .06); border-radius: 8px; padding: .6em .8em; overflow-x: auto; margin: 0 0 .5em; }
+.ainui-chat-markdown pre code { background: none; padding: 0; }
+.ainui-chat-markdown table { display: block; overflow-x: auto; border-collapse: collapse; margin: 0 0 .6em; font-size: .92em; }
+.ainui-chat-markdown th, .ainui-chat-markdown td { border: 1px solid rgba(0, 0, 0, .15); padding: .3em .6em; text-align: left; white-space: nowrap; }
+.ainui-chat-markdown th { font-weight: 600; background: rgba(0, 0, 0, .04); }
+.ainui-chat-markdown a { color: inherit; text-decoration: underline; }
