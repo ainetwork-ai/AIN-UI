@@ -230,7 +230,8 @@ function AgentText({ text }: { text: string }) {
   const [html, setHtml] = useState<string | null>(null);
   useEffect(() => {
     let live = true;
-    renderMarkdown(text).then(h => { if (live) setHtml(h); }).catch(() => { if (live) setHtml(null); });
+    // an empty render (no live DOM for the sanitizer, a failure) shows the text as typed rather than nothing
+    renderMarkdown(text).then(h => { if (live) setHtml(h && h.trim() ? h : null); }).catch(() => { if (live) setHtml(null); });
     return () => { live = false; };
   }, [text]);
   return html == null

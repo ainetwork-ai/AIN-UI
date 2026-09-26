@@ -6,6 +6,31 @@ import { JSDOM } from "jsdom";
 import { ainuiPayment, ainuiFolder, ainuiFile, ainuiEditor, toItem, ainuiActivity, messagesFromActivity, dispatchAinuiAction, AINUI_CATALOG, type AinuiDeps } from "../src/index.js";
 import { AinuiSurface } from "../src/react.js";
 
+// Runs first: @a2ui/markdown-it binds its sanitizer to globalThis.window on first use and keeps it, and every
+// test below closes its own JSDOM window — a later Markdown render would sanitize against a dead window.
+test("FolderChat renders an agent's Markdown (headings, bold, tables), and a person's text as typed", async () => {
+  const { ainuiFolderChat } = await import("../src/chat.js");
+  const dom = new JSDOM("<!doctype html><div id='chat'></div>", { url: "https://example.test" });
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
+  const container = document.getElementById("chat")!;
+  const root = createRoot(container);
+  const md = "## Planets\n\n**three** of them\n\n| Name | Moons |\n|---|---|\n| Earth | 1 |\n\n<script>alert(1)</script>";
+  await act(async () => root.render(React.createElement(AinuiSurface, {
+    messages: ainuiFolderChat({ driveId: "d", path: "photos", agents: [{ id: "cloud", label: "Cloud" }], agentId: "cloud", busy: false,
+      messages: [{ role: "user", text: "**not bold**" }, { role: "agent", text: md }] }),
+    onAction: () => {},
+  })));
+  for (let i = 0; i < 20 && !container.querySelector(".ainui-chat-markdown"); i++) await act(async () => { await new Promise(r => setTimeout(r, 10)); });
+  const agent = container.querySelector(".ainui-chat-markdown")!;
+  assert.ok(agent, "agent text rendered as Markdown");
+  assert.equal(agent.querySelector("h2")?.textContent, "Planets");
+  assert.equal(agent.querySelector("strong")?.textContent, "three");
+  assert.equal(agent.querySelectorAll("td").length, 2);
+  assert.equal(agent.querySelector("script"), null, "sanitized");
+  assert.match(container.querySelector(".ainui-chat-message-user .ainui-chat-text")!.textContent!, /\*\*not bold\*\*/);
+  await act(async () => root.unmount()); dom.window.close();
+});
+
 test("official React renderer draws AIN-UI payment terms and grid", async () => {
   const dom = new JSDOM("<!doctype html><div id='root'></div>", { url: "https://example.test" });
   Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
@@ -125,27 +150,4 @@ test("gallery keeps every listed file, distinct scoped paths and stable fallback
   assert.equal(actions.at(-1).context.path, "Sky Photos/236.jpg");
   await act(async () => root.unmount());
   dom.window.close();
-});
-
-test("FolderChat renders an agent's Markdown (headings, bold, tables), and a person's text as typed", async () => {
-  const { ainuiFolderChat } = await import("../src/chat.js");
-  const dom = new JSDOM("<!doctype html><div id='chat'></div>", { url: "https://example.test" });
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
-  const container = document.getElementById("chat")!;
-  const root = createRoot(container);
-  const md = "## Planets\n\n**three** of them\n\n| Name | Moons |\n|---|---|\n| Earth | 1 |\n\n<script>alert(1)</script>";
-  await act(async () => root.render(React.createElement(AinuiSurface, {
-    messages: ainuiFolderChat({ driveId: "d", path: "photos", agents: [{ id: "cloud", label: "Cloud" }], agentId: "cloud", busy: false,
-      messages: [{ role: "user", text: "**not bold**" }, { role: "agent", text: md }] }),
-    onAction: () => {},
-  })));
-  for (let i = 0; i < 20 && !container.querySelector(".ainui-chat-markdown"); i++) await act(async () => { await new Promise(r => setTimeout(r, 10)); });
-  const agent = container.querySelector(".ainui-chat-markdown")!;
-  assert.ok(agent, "agent text rendered as Markdown");
-  assert.equal(agent.querySelector("h2")?.textContent, "Planets");
-  assert.equal(agent.querySelector("strong")?.textContent, "three");
-  assert.equal(agent.querySelectorAll("td").length, 2);
-  assert.equal(agent.querySelector("script"), null, "sanitized");
-  assert.match(container.querySelector(".ainui-chat-message-user .ainui-chat-text")!.textContent!, /\*\*not bold\*\*/);
-  await act(async () => root.unmount()); dom.window.close();
 });
