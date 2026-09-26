@@ -43,11 +43,23 @@ const dynamic = z.union([CommonSchemas.DynamicValue, z.object({ $asset: z.object
   drive_id: z.string(), path: z.string(), variant: z.enum(["thumb", "original"]), mime: z.string(), v: z.number().optional(),
 }) }), z.null()]).optional();
 
+function Glyph({ kind }: { kind: "grid" | "list" | "upload" | "folder" | "file" }) {
+  const paths = { grid: "M3 3h6v6H3z M15 3h6v6h-6z M3 15h6v6H3z M15 15h6v6h-6z", list: "M8 5h13M8 12h13M8 19h13M3 5h.01M3 12h.01M3 19h.01", upload: "M12 16V3m-5 5 5-5 5 5M4 16v5h16v-5", folder: "M3 7V5h6l2 2h10v13H3z", file: "M5 3h9l5 5v13H5z M14 3v6h5" };
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d={paths[kind]} /></svg>;
+}
+
+const Toolbar = createBinderlessComponentImplementation(api("Toolbar", { children: CommonSchemas.ChildList }), ({ context, buildChild }) => {
+  const spec = context.componentModel.properties.children as string[] | { componentId: string; path: string };
+  const rows = useValue<unknown[]>(context, !Array.isArray(spec) && spec ? { path: spec.path } : []);
+  return <div className="ainui-toolbar">{Array.isArray(spec) ? spec.map(id => <React.Fragment key={id}>{buildChild(id)}</React.Fragment>) :
+    (Array.isArray(rows) ? rows : []).map((_, i) => <React.Fragment key={i}>{buildChild(spec.componentId, `${spec.path}/${i}`)}</React.Fragment>)}</div>;
+});
+
 const Grid = createBinderlessComponentImplementation(api("Grid", { children: CommonSchemas.ChildList, minItemWidth: z.number().optional(), gap: z.number().optional() }), ({ context, buildChild }) => {
   const p = context.componentModel.properties;
   const spec = p.children as string[] | { componentId: string; path: string };
   const rows = useValue<unknown[]>(context, !Array.isArray(spec) && spec ? { path: spec.path } : []);
-  return <div className="ainui-grid" style={{ display: "grid", width: "100%", minWidth: 0, gridTemplateColumns: `repeat(auto-fill,minmax(min(100%,${Math.max(64, Number(p.minItemWidth) || 128)}px),1fr))`, gap: Number(p.gap) || 8 }}>
+  return <div className="ainui-grid" style={{ display: "grid", width: "100%", minWidth: 0, gridTemplateColumns: `repeat(auto-fill,minmax(min(100%,var(--ainui-tile-min,${Math.max(64, Number(p.minItemWidth) || 176)}px)),1fr))`, gap: Number(p.gap) || 20 }}>
     {Array.isArray(spec) ? spec.map((id) => <React.Fragment key={id}>{buildChild(id)}</React.Fragment>) :
       (Array.isArray(rows) ? rows : []).map((_, i) => <React.Fragment key={i}>{buildChild(spec.componentId, `${spec.path}/${i}`)}</React.Fragment>)}
   </div>;
@@ -63,13 +75,13 @@ const Tile = createBinderlessComponentImplementation(api("Tile", { media: dynami
   const src = urlOf(media, resolver);
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [src]);
-  return <button className="ainui-tile" style={{ ...box, ...button, width: "100%", height: "100%", textAlign: "left", overflow: "hidden" }} onClick={() => void fire(context)}>
-    <span className="ainui-tile-media" style={{ display: "flex", flex: "0 0 auto", alignItems: "center", justifyContent: "center", width: "100%", aspectRatio: "1", overflow: "hidden", borderRadius: 8, background: "#8882" }}>
-      {src && !failed ? <img src={src} alt="" loading="lazy" onError={() => setFailed(true)} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> :
-        <span style={{ fontSize: 40 }}>{kind === "folder" ? "📁" : "📄"}</span>}
+  return <button type="button" className="ainui-tile" onClick={() => void fire(context)}>
+    <span className="ainui-tile-media">
+      {src && !failed ? <img src={src} alt="" loading="lazy" onError={() => setFailed(true)} /> :
+        <span className="ainui-tile-placeholder"><Glyph kind={kind === "folder" ? "folder" : "file"} /></span>}
     </span>
-    <span className="ainui-tile-name" title={label} style={{ display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2, overflow: "hidden", overflowWrap: "anywhere", lineHeight: "1.35em", height: "2.7em" }}>{label}</span>
-    <small style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{caption}</small>
+    <span className="ainui-tile-name" title={label}>{label}</span>
+    <small className="ainui-tile-caption">{caption}</small>
   </button>;
 });
 
@@ -93,20 +105,22 @@ const FileView = createBinderlessComponentImplementation(api("FileView", { src: 
 
 const Breadcrumbs = createBinderlessComponentImplementation(api("Breadcrumbs", { items: dynamic, action: CommonSchemas.Action.optional() }), ({ context }) => {
   const items = useValue<Array<{ label: string; path: string }>>(context, context.componentModel.properties.items) || [];
-  return <nav aria-label="Folder path" style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>{items.map((item, i) =>
-    i === items.length - 1 ? <span key={i} aria-current="page">{item.label}</span> :
-      <button key={i} style={button} onClick={() => void fire(context, { path: item.path })}>{item.label}</button>)}</nav>;
+  return <nav aria-label="Folder path" className="ainui-breadcrumbs">{items.map((item, i) => <React.Fragment key={i}>
+    {i > 0 && <span className="ainui-breadcrumb-separator" aria-hidden="true">/</span>}
+    {i === items.length - 1 ? <span aria-current="page">{item.label}</span> :
+      <button onClick={() => void fire(context, { path: item.path })}>{item.label === "/" ? "Drive" : item.label}</button>}
+  </React.Fragment>)}</nav>;
 });
 
 const Segmented = createBinderlessComponentImplementation(api("Segmented", { options: z.array(z.object({ value: z.string(), label: z.string() })), value: dynamic, action: CommonSchemas.Action.optional() }), ({ context }) => {
   const p = context.componentModel.properties;
   const value = useValue<string>(context, p.value);
-  return <div role="group" style={{ display: "flex", gap: 4 }}>{(p.options as Array<{ value: string; label: string }>).map((o) =>
-    <button key={o.value} style={{ ...button, fontWeight: value === o.value ? "bold" : "normal" }} aria-pressed={value === o.value} onClick={() => {
+  return <div role="group" aria-label="View options" className="ainui-segmented">{(p.options as Array<{ value: string; label: string }>).map((o) =>
+    <button key={o.value} type="button" aria-pressed={value === o.value} onClick={() => {
       const binding = p.value as { path?: string };
       if (binding?.path) context.dataContext.set(binding.path, o.value);
       void fire(context, { value: o.value });
-    }}>{o.label}</button>)}</div>;
+    }}>{(o.value === "grid" || o.value === "list") && <Glyph kind={o.value} />}<span>{o.label}</span></button>)}</div>;
 });
 
 const FileUpload = createBinderlessComponentImplementation(api("FileUpload", { label: dynamic, maxBytes: z.number().optional(), action: CommonSchemas.Action.optional() }), ({ context }) => {
@@ -114,8 +128,9 @@ const FileUpload = createBinderlessComponentImplementation(api("FileUpload", { l
   const label = useValue<string>(context, p.label) || "Upload file";
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const input = useRef<HTMLInputElement>(null);
   const limit = Math.min(Number(p.maxBytes) || AINUI_UPLOAD_MAX_BYTES, AINUI_UPLOAD_MAX_BYTES);
-  return <label style={box}>{label}<input type="file" disabled={busy} onChange={async (e) => {
+  return <div className="ainui-upload"><button className="ainui-button ainui-button-primary" type="button" disabled={busy} onClick={() => input.current?.click()}><Glyph kind="upload" />{busy ? "Uploading…" : label}</button><input ref={input} hidden tabIndex={-1} aria-label={label} type="file" disabled={busy} onChange={async (e) => {
     const file = e.target.files?.[0];
     e.target.value = "";
     if (!file) return;
@@ -127,7 +142,7 @@ const FileUpload = createBinderlessComponentImplementation(api("FileUpload", { l
       for (let i = 0; i < bytes.length; i += 8192) binary += String.fromCharCode(...bytes.subarray(i, i + 8192));
       await fire(context, { name: file.name, content: btoa(binary), encoding: "base64" });
     } catch (e) { setError((e as Error).message); } finally { setBusy(false); }
-  }} />{busy && <small>Uploading…</small>}{error && <small role="alert">{error}</small>}</label>;
+  }} />{busy && <span className="ainui-sr-only" role="status">Uploading…</span>}{error && <small role="alert">{error}</small>}</div>;
 });
 
 const X402Payment = createBinderlessComponentImplementation(api("X402Payment", { amount: dynamic, currency: dynamic, network: dynamic, payTo: dynamic, action: CommonSchemas.Action.optional() }), ({ context }) => {
@@ -153,17 +168,17 @@ const FolderChat = createBinderlessComponentImplementation(api("FolderChat", { v
   const state = useValue<FolderChatState>(context, context.componentModel.properties.value);
   const [input, setInput] = useState("");
   if (!state) return null;
-  return <section aria-label="Folder chat" style={box}>
-    <strong>Folder chat · {state.path || "/"}</strong>
-    <label>Agent <select aria-label="Chat agent" disabled={state.busy} value={state.agentId} onChange={e => void fire(context, { operation: "select", agentId: e.target.value })}>
+  return <section aria-label="Folder chat" className="ainui-chat">
+    <strong className="ainui-chat-title">{state.path.split("/").filter(Boolean).at(-1) || "Folder chat"}</strong>
+    <label className="ainui-chat-agent">Agent <select aria-label="Chat agent" disabled={state.busy} value={state.agentId} onChange={e => void fire(context, { operation: "select", agentId: e.target.value })}>
       {state.agents.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
     </select></label>
-    <div role="log" aria-live="polite" style={{ maxHeight: 400, overflowY: "auto" }}>
-      {state.messages.map((m, i) => <div key={i} role={m.role === "error" ? "alert" : undefined} style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", paddingBlock: 8 }}><strong>{m.role === "user" ? "You" : m.role === "error" ? "Error" : state.agents.find(a => a.id === state.agentId)?.label || "Agent"}</strong><div>{m.text}</div></div>)}
+    <div role="log" aria-live="polite" className="ainui-chat-log">
+      {state.messages.map((m, i) => <div key={i} role={m.role === "error" ? "alert" : undefined} className={`ainui-chat-message ainui-chat-message-${m.role}`}><strong>{m.role === "user" ? "You" : m.role === "error" ? "Error" : state.agents.find(a => a.id === state.agentId)?.label || "Agent"}</strong><div>{m.text}</div></div>)}
     </div>
     <form onSubmit={e => { e.preventDefault(); if (input.trim() && !state.busy) { void fire(context, { operation: "send", q: input.trim(), agentId: state.agentId }); setInput(""); } }} style={box}>
-      <textarea aria-label="Message" disabled={state.busy} value={input} onChange={e => setInput(e.target.value)} />
-      {state.busy ? <button type="button" style={button} onClick={() => void fire(context, { operation: "cancel" })}>Stop</button> : <button style={button} disabled={!input.trim() || !state.agentId}>Send</button>}
+      <textarea aria-label="Message" placeholder="Ask about the files in this folder…" rows={3} disabled={state.busy} value={input} onChange={e => setInput(e.target.value)} />
+      {state.busy ? <button type="button" className="ainui-button" onClick={() => void fire(context, { operation: "cancel" })}>Stop</button> : <button className="ainui-button ainui-button-primary" disabled={!input.trim() || !state.agentId}>Send</button>}
     </form>
   </section>;
 });
@@ -172,11 +187,13 @@ const FolderChat = createBinderlessComponentImplementation(api("FolderChat", { v
 const Button = createBinderlessComponentImplementation(api("Button", { child: CommonSchemas.ComponentId, action: CommonSchemas.Action.optional(), confirm: dynamic, variant: dynamic, tone: dynamic }), ({ context, buildChild }) => {
   const p = context.componentModel.properties;
   const confirm = useValue<string>(context, p.confirm);
-  return <button style={button} onClick={() => { if (!confirm || window.confirm(confirm)) void fire(context); }}>{buildChild(String(p.child))}</button>;
+  const variant = useValue<string>(context, p.variant);
+  const tone = useValue<string>(context, p.tone);
+  return <button className={`ainui-button ${variant === "primary" ? "ainui-button-primary" : variant === "borderless" ? "ainui-button-ghost" : ""} ${tone === "danger" ? "ainui-button-danger" : ""}`} onClick={() => { if (!confirm || window.confirm(confirm)) void fire(context); }}>{buildChild(String(p.child))}</button>;
 });
 
 export const ainuiCatalog = new Catalog(AINUI_CATALOG,
-  [...basicCatalog.components.values()].filter((c) => c.name !== "Button").concat([Button, Grid, Tile, FileView, Breadcrumbs, Segmented, FileUpload, X402Payment, FolderChat]),
+  [...basicCatalog.components.values()].filter((c) => c.name !== "Button").concat([Button, Toolbar, Grid, Tile, FileView, Breadcrumbs, Segmented, FileUpload, X402Payment, FolderChat]),
   [...basicCatalog.functions.values()]);
 
 export function AinuiSurface({ messages, onAction, resolveAsset, renderFile }: {

@@ -217,6 +217,11 @@ export function ainuiFolder(opts: {
 }): A2uiMessage[] {
   const env = opts.env ?? {};
   const view = env.view ?? defaultView(opts.items);
+  const photos = opts.items.filter(i => !i.is_dir && i.mime.startsWith("image/")).length;
+  const files = opts.items.filter(i => !i.is_dir).length - photos;
+  const folders = opts.items.filter(i => i.is_dir).length;
+  const count = (n: number, noun: string) => `${n} ${noun}${n === 1 ? "" : "s"}`;
+  const inventory = [photos && count(photos, "photo"), files && count(files, "file"), folders && count(folders, "folder")].filter(Boolean).join(" · ") || "0 items";
   const toolbar = ["search_field", "search_btn", "view"];
   if (env.canWrite) toolbar.push("new_btn", "upload");
   const body = opts.items.length ? (view === "grid" ? "grid" : "list") : "empty";
@@ -224,11 +229,11 @@ export function ainuiFolder(opts: {
   const comps: A2uiComponent[] = [
     column("root", rootChildren),
     breadcrumbs(),
-    text("inventory", { path: "/inventory" }, "caption"),
-    row("toolbar", toolbar, { align: "center" }),
+    { id: "inventory", component: "Text", text: { path: "/inventory" }, variant: "caption" },
+    { id: "toolbar", component: "Toolbar", children: toolbar },
     { id: "search_field", component: "TextField", label: "Search file names", value: { path: "/query" }, weight: 1 },
     button("search_btn", "search_label", "aindrive.search",
-      { drive_id: DRIVE, query: { path: "/query" }, path: { path: "/path" } }, { variant: "primary" }),
+      { drive_id: DRIVE, query: { path: "/query" }, path: { path: "/path" } }),
     text("search_label", "Search"),
     {
       id: "view",
@@ -249,7 +254,7 @@ export function ainuiFolder(opts: {
   const open = ev("aindrive.open", { drive_id: { path: "drive_id" }, path: { path: "path" }, is_dir: { path: "is_dir" } });
   if (body === "grid") {
     comps.push(
-      { id: "grid", component: "Grid", children: { componentId: "tile", path: "/items" }, minItemWidth: 128, gap: 8 },
+      { id: "grid", component: "Grid", children: { componentId: "tile", path: "/items" }, minItemWidth: 176, gap: 20 },
       {
         id: "tile", component: "Tile",
         media: { path: "thumb" }, kind: { path: "kind" }, label: { path: "name" }, caption: { path: "meta" }, action: open,
@@ -277,7 +282,7 @@ export function ainuiFolder(opts: {
     query: opts.query ?? "",
     new_name: "",
     items: opts.items,
-    inventory: `${opts.items.filter(i => !i.is_dir).length} files · ${opts.items.filter(i => i.is_dir).length} folders · ${opts.items.filter(i => !i.is_dir && i.mime.startsWith("image/")).length} photos (${opts.query ? "search results" : "this folder only"})`,
+    inventory: `${inventory} · ${opts.query ? "Search results" : "This folder only"}`,
   });
 }
 
@@ -291,7 +296,7 @@ export function ainuiFile(opts: {
   const comps: A2uiComponent[] = [
     column("root", ["crumbs", "toolbar", "view"]),
     breadcrumbs(),
-    row("toolbar", toolbar, { align: "center" }),
+    { id: "toolbar", component: "Toolbar", children: toolbar },
     button("back_btn", "back_label", "aindrive.open", { drive_id: DRIVE, path: { path: "/parent" }, is_dir: true }),
     text("back_label", "Back"),
   ];

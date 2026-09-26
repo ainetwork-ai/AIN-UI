@@ -11,3 +11,55 @@
 }
 .ain-ui button:focus-visible, .ain-ui input:focus-visible, .ain-ui textarea:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
 .ain-ui p { margin-block:6px; }
+
+/* Shared file browser: neutral controls, clear focus and consistent media geometry. */
+.ain-ui { --ainui-muted: #667085; --ainui-line: #e4e7ec; --ainui-hover: #f5f6f8; --ainui-active: #fff; --ainui-accent: #2456d9; }
+.ainui-toolbar { display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px; padding:10px 0 14px; }
+.ainui-toolbar > :first-child { flex:1 1 200px; min-width:140px; }
+.ainui-toolbar label { font-size:12px; color:var(--ainui-muted); }
+.ain-ui .ainui-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:40px; padding:8px 14px; border:1px solid var(--ainui-line); border-radius:8px; background:transparent; color:inherit; font-size:13px; font-weight:500; line-height:20px; white-space:nowrap; transition:background .15s; }
+.ain-ui .ainui-button p { margin:0; }
+.ain-ui .ainui-button:hover { background:var(--ainui-hover); }
+.ain-ui .ainui-button-primary { color:#fff; background:var(--ainui-accent); border-color:var(--ainui-accent); }
+.ain-ui .ainui-button-primary:hover { background:#1d46b5; }
+.ain-ui .ainui-button-ghost { border-color:transparent; justify-content:flex-start; }
+.ain-ui .ainui-button-danger { color:#c13535; }
+.ainui-segmented { display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--ainui-hover); border:1px solid var(--ainui-line); }
+.ainui-segmented button { display:flex; align-items:center; gap:6px; min-height:32px; padding:5px 10px; border:0; border-radius:6px; background:transparent; color:var(--ainui-muted); font-size:12px; }
+.ainui-segmented button[aria-pressed=true] { background:var(--ainui-active); color:inherit; box-shadow:0 1px 3px #00000014; }
+.ainui-breadcrumbs { display:flex; flex-wrap:wrap; align-items:center; gap:8px; font-size:13px; min-height:32px; }
+.ainui-breadcrumbs button { border:0; background:transparent; color:var(--ainui-muted); padding:6px 0; }
+.ainui-breadcrumbs button:hover { color:inherit; text-decoration:underline; }
+.ainui-breadcrumbs [aria-current] { font-weight:500; overflow-wrap:anywhere; }
+.ainui-breadcrumb-separator { color:var(--ainui-muted); opacity:.5; }
+.ain-ui .ainui-tile { display:flex; flex-direction:column; gap:5px; min-width:0; width:100%; height:100%; padding:6px; border:0; border-radius:12px; background:transparent; color:inherit; text-align:left; overflow:hidden; transition:background .15s; }
+.ain-ui .ainui-tile:hover { background:var(--ainui-hover); }
+.ainui-tile-media { display:flex; flex:0 0 auto; align-items:center; justify-content:center; width:100%; aspect-ratio:1; overflow:hidden; border-radius:9px; background:var(--ainui-hover); box-shadow:inset 0 0 0 1px #8882; }
+.ainui-tile-media img { width:100%; height:100%; object-fit:cover; }
+.ainui-tile-placeholder { color:var(--ainui-muted); }
+.ainui-tile-placeholder svg { width:36px; height:36px; }
+.ainui-tile-name { display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; overflow-wrap:anywhere; line-height:1.4; height:2.8em; margin-top:5px; font-size:13px; font-weight:500; }
+.ainui-tile-caption { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; font-size:12px; line-height:18px; color:var(--ainui-muted); }
+.ainui-upload { position:relative; }
+.ainui-upload [role=alert] { display:block; max-width:220px; color:#c13535; }
+.ainui-sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+@media (prefers-color-scheme:dark) { .ain-ui { --ainui-muted:#a1a7b3; --ainui-line:#ffffff20; --ainui-hover:#ffffff08; --ainui-active:#ffffff12; --ainui-accent:#3d68e0; } }
+@media (max-width:600px) { .ain-ui { --ainui-tile-min:128px; } .ainui-toolbar { gap:8px; } .ainui-toolbar > :first-child { flex-basis:calc(100% - 100px); } .ain-ui .ainui-button { min-height:44px; } .ainui-segmented button { min-height:36px; } .ainui-grid { gap:10px !important; } }
+@media (prefers-reduced-motion:reduce) { .ain-ui button { transition:none; } }
+/* The official catalog renders captions as span > em; captions are metadata here. */
+.ain-ui span > em { font-style:normal; font-size:12px; color:var(--ainui-muted); }
+.ainui-chat { display:flex; flex-direction:column; gap:14px; min-width:0; padding-top:18px; }
+.ainui-chat-title { font-size:14px; }
+.ainui-chat-agent { display:flex !important; align-items:center; gap:12px; color:var(--ainui-muted); font-size:12px; }
+.ainui-chat-agent select { min-height:36px; flex:1; min-width:0; padding:6px 10px; border:1px solid var(--ainui-line); border-radius:7px; background:transparent; color:inherit; font:inherit; }
+.ainui-chat-log { max-height:400px; overflow-y:auto; }
+.ainui-chat-log:empty { display:none; }
+.ainui-chat-message { white-space:pre-wrap; overflow-wrap:anywhere; padding:12px; margin-bottom:10px; font-size:13px; line-height:1.6; border-radius:9px; }
+.ainui-chat-message strong { display:block; margin-bottom:4px; font-size:11px; color:var(--ainui-muted); font-weight:500; }
+.ainui-chat-message-user { background:var(--ainui-hover); }
+.ainui-chat-message-error { color:#c13535; }
+.ainui-chat form { position:relative; }
+.ainui-chat textarea { resize:vertical; min-height:86px; font-size:13px; }
+.ainui-chat form > button { align-self:flex-end; min-width:80px; }
+
+@media(max-width:600px){.ainui-segmented button:has(svg) span{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}.ainui-segmented button:has(svg){min-width:36px;padding:6px}}

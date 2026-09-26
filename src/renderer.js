@@ -158,6 +158,11 @@ export function createA2uiRenderer(container, { onAction, resolveAsset, assetBas
     if (!c) { el.className = "a2ui-missing"; return el; }
     const kids = (spec, into) => childIds(spec, surf, scope).forEach((k) => into.appendChild(renderNode(surfaceId, k.id, k.scope)));
     switch (c.component) {
+      case "Toolbar":
+        el.className = "a2ui-row";
+        el.style.display = "flex"; el.style.flexWrap = "wrap"; el.style.alignItems = "flex-end"; el.style.gap = "10px";
+        kids(c.children, el);
+        break;
       case "Column":
       case "Row":
       case "List": {

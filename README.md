@@ -33,6 +33,7 @@ All basic A2UI components are available, plus:
 
 | Component | Purpose |
 | --- | --- |
+| Toolbar | Wrapping file controls with mobile view toggles |
 | Grid | Responsive columns, including A2UI child templates |
 | Tile | File/folder thumbnail, label, caption and action |
 | FileView | Image, video, audio, PDF preview and download |

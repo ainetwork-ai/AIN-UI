@@ -116,7 +116,7 @@ test("gallery keeps every listed file, distinct scoped paths and stable fallback
   })));
   assert.equal(container.querySelectorAll(".ainui-tile").length, 239);
   assert.equal(container.querySelectorAll("img").length, 237);
-  assert.match(container.textContent!, /238 files · 1 folders · 237 photos \(this folder only\)/);
+  assert.match(container.textContent!, /237 photos · 1 file · 1 folder · This folder only/);
   assert.equal(new Set(Array.from(container.querySelectorAll("img")).map(img => img.src)).size, 237);
   const failed = container.querySelector("img")!;
   await act(async () => failed.dispatchEvent(new dom.window.Event("error")));
