@@ -1,0 +1,6 @@
+.ain-ui { color: inherit; font: inherit; }
+.ain-ui button, .ain-ui input { font: inherit; }
+.ain-ui button { cursor:pointer; }
+.ain-ui button:disabled { cursor:default; opacity:.5; }
+.ain-ui img, .ain-ui video { max-width:100%; }
+.ain-ui fieldset { border:0; padding:0; margin:0; min-width:0; }
