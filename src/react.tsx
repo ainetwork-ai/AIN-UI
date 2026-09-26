@@ -174,7 +174,7 @@ const FolderChat = createBinderlessComponentImplementation(api("FolderChat", { v
       {state.agents.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
     </select></label>
     <div role="log" aria-live="polite" className="ainui-chat-log">
-      {state.messages.map((m, i) => <div key={i} role={m.role === "error" ? "alert" : undefined} className={`ainui-chat-message ainui-chat-message-${m.role}`}><strong>{m.role === "user" ? "You" : m.role === "error" ? "Error" : state.agents.find(a => a.id === state.agentId)?.label || "Agent"}</strong><div>{m.text}</div></div>)}
+      {state.messages.map((m, i) => <div key={i} role={m.role === "error" ? "alert" : undefined} className={`ainui-chat-message ainui-chat-message-${m.role}`}><strong>{m.role === "user" ? "You" : m.role === "error" ? "Error" : state.agents.find(a => a.id === state.agentId)?.label || "Agent"}</strong>{m.role === "agent" ? <AgentText text={m.text} /> : <div className="ainui-chat-text">{m.text}</div>}</div>)}
     </div>
     <form onSubmit={e => { e.preventDefault(); if (input.trim() && !state.busy) { void fire(context, { operation: "send", q: input.trim(), agentId: state.agentId }); setInput(""); } }} style={box}>
       <textarea aria-label="Message" placeholder="Ask about the files in this folder…" rows={3} disabled={state.busy} value={input} onChange={e => setInput(e.target.value)} />
@@ -221,6 +221,23 @@ export function AinuiSurface({ messages, onAction, resolveAsset, renderFile }: {
 
 export type FolderChatSend = (turn: { q: string; agentId: string; contextId?: string; signal: AbortSignal; onUpdate: (update: ChatUpdate) => void }) => Promise<ChatUpdate>;
 /** Scope changes unmount the old chat, abort its request and drop its context ids. */
+/**
+ * An agent's message as Markdown — agents answer in it (headings, lists, tables, code). The same
+ * markdown-it the A2UI Text component uses (it sanitizes); the plain text shows until the render lands, so a
+ * streamed message never flickers to empty. A person's own message stays as typed.
+ */
+function AgentText({ text }: { text: string }) {
+  const [html, setHtml] = useState<string | null>(null);
+  useEffect(() => {
+    let live = true;
+    renderMarkdown(text).then(h => { if (live) setHtml(h); }).catch(() => { if (live) setHtml(null); });
+    return () => { live = false; };
+  }, [text]);
+  return html == null
+    ? <div className="ainui-chat-text">{text}</div>
+    : <div className="ainui-chat-text ainui-chat-markdown" dangerouslySetInnerHTML={{ __html: html }} />;
+}
+
 export function AinuiFolderChat(props: { driveId: string; path: string; agents: FolderChatAgent[]; onSend: FolderChatSend }) {
   return <FolderChatSession key={`${props.driveId}:${props.path}`} {...props} />;
 }
