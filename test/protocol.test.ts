@@ -100,3 +100,29 @@ test("FolderChat renders progressive messages and sends a scoped stop action", a
   assert.deepEqual(actions[0].context, { drive_id: "d", path: "photos", operation: "cancel" });
   await act(async () => root.unmount()); dom.window.close();
 });
+
+test("gallery keeps every listed file, distinct scoped paths and stable fallback tiles", async () => {
+  const dom = new JSDOM("<!doctype html><div id='gallery'></div>", { url: "https://example.test" });
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
+  const container = document.getElementById("gallery")!;
+  const root = createRoot(container);
+  const items = Array.from({ length: 237 }, (_, i) => toItem("drive", `Sky Photos/${i}.jpg`, { name: `${i}.jpg`, isDir: false, size: i }, {}));
+  items.push(toItem("drive", "Sky Photos/subfolder", { name: "subfolder", isDir: true }, {}));
+  items.push(toItem("drive", "Sky Photos/readme.txt", { name: "readme.txt", isDir: false }, {}));
+  const actions: any[] = [];
+  await act(async () => root.render(React.createElement(AinuiSurface, {
+    messages: ainuiFolder({ driveId: "drive", path: "Sky Photos", items, env: { view: "grid" } }),
+    onAction: a => { actions.push(a); }, resolveAsset: a => `/files/${a.path}`,
+  })));
+  assert.equal(container.querySelectorAll(".ainui-tile").length, 239);
+  assert.equal(container.querySelectorAll("img").length, 237);
+  assert.match(container.textContent!, /238 files · 1 folders · 237 photos \(this folder only\)/);
+  assert.equal(new Set(Array.from(container.querySelectorAll("img")).map(img => img.src)).size, 237);
+  const failed = container.querySelector("img")!;
+  await act(async () => failed.dispatchEvent(new dom.window.Event("error")));
+  assert.equal(container.querySelectorAll(".ainui-tile-media").length, 239, "failed thumbnails retain a square media slot");
+  await act(async () => (container.querySelectorAll(".ainui-tile")[236] as HTMLButtonElement).click());
+  assert.equal(actions.at(-1).context.path, "Sky Photos/236.jpg");
+  await act(async () => root.unmount());
+  dom.window.close();
+});

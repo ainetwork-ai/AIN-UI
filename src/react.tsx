@@ -47,7 +47,7 @@ const Grid = createBinderlessComponentImplementation(api("Grid", { children: Com
   const p = context.componentModel.properties;
   const spec = p.children as string[] | { componentId: string; path: string };
   const rows = useValue<unknown[]>(context, !Array.isArray(spec) && spec ? { path: spec.path } : []);
-  return <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fit,minmax(min(100%,${Math.max(64, Number(p.minItemWidth) || 128)}px),1fr))`, gap: Number(p.gap) || 8 }}>
+  return <div className="ainui-grid" style={{ display: "grid", width: "100%", minWidth: 0, gridTemplateColumns: `repeat(auto-fill,minmax(min(100%,${Math.max(64, Number(p.minItemWidth) || 128)}px),1fr))`, gap: Number(p.gap) || 8 }}>
     {Array.isArray(spec) ? spec.map((id) => <React.Fragment key={id}>{buildChild(id)}</React.Fragment>) :
       (Array.isArray(rows) ? rows : []).map((_, i) => <React.Fragment key={i}>{buildChild(spec.componentId, `${spec.path}/${i}`)}</React.Fragment>)}
   </div>;
@@ -63,10 +63,13 @@ const Tile = createBinderlessComponentImplementation(api("Tile", { media: dynami
   const src = urlOf(media, resolver);
   const [failed, setFailed] = useState(false);
   useEffect(() => setFailed(false), [src]);
-  return <button style={{ ...box, ...button, textAlign: "left" }} onClick={() => void fire(context)}>
-    {src && !failed ? <img src={src} alt="" loading="lazy" onError={() => setFailed(true)} style={{ width: "100%", aspectRatio: "1", objectFit: "cover", borderRadius: 8 }} /> :
-      <span style={{ fontSize: 40, padding: 24 }}>{kind === "folder" ? "📁" : "📄"}</span>}
-    <span style={{ overflowWrap: "anywhere" }}>{label}</span><small>{caption}</small>
+  return <button className="ainui-tile" style={{ ...box, ...button, width: "100%", height: "100%", textAlign: "left", overflow: "hidden" }} onClick={() => void fire(context)}>
+    <span className="ainui-tile-media" style={{ display: "flex", flex: "0 0 auto", alignItems: "center", justifyContent: "center", width: "100%", aspectRatio: "1", overflow: "hidden", borderRadius: 8, background: "#8882" }}>
+      {src && !failed ? <img src={src} alt="" loading="lazy" onError={() => setFailed(true)} style={{ width: "100%", height: "100%", objectFit: "cover" }} /> :
+        <span style={{ fontSize: 40 }}>{kind === "folder" ? "📁" : "📄"}</span>}
+    </span>
+    <span className="ainui-tile-name" title={label} style={{ display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2, overflow: "hidden", overflowWrap: "anywhere", lineHeight: "1.35em", height: "2.7em" }}>{label}</span>
+    <small style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%" }}>{caption}</small>
   </button>;
 });
 

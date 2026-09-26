@@ -220,10 +220,11 @@ export function ainuiFolder(opts: {
   const toolbar = ["search_field", "search_btn", "view"];
   if (env.canWrite) toolbar.push("new_btn", "upload");
   const body = opts.items.length ? (view === "grid" ? "grid" : "list") : "empty";
-  const rootChildren = ["crumbs", "toolbar", body, ...(opts.note ? ["note"] : [])];
+  const rootChildren = ["crumbs", "toolbar", "inventory", body, ...(opts.note ? ["note"] : [])];
   const comps: A2uiComponent[] = [
     column("root", rootChildren),
     breadcrumbs(),
+    text("inventory", { path: "/inventory" }, "caption"),
     row("toolbar", toolbar, { align: "center" }),
     { id: "search_field", component: "TextField", label: "Search file names", value: { path: "/query" }, weight: 1 },
     button("search_btn", "search_label", "aindrive.search",
@@ -276,6 +277,7 @@ export function ainuiFolder(opts: {
     query: opts.query ?? "",
     new_name: "",
     items: opts.items,
+    inventory: `${opts.items.filter(i => !i.is_dir).length} files · ${opts.items.filter(i => i.is_dir).length} folders · ${opts.items.filter(i => !i.is_dir && i.mime.startsWith("image/")).length} photos (${opts.query ? "search results" : "this folder only"})`,
   });
 }
 
