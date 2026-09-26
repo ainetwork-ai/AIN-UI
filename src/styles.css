@@ -4,3 +4,10 @@
 .ain-ui button:disabled { cursor:default; opacity:.5; }
 .ain-ui img, .ain-ui video { max-width:100%; }
 .ain-ui fieldset { border:0; padding:0; margin:0; min-width:0; }
+.ain-ui label { display:block; margin-block:6px; }
+.ain-ui label input[type=checkbox], .ain-ui label input[type=radio] { margin-inline-end:8px; }
+.ain-ui input[type=text], .ain-ui input[type=number], .ain-ui input[type=password], .ain-ui textarea {
+  width:100%; box-sizing:border-box; padding:8px 10px; border:1px solid #8886; border-radius:6px; color:inherit; background:transparent;
+}
+.ain-ui button:focus-visible, .ain-ui input:focus-visible, .ain-ui textarea:focus-visible { outline:2px solid currentColor; outline-offset:2px; }
+.ain-ui p { margin-block:6px; }

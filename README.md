@@ -105,3 +105,11 @@ npm pack --dry-run
 
 Source extracted from aindrive's existing AINUI implementation. aindrive and
 ainmem consume this package; protocol and component changes belong here.
+
+### Host file previews
+
+`AinuiSurface` accepts `renderFile({ src, download, name, mime, size })` to
+render a `FileView` with the host's document, spreadsheet or other rich preview.
+The URLs have already passed the renderer's URL checks and asset resolver.
+Keep authentication and file permissions in the host's byte-serving routes.
+Omit this callback to use the built-in media preview and download view.

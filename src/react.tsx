@@ -9,6 +9,8 @@ import { AINUI_CATALOG, AINUI_UPLOAD_MAX_BYTES, type AssetRef } from "./ainui.js
 import type { A2uiAction, A2uiMessage } from "./basic.js";
 
 export type AssetResolver = (asset: AssetRef["$asset"], options?: { download?: boolean }) => string;
+export type FileViewRenderer = (file: { src: string; download: string; name: string; mime: string; size?: number }) => React.ReactNode;
+const FileRenderer = createContext<FileViewRenderer | undefined>(undefined);
 const Assets = createContext<AssetResolver>(() => "");
 const box: React.CSSProperties = { display: "flex", flexDirection: "column", gap: 8, minWidth: 0 };
 const button: React.CSSProperties = { padding: "8px 12px", border: "1px solid #8885", borderRadius: 8, color: "inherit", background: "transparent" };
@@ -74,6 +76,9 @@ const FileView = createBinderlessComponentImplementation(api("FileView", { src: 
   const mime = useValue<string>(context, p.mime) || "";
   const resolver = useContext(Assets);
   const src = urlOf(asset, resolver);
+  const render = useContext(FileRenderer);
+  const size = useValue<number>(context, p.size);
+  if (render && src) return <>{render({ src, download: urlOf(asset, resolver, true), name, mime, size })}</>;
   return <div style={box}>
     {src && (mime.startsWith("image/") ? <img src={src} alt={name} style={{ maxHeight: "70vh", objectFit: "contain" }} /> :
       mime.startsWith("video/") ? <video controls src={src} /> : mime.startsWith("audio/") ? <audio controls src={src} /> :
@@ -151,10 +156,11 @@ export const ainuiCatalog = new Catalog(AINUI_CATALOG,
   [...basicCatalog.components.values()].filter((c) => c.name !== "Button").concat([Button, Grid, Tile, FileView, Breadcrumbs, Segmented, FileUpload, X402Payment]),
   [...basicCatalog.functions.values()]);
 
-export function AinuiSurface({ messages, onAction, resolveAsset }: {
+export function AinuiSurface({ messages, onAction, resolveAsset, renderFile }: {
   messages: A2uiMessage[];
   onAction: (action: A2uiAction) => void | Promise<void>;
   resolveAsset?: AssetResolver;
+  renderFile?: FileViewRenderer;
 }) {
   const handler = useRef(onAction);
   handler.current = onAction;
@@ -168,7 +174,7 @@ export function AinuiSurface({ messages, onAction, resolveAsset }: {
   }, [messages]);
   if (error) return <div className="ain-ui" role="alert">{error}</div>;
   if (!processor) return <div className="ain-ui" aria-busy="true" />;
-  return <MarkdownContext.Provider value={renderMarkdown}><Assets.Provider value={resolveAsset ?? (() => "")}><div className="ain-ui">
+  return <MarkdownContext.Provider value={renderMarkdown}><Assets.Provider value={resolveAsset ?? (() => "")}><FileRenderer.Provider value={renderFile}><div className="ain-ui">
     {Array.from(processor.model.surfacesMap.values()).map((surface) => <A2uiSurface key={surface.id} surface={surface} />)}
-  </div></Assets.Provider></MarkdownContext.Provider>;
+  </div></FileRenderer.Provider></Assets.Provider></MarkdownContext.Provider>;
 }

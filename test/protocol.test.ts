@@ -3,7 +3,6 @@ import assert from "node:assert/strict";
 import React, { act } from "react";
 import { createRoot } from "react-dom/client";
 import { JSDOM } from "jsdom";
-import { renderToStaticMarkup } from "react-dom/server";
 import { ainuiPayment, ainuiFolder, ainuiFile, ainuiEditor, toItem, ainuiActivity, messagesFromActivity, dispatchAinuiAction, AINUI_CATALOG, type AinuiDeps } from "../src/index.js";
 import { AinuiSurface } from "../src/react.js";
 
@@ -39,6 +38,28 @@ test("official React renderer draws AIN-UI payment terms and grid", async () => 
   assert.equal(container.querySelector("img")?.getAttribute("src"), "/files/photos/a.png");
   const editor = ainuiEditor({ driveId: "d1", path: "a.txt", content: "hello" });
   assert.match(await draw(editor), /hello/);
+  await act(async () => root.render(React.createElement(AinuiSurface, {
+    messages: file, onAction: () => {}, resolveAsset: (a, opts) => `/authorized/${a.path}${opts?.download ? "?download=1" : ""}`,
+    renderFile: (f) => React.createElement("a", { "data-host-preview": f.mime, href: f.download }, f.name),
+  })));
+  assert.equal(container.querySelector("[data-host-preview]")?.getAttribute("href"), "/authorized/photos/a.png?download=1");
+  assert.equal(container.querySelector("[data-host-preview]")?.getAttribute("data-host-preview"), "image/png");
+  const form = [
+    { version: "v0.9" as const, createSurface: { surfaceId: "form", catalogId: AINUI_CATALOG } },
+    { version: "v0.9" as const, updateComponents: { surfaceId: "form", components: [
+      { id: "root", component: "Column", children: ["name", "choice", "submit"] },
+      { id: "name", component: "TextField", label: "Folder", value: { path: "/name" } },
+      { id: "choice", component: "ChoicePicker", label: "Team", variant: "mutuallyExclusive", options: [{ label: "Family", value: "family" }, { label: "Work", value: "work" }], value: { path: "/team" } },
+      { id: "submit", component: "Button", child: "label", action: { event: { name: "share", context: { name: { path: "/name" }, team: { path: "/team" } } } } },
+      { id: "label", component: "Text", text: "Share" },
+    ] } },
+    { version: "v0.9" as const, updateDataModel: { surfaceId: "form", path: "/", value: { name: "Photos", team: ["family"] } } },
+  ];
+  await draw(form);
+  assert.equal(container.querySelector<HTMLInputElement>('input[type="text"]')?.value, "Photos");
+  await act(async () => { (container.querySelectorAll('input[type="radio"]')[1] as HTMLInputElement).click(); });
+  await act(async () => { container.querySelector("button")!.click(); });
+  assert.deepEqual((actions.at(-1) as any).context, { name: "Photos", team: ["work"] });
   await act(async () => root.unmount());
   dom.window.close();
 });
