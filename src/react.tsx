@@ -6,6 +6,7 @@ import { Catalog, CommonSchemas, MessageProcessor, type ComponentContext } from 
 import { z } from "zod";
 import { renderMarkdown } from "@a2ui/markdown-it";
 import { AINUI_CATALOG, AINUI_UPLOAD_MAX_BYTES, type AssetRef } from "./ainui.js";
+import { ainuiFolderChat, type FolderChatState, type FolderChatAgent, type FolderChatMessage, type ChatUpdate } from "./chat.js";
 import type { A2uiAction, A2uiMessage } from "./basic.js";
 
 export type AssetResolver = (asset: AssetRef["$asset"], options?: { download?: boolean }) => string;
@@ -145,6 +146,25 @@ const X402Payment = createBinderlessComponentImplementation(api("X402Payment", {
   </div>;
 });
 
+const FolderChat = createBinderlessComponentImplementation(api("FolderChat", { value: dynamic, action: CommonSchemas.Action.optional() }), ({ context }) => {
+  const state = useValue<FolderChatState>(context, context.componentModel.properties.value);
+  const [input, setInput] = useState("");
+  if (!state) return null;
+  return <section aria-label="Folder chat" style={box}>
+    <strong>Folder chat · {state.path || "/"}</strong>
+    <label>Agent <select aria-label="Chat agent" disabled={state.busy} value={state.agentId} onChange={e => void fire(context, { operation: "select", agentId: e.target.value })}>
+      {state.agents.map(a => <option key={a.id} value={a.id}>{a.label}</option>)}
+    </select></label>
+    <div role="log" aria-live="polite" style={{ maxHeight: 400, overflowY: "auto" }}>
+      {state.messages.map((m, i) => <div key={i} role={m.role === "error" ? "alert" : undefined} style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", paddingBlock: 8 }}><strong>{m.role === "user" ? "You" : m.role === "error" ? "Error" : state.agents.find(a => a.id === state.agentId)?.label || "Agent"}</strong><div>{m.text}</div></div>)}
+    </div>
+    <form onSubmit={e => { e.preventDefault(); if (input.trim() && !state.busy) { void fire(context, { operation: "send", q: input.trim(), agentId: state.agentId }); setInput(""); } }} style={box}>
+      <textarea aria-label="Message" disabled={state.busy} value={input} onChange={e => setInput(e.target.value)} />
+      {state.busy ? <button type="button" style={button} onClick={() => void fire(context, { operation: "cancel" })}>Stop</button> : <button style={button} disabled={!input.trim() || !state.agentId}>Send</button>}
+    </form>
+  </section>;
+});
+
 // Preserve AIN-UI's confirmation extension on the basic Button.
 const Button = createBinderlessComponentImplementation(api("Button", { child: CommonSchemas.ComponentId, action: CommonSchemas.Action.optional(), confirm: dynamic, variant: dynamic, tone: dynamic }), ({ context, buildChild }) => {
   const p = context.componentModel.properties;
@@ -153,7 +173,7 @@ const Button = createBinderlessComponentImplementation(api("Button", { child: Co
 });
 
 export const ainuiCatalog = new Catalog(AINUI_CATALOG,
-  [...basicCatalog.components.values()].filter((c) => c.name !== "Button").concat([Button, Grid, Tile, FileView, Breadcrumbs, Segmented, FileUpload, X402Payment]),
+  [...basicCatalog.components.values()].filter((c) => c.name !== "Button").concat([Button, Grid, Tile, FileView, Breadcrumbs, Segmented, FileUpload, X402Payment, FolderChat]),
   [...basicCatalog.functions.values()]);
 
 export function AinuiSurface({ messages, onAction, resolveAsset, renderFile }: {
@@ -177,4 +197,36 @@ export function AinuiSurface({ messages, onAction, resolveAsset, renderFile }: {
   return <MarkdownContext.Provider value={renderMarkdown}><Assets.Provider value={resolveAsset ?? (() => "")}><FileRenderer.Provider value={renderFile}><div className="ain-ui">
     {Array.from(processor.model.surfacesMap.values()).map((surface) => <A2uiSurface key={surface.id} surface={surface} />)}
   </div></FileRenderer.Provider></Assets.Provider></MarkdownContext.Provider>;
+}
+
+export type FolderChatSend = (turn: { q: string; agentId: string; contextId?: string; signal: AbortSignal; onUpdate: (update: ChatUpdate) => void }) => Promise<ChatUpdate>;
+/** Scope changes unmount the old chat, abort its request and drop its context ids. */
+export function AinuiFolderChat(props: { driveId: string; path: string; agents: FolderChatAgent[]; onSend: FolderChatSend }) {
+  return <FolderChatSession key={`${props.driveId}:${props.path}`} {...props} />;
+}
+function FolderChatSession({ driveId, path, agents, onSend }: { driveId: string; path: string; agents: FolderChatAgent[]; onSend: FolderChatSend }) {
+  const [agentId, select] = useState(agents[0]?.id ?? "");
+  const [messages, setMessages] = useState<FolderChatMessage[]>([]);
+  const [busy, setBusy] = useState(false);
+  const pending = useRef<AbortController | null>(null);
+  const contexts = useRef(new Map<string, string>());
+  useEffect(() => () => { pending.current?.abort(); pending.current = null; }, []);
+  const selected = agents.some(a => a.id === agentId) ? agentId : agents[0]?.id ?? "";
+  const surface = ainuiFolderChat({ driveId, path, agents, agentId: selected, messages, busy });
+  return <AinuiSurface messages={surface} onAction={async action => {
+    const c = action.context ?? {};
+    if (c.operation === "cancel") { pending.current?.abort(); return; }
+    if (c.operation === "select" && !pending.current) { select(String(c.agentId)); setMessages([]); return; }
+    if (c.operation !== "send" || pending.current || typeof c.q !== "string" || !selected) return;
+    const controller = new AbortController(); pending.current = controller; setBusy(true);
+    setMessages(m => [...m.slice(-98), { role: "user", text: c.q as string }, { role: "agent", text: "" }]);
+    const onUpdate = (u: ChatUpdate) => {
+      if (pending.current !== controller || controller.signal.aborted) return;
+      if (u.contextId) contexts.current.set(selected, u.contextId);
+      setMessages(m => [...m.slice(0, -1), { role: "agent", text: u.text }]);
+    };
+    try { onUpdate(await onSend({ q: c.q, agentId: selected, contextId: contexts.current.get(selected), signal: controller.signal, onUpdate })); }
+    catch (e) { if (pending.current === controller) setMessages(m => [...m, { role: "error", text: controller.signal.aborted ? "Stopped" : (e as Error).message }]); }
+    finally { if (pending.current === controller) { pending.current = null; setBusy(false); } }
+  }} />;
 }

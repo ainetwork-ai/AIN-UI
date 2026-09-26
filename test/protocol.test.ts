@@ -83,3 +83,20 @@ test("upload checks capabilities, names, encoding and size before writing", asyn
   assert.equal(denied.kind === "done" && denied.final.result.kind, "err");
   assert.deepEqual(calls, []);
 });
+
+test("FolderChat renders progressive messages and sends a scoped stop action", async () => {
+  const { ainuiFolderChat } = await import("../src/chat.js");
+  const dom = new JSDOM("<!doctype html><div id='chat'></div>", { url: "https://example.test" });
+  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
+  const container = document.getElementById("chat")!;
+  const root = createRoot(container);
+  const actions: any[] = [];
+  await act(async () => root.render(React.createElement(AinuiSurface, {
+    messages: ainuiFolderChat({ driveId: "d", path: "photos", agents: [{ id: "cloud", label: "Cloud" }], agentId: "cloud", busy: true, messages: [{ role: "agent", text: "Partial answer" }] }), onAction: a => { actions.push(a); },
+  })));
+  assert.match(container.textContent!, /Partial answer/);
+  assert.equal(container.querySelector("textarea")?.disabled, true);
+  await act(async () => (container.querySelector("button") as HTMLButtonElement).click());
+  assert.deepEqual(actions[0].context, { drive_id: "d", path: "photos", operation: "cancel" });
+  await act(async () => root.unmount()); dom.window.close();
+});

@@ -113,3 +113,19 @@ render a `FileView` with the host's document, spreadsheet or other rich preview.
 The URLs have already passed the renderer's URL checks and asset resolver.
 Keep authentication and file permissions in the host's byte-serving routes.
 Omit this callback to use the built-in media preview and download view.
+
+## Folder chat
+
+`ainuiFolderChat(state)` produces the `FolderChat` A2UI catalog component.
+`AinuiFolderChat` from `ain-ui/react` hosts agent selection, progressive replies,
+stop, errors and per-folder/per-agent conversation ids. Supply `onSend` to connect
+the host's authenticated API; it receives an AbortSignal and `onUpdate`.
+`readChatStream` reads AG-UI SSE, including `ainui.chat.snapshot` custom events;
+`ainuiActivity` wraps full folder-chat surfaces for other A2UI hosts.
+`A2aChatAccumulator` combines A2A status/task/artifact events without replaying
+a failed request or duplicating snapshot text. Native agents without streaming
+continue to return one final response.
+
+`listFolderTree` lists descendants within the selected root, with entry, depth
+and directory limits. It reports partial/error results instead of treating them
+as an empty or complete folder. No host credentials belong in UI messages.

@@ -253,6 +253,22 @@ export function createA2uiRenderer(container, { onAction, resolveAsset, assetBas
         break;
       }
       // ── AINUI components ──
+      case "FolderChat": {
+        const chat = resolve(c.value, surf, scope) || {};
+        el.className = "a2ui-column"; el.setAttribute("aria-label", "Folder chat");
+        const title = document.createElement("strong"); title.textContent = `Folder chat · ${chat.path || "/"}`;
+        const select = document.createElement("select"); select.setAttribute("aria-label", "Chat agent"); select.disabled = !!chat.busy;
+        for (const agent of chat.agents || []) { const option = document.createElement("option"); option.value = agent.id; option.textContent = agent.label; select.appendChild(option); }
+        select.value = chat.agentId || "";
+        select.addEventListener("change", () => fire(surfaceId, c, scope, { operation: "select", agentId: select.value }));
+        const log = document.createElement("div"); log.setAttribute("role", "log"); log.setAttribute("aria-live", "polite");
+        for (const message of chat.messages || []) { const line = document.createElement("p"); line.style.whiteSpace = "pre-wrap"; line.textContent = `${message.role}: ${message.text}`; if (message.role === "error") line.setAttribute("role", "alert"); log.appendChild(line); }
+        const form = document.createElement("form"); const input = document.createElement("textarea"); input.setAttribute("aria-label", "Message"); input.disabled = !!chat.busy;
+        const submit = document.createElement("button"); submit.type = chat.busy ? "button" : "submit"; submit.textContent = chat.busy ? "Stop" : "Send";
+        submit.addEventListener("click", () => { if (chat.busy) void fire(surfaceId, c, scope, { operation: "cancel" }); });
+        form.addEventListener("submit", event => { event.preventDefault(); if (input.value.trim() && !chat.busy) void fire(surfaceId, c, scope, { operation: "send", agentId: select.value, q: input.value.trim() }); });
+        form.append(input, submit); el.append(title, select, log, form); break;
+      }
       case "FileUpload": {
         const label = document.createElement("label");
         label.textContent = String(resolve(c.label, surf, scope) || "Upload file");
