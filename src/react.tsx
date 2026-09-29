@@ -7,6 +7,10 @@ import { z } from "zod";
 import { renderMarkdown } from "@a2ui/markdown-it";
 import { AINUI_CATALOG, AINUI_UPLOAD_MAX_BYTES, type AssetRef } from "./ainui.js";
 import { ainuiFolderChat, type FolderChatState, type FolderChatAgent, type FolderChatMessage, type ChatUpdate } from "./chat.js";
+import {
+  AGENT_SCOPES, AGENT_STATUS_LABEL, AVAILABILITY_LABEL, FILE_SCOPES, MORE_LABEL, PAID_BADGE, ROLE_LABEL, SHARE_ORIGIN_LABEL, VISIBILITY_LABEL,
+  agentKey, agentPickReason, capabilityLines, fileKey, filePickReason, type AgentListItem, type FileListItem,
+} from "./pickers.js";
 import type { A2uiAction, A2uiMessage } from "./basic.js";
 
 export type AssetResolver = (asset: AssetRef["$asset"], options?: { download?: boolean }) => string;
@@ -183,6 +187,169 @@ const FolderChat = createBinderlessComponentImplementation(api("FolderChat", { v
   </section>;
 });
 
+// ── Pickers (docs §3 FilePicker / AgentPicker) ─────────────────────────────
+// Every action is a fixed `ainui.picker.*` name (PICKER_ACTIONS) with the
+// component's `context` merged in. Refs are dispatched whole, as listed.
+const dynRecord = z.union([z.record(z.any()), CommonSchemas.DynamicValue]).optional();
+
+function usePickerContext(ctx: ComponentContext): Record<string, unknown> {
+  const raw = ctx.componentModel.properties.context;
+  const bound = useValue<unknown>(ctx, raw && typeof raw === "object" && "path" in (raw as object) ? raw : undefined);
+  const value = bound ?? (raw && typeof raw === "object" && !("path" in (raw as object)) ? raw : {});
+  return value && typeof value === "object" ? (value as Record<string, unknown>) : {};
+}
+
+function pickerDispatch(ctx: ComponentContext, base: Record<string, unknown>, name: string, context: Record<string, unknown>) {
+  return ctx.dispatchAction({ event: { name, context: { ...base, ...context } } });
+}
+
+function PickerHeader({ ctx, base, kind, scopes, scope, query, asOf, cursorExpired }: {
+  ctx: ComponentContext; base: Record<string, unknown>; kind: "file" | "agent"; scopes: ReadonlyArray<{ value: string; label: string }>;
+  scope: string; query: string; asOf?: string; cursorExpired: boolean;
+}) {
+  // Uncontrolled on purpose: the query is only read on submit; a new listing (new `query`) remounts the field.
+  const field = useRef<HTMLInputElement>(null);
+  return <>
+    <div role="tablist" aria-label={kind === "file" ? "파일 범위" : "에이전트 범위"} className="ainui-picker-scopes">
+      {scopes.map((s) => <button key={s.value} type="button" role="tab" aria-selected={scope === s.value} className="ainui-picker-scope"
+        onClick={() => { if (scope !== s.value) void pickerDispatch(ctx, base, "ainui.picker.scope", { kind, scope: s.value }); }}>{s.label}</button>)}
+    </div>
+    <form role="search" className="ainui-picker-search" onSubmit={(e) => { e.preventDefault(); void pickerDispatch(ctx, base, "ainui.picker.search", { kind, query: (field.current?.value ?? "").trim() }); }}>
+      <input key={query} ref={field} type="search" aria-label="검색" placeholder={kind === "file" ? "파일 이름 검색" : "에이전트 검색"} defaultValue={query} />
+      <button type="submit" className="ainui-button">검색</button>
+    </form>
+    {(asOf || cursorExpired) && <div className="ainui-picker-asof">
+      {asOf && <small>기준 시각: <time dateTime={asOf}>{asOf}</time></small>}
+      {cursorExpired && <button type="button" className="ainui-button" onClick={() => void pickerDispatch(ctx, base, "ainui.picker.more", { kind, cursor: null })}>목록이 만료됨 — 처음부터 다시 불러오기</button>}
+    </div>}
+  </>;
+}
+
+function PickerMore({ ctx, base, kind, cursor }: { ctx: ComponentContext; base: Record<string, unknown>; kind: "file" | "agent"; cursor: unknown }) {
+  if (typeof cursor !== "string" || !cursor) return null;
+  return <button type="button" className="ainui-button ainui-picker-more" onClick={() => void pickerDispatch(ctx, base, "ainui.picker.more", { kind, cursor })}>{MORE_LABEL}</button>;
+}
+
+const Badge = ({ tone, children }: { tone?: "warn" | "muted" | "danger"; children: React.ReactNode }) =>
+  <span className={`ainui-picker-badge${tone ? ` ainui-picker-badge-${tone}` : ""}`}>{children}</span>;
+
+const FilePicker = createBinderlessComponentImplementation(api("FilePicker", {
+  items: dynamic, scope: dynamic, query: dynamic, cursor: dynamic, asOf: dynamic, cursorExpired: dynamic,
+  selection: dynamic, selected: dynamic, context: dynRecord,
+}), ({ context: ctx }) => {
+  const p = ctx.componentModel.properties;
+  const items = useValue<FileListItem[]>(ctx, p.items);
+  const scope = useValue<string>(ctx, p.scope) ?? "mine";
+  const query = useValue<string>(ctx, p.query) ?? "";
+  const cursor = useValue<unknown>(ctx, p.cursor);
+  const asOf = useValue<string>(ctx, p.asOf);
+  const cursorExpired = useValue<boolean>(ctx, p.cursorExpired) === true;
+  const selection = useValue<string>(ctx, p.selection) === "multiple" ? "multiple" : "single";
+  const preselected = useValue<string[]>(ctx, p.selected);
+  const base = usePickerContext(ctx);
+  const [chosen, setChosen] = useState<string[]>(() => Array.isArray(preselected) ? preselected : []);
+  useEffect(() => { setChosen(Array.isArray(preselected) ? preselected : []); }, [preselected]);
+  const rows = Array.isArray(items) ? items.filter((i): i is FileListItem => !!i && !!i.ref) : [];
+  const pick = (refs: FileListItem["ref"][]) => pickerDispatch(ctx, base, "ainui.picker.pick", { kind: "file", refs });
+  const toggle = (key: string) => setChosen((c) => c.includes(key) ? c.filter((k) => k !== key) : [...c, key]);
+  const chosenRows = rows.filter((r) => chosen.includes(fileKey(r.ref)) && !filePickReason(r));
+  return <section aria-label="파일 선택" className="ainui-picker ainui-picker-file">
+    <PickerHeader ctx={ctx} base={base} kind="file" scopes={FILE_SCOPES} scope={scope} query={query} asOf={asOf} cursorExpired={cursorExpired} />
+    {rows.length === 0 && <p className="ainui-picker-empty">표시할 파일이 없습니다</p>}
+    <ul className="ainui-picker-list" aria-label="파일 목록">
+      {rows.map((item) => {
+        const key = fileKey(item.ref);
+        const reason = filePickReason(item);
+        const state = item.ref.availability?.state ?? "unknown";
+        const unentitled = !!item.paid && !item.paid.entitled;
+        const isChosen = chosen.includes(key);
+        const pickLabel = selection === "multiple" ? (isChosen ? "선택 해제" : "선택") : "선택";
+        return <li key={key} className={`ainui-picker-row${reason ? " ainui-picker-row-unavailable" : ""}${isChosen ? " ainui-picker-row-selected" : ""}`}
+          aria-selected={isChosen} aria-disabled={!!reason} data-file-key={key}>
+          <span className="ainui-picker-icon" aria-hidden="true"><Glyph kind={item.ref.kind === "folder" ? "folder" : "file"} /></span>
+          <span className="ainui-picker-main">
+            <span className="ainui-picker-name" title={item.ref.displayName}>{item.ref.displayName}</span>
+            <span className="ainui-picker-meta">
+              <Badge>{SHARE_ORIGIN_LABEL[item.shareOrigin] ?? item.shareOrigin}</Badge>
+              <Badge tone="muted">{ROLE_LABEL[item.role] ?? item.role}</Badge>
+              <Badge tone={state === "online" ? undefined : state === "unknown" ? "muted" : "danger"}>{AVAILABILITY_LABEL[state] ?? state}</Badge>
+              {unentitled && <Badge tone="warn">{PAID_BADGE}</Badge>}
+            </span>
+            {reason && <small className="ainui-picker-reason">{reason}</small>}
+          </span>
+          <span className="ainui-picker-actions">
+            <button type="button" className={`ainui-button ainui-picker-pick${isChosen ? "" : " ainui-button-primary"}`} disabled={!!reason}
+              aria-label={reason ? `${item.ref.displayName}: ${reason}` : `${item.ref.displayName} ${pickLabel}`} title={reason ?? undefined}
+              onClick={() => { if (reason) return; if (selection === "multiple") toggle(key); else void pick([item.ref]); }}>{pickLabel}</button>
+            {item.ref.sourceUrl && <button type="button" className="ainui-button ainui-picker-open" aria-label={`${item.ref.displayName} 원본 열기`}
+              onClick={() => void pickerDispatch(ctx, base, "ainui.picker.open", { kind: "file", sourceUrl: item.ref.sourceUrl })}>열기</button>}
+          </span>
+        </li>;
+      })}
+    </ul>
+    <div className="ainui-picker-footer">
+      <PickerMore ctx={ctx} base={base} kind="file" cursor={cursor} />
+      {selection === "multiple" && <button type="button" className="ainui-button ainui-button-primary ainui-picker-done" disabled={chosenRows.length === 0}
+        onClick={() => void pick(chosenRows.map((r) => r.ref))}>{chosenRows.length}개 선택 완료</button>}
+    </div>
+  </section>;
+});
+
+const AgentPicker = createBinderlessComponentImplementation(api("AgentPicker", {
+  items: dynamic, scope: dynamic, query: dynamic, cursor: dynamic, asOf: dynamic, cursorExpired: dynamic,
+  selected: dynamic, renders: dynamic, context: dynRecord,
+}), ({ context: ctx }) => {
+  const p = ctx.componentModel.properties;
+  const items = useValue<AgentListItem[]>(ctx, p.items);
+  const scope = useValue<string>(ctx, p.scope) ?? "mine";
+  const query = useValue<string>(ctx, p.query) ?? "";
+  const cursor = useValue<unknown>(ctx, p.cursor);
+  const asOf = useValue<string>(ctx, p.asOf);
+  const cursorExpired = useValue<boolean>(ctx, p.cursorExpired) === true;
+  const selected = useValue<string>(ctx, p.selected) ?? "";
+  const renders = useValue<string[]>(ctx, p.renders);
+  const base = usePickerContext(ctx);
+  const rows = Array.isArray(items) ? items.filter((i): i is AgentListItem => !!i && !!i.ref) : [];
+  return <section aria-label="에이전트 선택" className="ainui-picker ainui-picker-agent">
+    <PickerHeader ctx={ctx} base={base} kind="agent" scopes={AGENT_SCOPES} scope={scope} query={query} asOf={asOf} cursorExpired={cursorExpired} />
+    {rows.length === 0 && <p className="ainui-picker-empty">표시할 에이전트가 없습니다</p>}
+    <ul className="ainui-picker-list" aria-label="에이전트 목록">
+      {rows.map((item) => {
+        const a = item.ref;
+        const key = agentKey(a);
+        const reason = agentPickReason(item);
+        const caps = capabilityLines(a, Array.isArray(renders) ? renders : []);
+        const isSelected = selected === key;
+        return <li key={key} className={`ainui-picker-row${reason ? " ainui-picker-row-unavailable" : ""}${isSelected ? " ainui-picker-row-selected" : ""}`}
+          aria-selected={isSelected} aria-disabled={!!reason} data-agent-key={key}>
+          <span className="ainui-picker-main">
+            <span className="ainui-picker-name" title={a.displayName}>{a.displayName}</span>
+            {a.description && <span className="ainui-picker-description">{a.description}</span>}
+            <span className="ainui-picker-meta">
+              <Badge tone={a.status === "active" ? undefined : "danger"}>{AGENT_STATUS_LABEL[a.status] ?? a.status}</Badge>
+              <Badge tone="muted">{VISIBILITY_LABEL[a.visibility] ?? a.visibility}</Badge>
+              {(a.skills ?? []).slice(0, 3).map((s) => <Badge key={s.id} tone="muted">{s.name}</Badge>)}
+            </span>
+            <small className="ainui-picker-capabilities">
+              {caps.enabled.length > 0 && <span className="ainui-picker-enabled">지원: {caps.enabled.join(", ")}</span>}
+              {caps.fallbacks.length > 0 && <span className="ainui-picker-fallbacks">대체: {caps.fallbacks.join(", ")}</span>}
+            </small>
+            {reason && <small className="ainui-picker-reason">{reason}</small>}
+          </span>
+          <span className="ainui-picker-actions">
+            <button type="button" className="ainui-button ainui-button-primary ainui-picker-pick" disabled={!!reason}
+              aria-label={reason ? `${a.displayName}: ${reason}` : `${a.displayName} 선택`} title={reason ?? undefined}
+              onClick={() => { if (!reason) void pickerDispatch(ctx, base, "ainui.picker.pick", { kind: "agent", ref: a }); }}>선택</button>
+            <button type="button" className="ainui-button ainui-picker-card" aria-label={`${a.displayName} 에이전트 카드`}
+              onClick={() => void pickerDispatch(ctx, base, "ainui.picker.card", { kind: "agent", agentCardUrl: a.agentCardUrl })}>카드</button>
+          </span>
+        </li>;
+      })}
+    </ul>
+    <div className="ainui-picker-footer"><PickerMore ctx={ctx} base={base} kind="agent" cursor={cursor} /></div>
+  </section>;
+});
+
 // Preserve AIN-UI's confirmation extension on the basic Button.
 const Button = createBinderlessComponentImplementation(api("Button", { child: CommonSchemas.ComponentId, action: CommonSchemas.Action.optional(), confirm: dynamic, variant: dynamic, tone: dynamic }), ({ context, buildChild }) => {
   const p = context.componentModel.properties;
@@ -193,7 +360,7 @@ const Button = createBinderlessComponentImplementation(api("Button", { child: Co
 });
 
 export const ainuiCatalog = new Catalog(AINUI_CATALOG,
-  [...basicCatalog.components.values()].filter((c) => c.name !== "Button").concat([Button, Toolbar, Grid, Tile, FileView, Breadcrumbs, Segmented, FileUpload, X402Payment, FolderChat]),
+  [...basicCatalog.components.values()].filter((c) => c.name !== "Button").concat([Button, Toolbar, Grid, Tile, FileView, Breadcrumbs, Segmented, FileUpload, X402Payment, FolderChat, FilePicker, AgentPicker]),
   [...basicCatalog.functions.values()]);
 
 export function AinuiSurface({ messages, onAction, resolveAsset, renderFile }: {

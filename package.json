@@ -1,6 +1,6 @@
 {
   "name": "ain-ui",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "AIN-UI: A2UI and AG-UI extensions for grids, files, uploads and x402 payments",
   "type": "module",
   "license": "MIT",

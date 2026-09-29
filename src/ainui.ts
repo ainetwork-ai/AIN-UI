@@ -440,12 +440,27 @@ export type AinuiReply =
   /** A skill the action needs is not on the caller's allow-list: nothing ran. */
   | { kind: "refused"; skill: string }
   /** Malformed or unknown action. */
-  | { kind: "invalid"; error: string };
+  | { kind: "invalid"; error: string }
+  /** A picker action (PICKER_ACTIONS): passed through unchanged for the host to act on. */
+  | { kind: "host"; action: A2uiAction };
 
 export const AINUI_ACTIONS = [
   "aindrive.open_drive", "aindrive.open", "aindrive.search", "aindrive.view",
   "aindrive.edit", "aindrive.new_file", "aindrive.save", "aindrive.delete", "aindrive.upload",
 ] as const;
+
+/**
+ * Actions of the FilePicker / AgentPicker components (./pickers.ts, docs §5).
+ * They carry references, never bytes: `pick` returns the full FileRef/AgentRef
+ * objects the origin listed, `open`/`card` a public URL. The dispatcher hands
+ * them to the host untouched (`kind: "host"`) — deciding what a picked
+ * reference may be used for is the host's job, not the renderer's.
+ */
+export const PICKER_ACTIONS = [
+  "ainui.picker.scope", "ainui.picker.search", "ainui.picker.more",
+  "ainui.picker.pick", "ainui.picker.open", "ainui.picker.card",
+] as const;
+export type PickerActionName = (typeof PICKER_ACTIONS)[number];
 
 const err = (code: "invalid_params" | "forbidden" | "not_found" | "internal", message: string): SkillResult =>
   ({ kind: "err", code, message });
@@ -465,6 +480,10 @@ export async function dispatchAinuiAction(action: A2uiAction, deps: AinuiDeps): 
   const c = action.context ?? {};
   const str = (v: unknown) => (typeof v === "string" ? v : "");
   const drive_id = str(c.drive_id) || deps.driveId || "";
+  // Picker actions need no drive and run no skill: the renderer applies no
+  // permission logic to references (the origin already evaluated them at
+  // listing time), and neither does this dispatcher. The host decides.
+  if ((PICKER_ACTIONS as readonly string[]).includes(action.name)) return { kind: "host", action };
   if (!(AINUI_ACTIONS as readonly string[]).includes(action.name)) return { kind: "invalid", error: `unknown action: ${action.name}` };
   if (!drive_id) return { kind: "invalid", error: `${action.name} needs context.drive_id` };
   const path = cleanPath(c.path);

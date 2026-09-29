@@ -41,6 +41,9 @@ All basic A2UI components are available, plus:
 | Segmented | List/grid view selection |
 | FileUpload | Local file selection and upload action, up to 8 MiB per file |
 | X402Payment | Amount, currency, network, recipient and explicit payment action |
+| FolderChat | Per-folder agent chat with agent selection, progressive replies and stop |
+| FilePicker | Common file picker over the shared listing contract: scopes, search, paging, availability and entitlement badges |
+| AgentPicker | Common agent picker: scopes, search, status/visibility, skills and capability fallbacks |
 
 Private files use `{$asset: {drive_id, path, variant, mime, v?}}` references.
 Hosts resolve them through their authenticated asset routes. Browser wallet
@@ -49,7 +52,7 @@ keys and account credentials never belong in a surface.
 ## Producers and transports
 
 The package exports `ainuiFolder`, `ainuiFile`, `ainuiEditor`, `ainuiPayment`,
-`ainuiForSkill`, and `dispatchAinuiAction`. File action execution is injected
+`ainuiFilePicker`, `ainuiAgentPicker`, `ainuiForSkill`, and `dispatchAinuiAction`. File action execution is injected
 with `run`, `allowed`, and `env`; hosts enforce identity, roles and path bounds.
 Aindrive's server adapters implement those callbacks.
 
@@ -114,6 +117,21 @@ render a `FileView` with the host's document, spreadsheet or other rich preview.
 The URLs have already passed the renderer's URL checks and asset resolver.
 Keep authentication and file permissions in the host's byte-serving routes.
 Omit this callback to use the built-in media preview and download view.
+
+## Pickers
+
+`ainuiFilePicker(surfaceId, fileListResponse, { scope, selection })` and
+`ainuiAgentPicker(surfaceId, agentListResponse, { scope, renders })` build the
+`FilePicker` / `AgentPicker` surfaces from the cross-product listing contract
+(`FileListResponse` / `AgentListResponse`; minimal types are exported from `ain-ui`).
+Items live in the data model; both renderers draw scope tabs, search, `더 보기` paging
+and rows with share-origin, role, availability, status and capability badges.
+Offline, deleted, unentitled (`구매 필요`) or non-invocable rows stay visible but
+their pick control is disabled with the reason. Actions `ainui.picker.scope | search |
+more | pick | open | card` (`PICKER_ACTIONS`) go to the host untouched
+(`dispatchAinuiAction` answers `{kind: "host", action}`); `pick` carries the full
+`FileRef[]` / `AgentRef`. The "no credentials in surfaces" rule applies: refs carry a
+public `sourceUrl` / `agentCardUrl` only — never bytes, tokens or signed URLs.
 
 ## Folder chat
 

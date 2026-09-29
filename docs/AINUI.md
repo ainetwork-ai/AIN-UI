@@ -76,6 +76,14 @@ Types: `Dyn<T>` = literal `T` or `{path}`; `Media` = `Dyn<string | AssetRef>`;
 | `FileView` | `src: Media`, `name: Dyn<string>`, `mime?: Dyn<string>`, `size?: Dyn<number>` | Show one file with the host's best viewer (image zoom, video/audio player, PDF, sheet, text, …) and a download affordance. |
 | `Breadcrumbs` | `items: Dyn<{label, path}[]>`, `action: Action` | Path trail; tapping item *i* fires `action` with `context.path` = that item's `path` (context values may bind to the template item). The **last** item is the current location: draw it as plain text, not tappable. |
 | `Segmented` | `options: {value, label}[]`, `value: Dyn<string>`, `action: Action` | A small segmented control (e.g. list/grid); tapping an option writes it to the `value` binding and fires `action` with `context.value` = that option's `value`. |
+| `FilePicker` | `items: Dyn<FileListItem[]>`, `scope: Dyn<"mine"\|"shared_with_me"\|"shared_with_org"\|"recent">`, `query?: Dyn<string>`, `cursor?: Dyn<string\|null>`, `asOf?: Dyn<string>`, `cursorExpired?: Dyn<boolean>`, `selection: Dyn<"single"\|"multiple">`, `selected?: Dyn<string[]>` (fileKeys `issuer#driveId#fileId`), `context?: Dyn<object>` | The common file picker over the cross-product listing contract (`FileListItem = {ref: FileRef, role, shareOrigin, paid?, …}`). Draws scope tabs, a search field, one row per item (kind icon, name, share-origin badge, role, availability badge; `구매 필요` on a paid share the caller is not entitled to) and `더 보기` while `cursor` is non-null. Offline / deleted / unentitled rows stay visible, greyed, with the reason text; their pick control is disabled and announces the reason (`aria-label`), while `열기` still fires `ainui.picker.open` with the ref's `sourceUrl`. `multiple` toggles rows and sends them all with one `N개 선택 완료`. Fires the `ainui.picker.*` actions (§5) with `context` merged in. |
+| `AgentPicker` | `items: Dyn<{ref: AgentRef, canInvoke: boolean}[]>`, `scope: Dyn<"mine"\|"shared_with_me"\|"shared_with_org"\|"public">`, `query?`, `cursor?`, `asOf?`, `cursorExpired?`, `selected?: Dyn<string>` (agentKey `registryIssuer#agentId`), `renders?: Dyn<string[]>` (the consumer's ui capabilities), `context?` | The common agent picker. Rows show `displayName`, `description`, up to 3 skills, a status badge (active / disabled / stopped / deleted), a visibility badge and a capability line: `지원: …` = `ref.uiCapabilities ∩ renders`, `대체: …` = the rest (the consumer falls back per the contract's `FALLBACK` table). `canInvoke=false` or `status != active` keeps the row (and `카드`) but disables `선택` with the reason. |
+
+Picker rows carry **references only** (`FileRef` / `AgentRef` as the origin listed them):
+identity, revision, display name, availability, a public `sourceUrl` / `agentCardUrl`.
+No bytes, tokens, signed URLs or entitlements travel in a picker surface or its actions;
+the host obtains access at use time from the caller's own context. The renderer applies
+no permission logic — the origin's flags only decide which control is enabled.
 
 Extension props on basic components (basic renderers ignore them):
 
@@ -178,6 +186,17 @@ AINUI includes the basic catalog.
 | `aindrive.delete` | drive_id, path | `delete_path(path)` | folder (the parent) |
 | `aindrive.upload` | drive_id, path (folder), name, content, encoding: base64 | validated `write_file` | folder |
 | `aindrive.x402.pay` | share_token, paymentRequired | browser host signs, submits PAYMENT-SIGNATURE | resource result |
+| `ainui.picker.scope` | kind (`file`\|`agent`), scope | host lists the scope (contract `fileListRequest` / `agentListRequest`) | a picker surface (or `updateDataModel`) |
+| `ainui.picker.search` | kind, query | host lists with `q` | picker |
+| `ainui.picker.more` | kind, cursor (`null` after `cursorExpired` = restart) | host lists the next page | picker (host appends or replaces `/items`) |
+| `ainui.picker.pick` | kind: `file`, refs: `FileRef[]` — or kind: `agent`, ref: `AgentRef` | host decides (attach, share, invoke…) | host-defined |
+| `ainui.picker.open` | kind: `file`, sourceUrl | host opens the origin's page | — |
+| `ainui.picker.card` | kind: `agent`, agentCardUrl | host shows the agent card | — |
+
+`ainui.picker.*` actions (`PICKER_ACTIONS`) also carry whatever the component's `context`
+prop holds (a host correlation id, a target slot). `dispatchAinuiAction` runs no skill for
+them: it answers `{kind: "host", action}` so the host decides what a picked reference may be
+used for. Refs go back exactly as listed — the renderer never adds bytes, tokens or paths.
 
 Write actions obey the caller's scope exactly like the tools: an action whose skill the
 token may not call is refused (`unknown tool`/`forbidden`) and nothing is written.
@@ -208,6 +227,20 @@ Precisely (aindrive, `web/shared/a2ui/ainui.ts` `dispatchAinuiAction`):
   ("Saved" / "Deleted") — the write already happened.
 - The reported result (MCP `content`/`structuredContent`, A2A text/data parts, AG-UI
   text message) is the last skill's; AG-UI emits one `TOOL_CALL_*` group per skill.
+
+**Pickers** (`ainuiFilePicker(surfaceId, fileListResponse, {scope, query?, selection?, selected?, context?})`,
+`ainuiAgentPicker(surfaceId, agentListResponse, {scope, query?, selected?, renders?, context?})`):
+
+```
+FilePicker root      items /items, scope /scope, query /query, cursor /cursor, asOf /asOf, cursorExpired /cursorExpired,
+                     selection /selection, selected /selected, context /context
+AgentPicker root     items /items, scope /scope, query /query, cursor /cursor, asOf /asOf, cursorExpired /cursorExpired,
+                     selected /selected, renders /renders, context /context
+data: { items: <response.items>, scope, query, cursor: response.nextCursor, asOf: response.asOf, cursorExpired, …opts }
+```
+
+Every prop is bound, so a host answers `ainui.picker.more` / `scope` / `search` with a single
+`updateDataModel` on the same surface instead of a new surface.
 
 ## 6. Hosts
 
