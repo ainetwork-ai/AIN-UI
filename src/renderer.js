@@ -10,7 +10,8 @@
  * surfaces render anywhere without a build step.
  *
  * AINUI (docs/AINUI.md, catalog AINUI_CATALOG in ./ainui.ts) is understood too:
- * Grid, Tile, FileView, Breadcrumbs, Segmented, Button `tone`/`confirm`,
+ * Grid, Tile, FileView, Breadcrumbs, Segmented, FilePicker, AgentPicker
+ * (the same `ainui.picker.*` payloads as ain-ui/react), Button `tone`/`confirm`,
  * Text `mono`, TextField `longText`, and `{$asset}` references, resolved by
  * `opts.resolveAsset(asset)` or — by default — through aindrive's own routes
  * (`{assetBase}/api/drives/{drive_id}/fs/thumbnail|stream?path=…`), which only
@@ -96,6 +97,43 @@ function pointerSet(obj, pointer, value) {
   o[keys[keys.length - 1]] = value;
   return obj;
 }
+
+// ── Pickers (docs §3 FilePicker / AgentPicker; labels mirror ./pickers.ts) ──
+// Everything user-supplied goes through textContent. The renderer applies no
+// permission logic: the origin's availability / entitlement / canInvoke flags
+// only decide whether the pick control is enabled and what reason it announces.
+const PICKER = {
+  fileScopes: [["mine", "내 파일"], ["shared_with_me", "나에게 공유됨"], ["shared_with_org", "조직 공유"], ["recent", "최근"]],
+  agentScopes: [["mine", "내 에이전트"], ["shared_with_me", "나에게 공유됨"], ["shared_with_org", "조직 공유"], ["public", "공개"]],
+  shareOrigin: { own: "내 파일", direct: "직접 공유", org: "조직 공유", link: "링크 공유", paid: "유료 공유" },
+  role: { owner: "소유자", editor: "편집 가능", viewer: "보기 전용", none: "권한 없음" },
+  availability: { online: "온라인", offline: "오프라인", deleted: "삭제됨", unknown: "확인 안 됨" },
+  agentStatus: { active: "활성", disabled: "비활성", stopped: "중지됨", deleted: "삭제됨" },
+  visibility: { public: "공개", org: "조직", private: "비공개", unlisted: "링크 공개" },
+  paidBadge: "구매 필요",
+  more: "더 보기",
+};
+const fileKey = (r) => `${r.issuer}#${r.driveId}#${r.fileId}`;
+const agentKey = (r) => `${r.registryIssuer}#${r.agentId}`;
+function filePickReason(item) {
+  const state = item.ref.availability && item.ref.availability.state;
+  if (state === "offline") return "오프라인: 보관 기기가 연결되어 있지 않아 지금은 사용할 수 없습니다";
+  if (state === "deleted") return "삭제됨: 원본이 더 이상 존재하지 않습니다";
+  if (item.paid && !item.paid.entitled) return "구매 필요: 구매 후 사용할 수 있습니다";
+  return null;
+}
+function agentPickReason(item) {
+  if (item.ref.status !== "active") return `${PICKER.agentStatus[item.ref.status] || item.ref.status}: 새 호출을 받지 않습니다`;
+  if (!item.canInvoke) return "호출 권한이 없습니다";
+  return null;
+}
+function mk(tag, className, text) {
+  const e = document.createElement(tag);
+  if (className) e.className = className;
+  if (text !== undefined) e.textContent = String(text);
+  return e;
+}
+const badge = (text, tone) => mk("span", `ainui-picker-badge${tone ? ` ainui-picker-badge-${tone}` : ""}`, text);
 
 /**
  * @param {HTMLElement} container
@@ -452,6 +490,137 @@ export function createA2uiRenderer(container, { onAction, resolveAsset, assetBas
         }
         break;
       }
+      case "FilePicker":
+      case "AgentPicker": {
+        const isFile = c.component === "FilePicker";
+        const kind = isFile ? "file" : "agent";
+        const items = resolve(c.items, surf, scope);
+        const rows = (Array.isArray(items) ? items : []).filter((i) => i && i.ref);
+        const rawCtx = c.context && typeof c.context === "object" && typeof c.context.path === "string" ? resolve(c.context, surf, scope) : c.context;
+        const base = rawCtx && typeof rawCtx === "object" ? rawCtx : {};
+        const send = (name, context) => onAction && onAction({ name, surfaceId, sourceComponentId: c.id, timestamp: new Date().toISOString(), context: { ...base, ...context } });
+        const current = String(resolve(c.scope, surf, scope) ?? "mine");
+        el.className = `ainui-picker ainui-picker-${kind}`;
+        el.setAttribute("aria-label", isFile ? "파일 선택" : "에이전트 선택");
+        // scope tabs
+        const tabs = mk("div", "ainui-picker-scopes");
+        tabs.setAttribute("role", "tablist"); tabs.setAttribute("aria-label", isFile ? "파일 범위" : "에이전트 범위");
+        for (const [value, label] of (isFile ? PICKER.fileScopes : PICKER.agentScopes)) {
+          const b = mk("button", "ainui-picker-scope", label);
+          b.type = "button"; b.setAttribute("role", "tab"); b.setAttribute("aria-selected", String(value === current));
+          b.addEventListener("click", () => { if (value !== current) send("ainui.picker.scope", { kind, scope: value }); });
+          tabs.appendChild(b);
+        }
+        // search
+        const form = mk("form", "ainui-picker-search"); form.setAttribute("role", "search");
+        const input = mk("input"); input.type = "search"; input.setAttribute("aria-label", "검색");
+        input.placeholder = isFile ? "파일 이름 검색" : "에이전트 검색";
+        input.value = String(resolve(c.query, surf, scope) ?? "");
+        const go = mk("button", "a2ui-button", "검색"); go.type = "submit";
+        form.addEventListener("submit", (e) => { e.preventDefault(); send("ainui.picker.search", { kind, query: input.value.trim() }); });
+        form.append(input, go);
+        el.append(tabs, form);
+        // as-of / expired cursor
+        const asOf = resolve(c.asOf, surf, scope);
+        const expired = resolve(c.cursorExpired, surf, scope) === true;
+        if (asOf || expired) {
+          const line = mk("div", "ainui-picker-asof");
+          if (asOf) { const t = mk("small"); t.textContent = "기준 시각: "; const time = mk("time", "", asOf); time.dateTime = String(asOf); t.appendChild(time); line.appendChild(t); }
+          if (expired) { const r = mk("button", "a2ui-button", "목록이 만료됨 — 처음부터 다시 불러오기"); r.type = "button"; r.addEventListener("click", () => send("ainui.picker.more", { kind, cursor: null })); line.appendChild(r); }
+          el.appendChild(line);
+        }
+        if (!rows.length) el.appendChild(mk("p", "ainui-picker-empty", isFile ? "표시할 파일이 없습니다" : "표시할 에이전트가 없습니다"));
+        const list = mk("ul", "ainui-picker-list"); list.setAttribute("aria-label", isFile ? "파일 목록" : "에이전트 목록");
+        const multiple = isFile && resolve(c.selection, surf, scope) === "multiple";
+        const preselected = resolve(c.selected, surf, scope);
+        const chosen = new Set(isFile ? (Array.isArray(preselected) ? preselected : []) : []);
+        const selectedAgent = !isFile && typeof preselected === "string" ? preselected : "";
+        const doneBtn = multiple ? mk("button", "a2ui-button a2ui-button-primary ainui-picker-done") : null;
+        const syncDone = () => { if (!doneBtn) return; const n = rows.filter((r) => chosen.has(fileKey(r.ref)) && !filePickReason(r)).length; doneBtn.textContent = `${n}개 선택 완료`; doneBtn.disabled = n === 0; };
+        for (const item of rows) {
+          const ref = item.ref;
+          const key = isFile ? fileKey(ref) : agentKey(ref);
+          const reason = isFile ? filePickReason(item) : agentPickReason(item);
+          const li = mk("li", `ainui-picker-row${reason ? " ainui-picker-row-unavailable" : ""}`);
+          li.setAttribute("aria-disabled", String(!!reason));
+          li.setAttribute(isFile ? "data-file-key" : "data-agent-key", key);
+          const setSelected = (on) => { li.setAttribute("aria-selected", String(on)); li.classList.toggle("ainui-picker-row-selected", on); };
+          setSelected(isFile ? chosen.has(key) : selectedAgent === key);
+          if (isFile) { const icon = mk("span", "ainui-picker-icon"); icon.setAttribute("aria-hidden", "true"); icon.appendChild(kindIcon(ref.kind === "folder" ? "folder" : "file")); li.appendChild(icon); }
+          const main = mk("span", "ainui-picker-main");
+          const name = mk("span", "ainui-picker-name", ref.displayName); name.title = String(ref.displayName ?? "");
+          main.appendChild(name);
+          if (!isFile && ref.description) main.appendChild(mk("span", "ainui-picker-description", ref.description));
+          const meta = mk("span", "ainui-picker-meta");
+          if (isFile) {
+            const state = (ref.availability && ref.availability.state) || "unknown";
+            meta.append(badge(PICKER.shareOrigin[item.shareOrigin] || item.shareOrigin), badge(PICKER.role[item.role] || item.role, "muted"),
+              badge(PICKER.availability[state] || state, state === "online" ? "" : state === "unknown" ? "muted" : "danger"));
+            if (item.paid && !item.paid.entitled) meta.appendChild(badge(PICKER.paidBadge, "warn"));
+          } else {
+            meta.append(badge(PICKER.agentStatus[ref.status] || ref.status, ref.status === "active" ? "" : "danger"), badge(PICKER.visibility[ref.visibility] || ref.visibility, "muted"));
+            for (const sk of (Array.isArray(ref.skills) ? ref.skills : []).slice(0, 3)) meta.appendChild(badge(sk.name, "muted"));
+          }
+          main.appendChild(meta);
+          if (!isFile) {
+            const renders = resolve(c.renders, surf, scope);
+            const r = new Set(Array.isArray(renders) ? renders : []);
+            const caps = Array.isArray(ref.uiCapabilities) ? ref.uiCapabilities : [];
+            const enabled = caps.filter((x) => r.has(x)), fallbacks = caps.filter((x) => !r.has(x));
+            const line = mk("small", "ainui-picker-capabilities");
+            if (enabled.length) line.appendChild(mk("span", "ainui-picker-enabled", `지원: ${enabled.join(", ")}`));
+            if (fallbacks.length) line.appendChild(mk("span", "ainui-picker-fallbacks", `대체: ${fallbacks.join(", ")}`));
+            main.appendChild(line);
+          }
+          if (reason) main.appendChild(mk("small", "ainui-picker-reason", reason));
+          li.appendChild(main);
+          const actions = mk("span", "ainui-picker-actions");
+          const pick = mk("button", `a2ui-button ainui-picker-pick${chosen.has(key) ? "" : " a2ui-button-primary"}`, multiple && chosen.has(key) ? "선택 해제" : "선택");
+          pick.type = "button"; pick.disabled = !!reason;
+          pick.setAttribute("aria-label", reason ? `${ref.displayName}: ${reason}` : `${ref.displayName} ${pick.textContent}`);
+          if (reason) pick.title = reason;
+          pick.addEventListener("click", () => {
+            if (reason) return;
+            if (!isFile) return send("ainui.picker.pick", { kind: "agent", ref });
+            if (!multiple) return send("ainui.picker.pick", { kind: "file", refs: [ref] });
+            if (chosen.has(key)) chosen.delete(key); else chosen.add(key);
+            const on = chosen.has(key);
+            setSelected(on); pick.textContent = on ? "선택 해제" : "선택"; pick.classList.toggle("a2ui-button-primary", !on);
+            pick.setAttribute("aria-label", `${ref.displayName} ${pick.textContent}`);
+            syncDone();
+          });
+          actions.appendChild(pick);
+          if (isFile && ref.sourceUrl) {
+            const open = mk("button", "a2ui-button ainui-picker-open", "열기"); open.type = "button";
+            open.setAttribute("aria-label", `${ref.displayName} 원본 열기`);
+            open.addEventListener("click", () => send("ainui.picker.open", { kind: "file", sourceUrl: ref.sourceUrl }));
+            actions.appendChild(open);
+          }
+          if (!isFile) {
+            const card = mk("button", "a2ui-button ainui-picker-card", "카드"); card.type = "button";
+            card.setAttribute("aria-label", `${ref.displayName} 에이전트 카드`);
+            card.addEventListener("click", () => send("ainui.picker.card", { kind: "agent", agentCardUrl: ref.agentCardUrl }));
+            actions.appendChild(card);
+          }
+          li.appendChild(actions);
+          list.appendChild(li);
+        }
+        el.appendChild(list);
+        const footer = mk("div", "ainui-picker-footer");
+        const cursor = resolve(c.cursor, surf, scope);
+        if (typeof cursor === "string" && cursor) {
+          const more = mk("button", "a2ui-button ainui-picker-more", PICKER.more); more.type = "button";
+          more.addEventListener("click", () => send("ainui.picker.more", { kind, cursor }));
+          footer.appendChild(more);
+        }
+        if (doneBtn) {
+          doneBtn.type = "button"; syncDone();
+          doneBtn.addEventListener("click", () => send("ainui.picker.pick", { kind: "file", refs: rows.filter((r) => chosen.has(fileKey(r.ref)) && !filePickReason(r)).map((r) => r.ref) }));
+          footer.appendChild(doneBtn);
+        }
+        el.appendChild(footer);
+        break;
+      }
       default:
         // Unknown component: draw its children if it has any, else nothing (AINUI §3).
         el.className = "a2ui-unknown";
@@ -554,5 +723,27 @@ export const A2UI_RENDERER_CSS = `
 .a2ui-segmented{display:inline-flex;border:1px solid #dce3ec;border-radius:999px;overflow:hidden}
 .a2ui-segment{font:inherit;border:0;background:#fff;color:inherit;padding:4px 14px;cursor:pointer;min-height:36px}
 .a2ui-segment[aria-pressed=true]{background:#0b57d0;color:#fff}
+.ainui-picker{display:flex;flex-direction:column;gap:10px;min-width:0}
+.ainui-picker-scopes{display:flex;flex-wrap:wrap;gap:4px;padding:3px;border:1px solid #dce3ec;border-radius:10px;background:#f2f5f9}
+.ainui-picker-scope{font:inherit;border:0;border-radius:7px;background:transparent;color:#54607a;padding:6px 12px;min-height:36px;cursor:pointer}
+.ainui-picker-scope[aria-selected=true]{background:#fff;color:inherit;box-shadow:0 1px 3px #00000014}
+.ainui-picker-search{display:flex;gap:6px}.ainui-picker-search input{flex:1;min-width:0;font:inherit;border:1px solid #dce3ec;border-radius:999px;padding:6px 12px}
+.ainui-picker-asof{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:12px;color:#54607a}
+.ainui-picker-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:2px}
+.ainui-picker-row{display:flex;align-items:center;gap:10px;padding:8px;border-radius:10px}
+.ainui-picker-row:hover{background:#eaeef4}.ainui-picker-row-selected{background:#e3ecfb}
+.ainui-picker-row-unavailable .ainui-picker-main{opacity:.55}
+.ainui-picker-icon{font-size:22px}.ainui-picker-main{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+.ainui-picker-name{font-weight:600;overflow-wrap:anywhere}.ainui-picker-description{font-size:13px;color:#54607a}
+.ainui-picker-meta{display:flex;flex-wrap:wrap;gap:4px}
+.ainui-picker-badge{font-size:11px;line-height:18px;padding:0 7px;border-radius:999px;background:#eaeef4;color:inherit}
+.ainui-picker-badge-muted{background:transparent;border:1px solid #dce3ec;color:#54607a}.ainui-picker-badge-warn{background:#fff3cd;color:#7a4b00}.ainui-picker-badge-danger{background:#fde7e6;color:#8c1d18}
+.ainui-picker-capabilities{display:flex;flex-wrap:wrap;gap:8px;font-size:12px;color:#54607a}.ainui-picker-fallbacks{color:#7a4b00}
+.ainui-picker-reason{font-size:12px;color:#8c1d18;opacity:1}
+.ainui-picker-actions{display:flex;flex-direction:column;gap:4px;flex:0 0 auto}
+.ainui-picker-footer{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between}.ainui-picker-footer:empty{display:none}
+.ainui-picker-empty{margin:0;color:#54607a}
+@media (max-width:600px){.ainui-picker-row{flex-wrap:wrap}.ainui-picker-actions{flex-direction:row;width:100%;justify-content:flex-end}}
+@media (prefers-color-scheme:dark){.ainui-picker-scopes{background:#1b1f27;border-color:#343b48}.ainui-picker-scope[aria-selected=true]{background:#262c36}.ainui-picker-search input{background:#1b1f27;border-color:#343b48;color:inherit}.ainui-picker-row:hover{background:#262c36}.ainui-picker-row-selected{background:#1e2a44}.ainui-picker-badge{background:#262c36}.ainui-picker-badge-muted{border-color:#343b48;color:#9aa4b8}.ainui-picker-badge-warn{background:#4a3200;color:#ffd77a}.ainui-picker-badge-danger{background:#4a1512;color:#f2b8b5}.ainui-picker-reason{color:#f2b8b5}.ainui-picker-fallbacks{color:#ffd77a}}
 @media (prefers-color-scheme:dark){.a2ui-surface{color:#e6e9ef}.a2ui-card,.a2ui-button,.a2ui-textfield input,.a2ui-textfield textarea,.a2ui-segment{background:#1b1f27;border-color:#343b48;color:inherit}.a2ui-segmented{border-color:#343b48}.a2ui-segment[aria-pressed=true]{background:#0b57d0;color:#fff}.a2ui-button:hover,.a2ui-button-borderless:hover,.a2ui-tile:hover,.a2ui-crumb:hover{background:#262c36}.a2ui-text pre,.a2ui-tile-media,.a2ui-fileview-icon,.a2ui-fileview-img,.a2ui-fileview-video{background:#262c36}.a2ui-text-caption,.a2ui-tile-caption,.a2ui-crumb-sep{color:#9aa4b8}.a2ui-crumb{color:#a8c7fa}.a2ui-button-danger{color:#f2b8b5;border-color:#8c1d18}}
 `;
