@@ -1,0 +1,24 @@
+# ainize: AIN-UI is a library (no server). The build installs deps, compiles, and runs
+# the test suite (a failing build or test fails the deploy), then serves the README
+# and docs/AINUI.md rendered as static HTML on $PORT.
+FROM node:22-alpine AS build
+WORKDIR /src
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build && npm test
+RUN mkdir -p /site \
+ && for f in README.md docs/AINUI.md; do \
+      n=$(basename "$f" .md); [ "$n" = README ] && n=index; \
+      { printf '<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AIN-UI</title><style>body{font-family:system-ui,sans-serif;max-width:860px;margin:2rem auto;padding:0 1rem;line-height:1.55}pre{background:#f4f4f4;padding:1rem;overflow:auto}table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:.3rem .6rem}</style></head><body><p><a href="/">README</a> | <a href="/AINUI.html">AINUI spec</a> | <a href="/catalog.json">catalog.json</a></p>'; \
+        npx --yes marked@15.0.12 -i "$f"; printf '</body></html>'; } > /site/$n.html; \
+    done \
+ && cp dist/catalog.json /site/catalog.json
+
+FROM node:22-alpine
+WORKDIR /site
+COPY --from=build /site /site
+ENV PORT=8080
+USER node
+EXPOSE 8080
+CMD ["node", "-e", "const h=require('http'),f=require('fs'),p=require('path');const t={'.html':'text/html; charset=utf-8','.json':'application/json'};h.createServer((q,r)=>{let u=decodeURIComponent(q.url.split('?')[0]);if(u==='/'||u==='/health')u='/index.html';const fp=p.join('/site',p.normalize(u));if(!fp.startsWith('/site/')||!f.existsSync(fp)){r.writeHead(404);return r.end('not found')}r.writeHead(200,{'content-type':t[p.extname(fp)]||'application/octet-stream'});f.createReadStream(fp).pipe(r)}).listen(+process.env.PORT||8080,'0.0.0.0')"]
