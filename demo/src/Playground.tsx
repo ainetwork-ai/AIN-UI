@@ -13,9 +13,21 @@ const SUGGESTIONS = [
   "A pricing page with three plans",
 ];
 
-export function Stage({ turns, theme, onAction, onSend, showSource }: {
+/** The component the pointer is over: which turn and surface it is drawn in, and its id there. */
+export type Hovered = { turnId: string; surfaceKey: string; id: string };
+
+/** A component as the surface received it (after the model's repairs), found by id in that surface's messages. */
+export function componentOf(messages: readonly any[], id: string): Record<string, unknown> | null {
+  let found: Record<string, unknown> | null = null;
+  for (const m of messages) for (const c of m?.createSurface?.components ?? m?.updateComponents?.components ?? []) if (c?.id === id) found = c;
+  return found;
+}
+
+export function Stage({ turns, theme, onAction, onSend, showSource, onHover, hovered }: {
   turns: Turn[]; theme: string; showSource: boolean;
   onAction?: (action: any) => void; onSend?: (text: string) => void;
+  /** With this, the surfaces are drawn in inspect mode and hovering a component reports it. */
+  onHover?: (hovered: Hovered | null) => void; hovered?: Hovered | null;
 }) {
   const end = useRef<HTMLDivElement>(null);
   const count = turns.reduce((n, t) => n + t.surfaces.length + t.sources.length + (t.text ? 1 : 0), turns.length);
@@ -25,8 +37,15 @@ export function Stage({ turns, theme, onAction, onSend, showSource }: {
       ? <div key={t.id} className={`pg-msg pg-user${t.action ? " pg-action" : ""}`}>{t.action ? <><span className="pg-chip">action</span> {t.action.name}</> : t.text}</div>
       : <div key={t.id} className="pg-msg pg-assistant">
         {t.text && <p className="pg-text">{t.text}</p>}
-        {t.surfaces.map((s) => <div key={s.key} className="pg-surface">
-          <AinuiSurface messages={s.messages} theme={theme} onAction={(a) => onAction?.(a)} sendMessage={onSend}
+        {t.surfaces.map((s) => <div key={s.key} className="pg-surface"
+          onMouseOver={onHover && ((e) => {
+            const el = (e.target as Element).closest?.("[data-ainui-id]");
+            const id = el?.getAttribute("data-ainui-id");
+            if (id && !(hovered?.surfaceKey === s.key && hovered.id === id)) onHover({ turnId: t.id, surfaceKey: s.key, id });
+          })}
+          onMouseLeave={onHover && (() => onHover(null))}>
+          {hovered?.surfaceKey === s.key && <style>{`.pg-surface [data-ainui-id="${CSS.escape(hovered.id)}"] > * { outline: 2px solid var(--accent, #6b5cff); outline-offset: 2px; border-radius: 4px; }`}</style>}
+          <AinuiSurface messages={s.messages} theme={theme} onAction={(a) => onAction?.(a)} sendMessage={onSend} inspect={!!onHover}
             resolveAsset={(asset) => `/sample/${asset.path}`} />
         </div>)}
         {t.notes.map((n, i) => <p key={i} className="pg-note">{n}</p>)}
@@ -44,15 +63,38 @@ export function Stage({ turns, theme, onAction, onSend, showSource }: {
   </div>;
 }
 
+/** Lines of the model's source that write this component: those naming its id, for Express and JSON alike. */
+function linesOf(source: string, id: string): Set<number> {
+  const hit = new Set<number>();
+  // A repair may have renamed it (f-name → f_name): the model's spelling may have either.
+  const esc = [...new Set([id, id.replace(/_/g, "-")])].map((v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|").replace(/^(.*)$/, "(?:$1)");
+  const express = new RegExp(`^\\s*${esc}\\s*=`), json = new RegExp(`\\\\?"id\\\\?"\\s*:\\s*\\\\?"${esc}\\\\?"`);
+  source.split("\n").forEach((l, i) => { if (express.test(l) || json.test(l)) hit.add(i); });
+  return hit;
+}
+
+/** The hovered component: what the renderer received for it, as JSON. */
+function ComponentCard({ component, id }: { component: Record<string, unknown> | null; id: string }) {
+  return <section className="pg-inspect" aria-live="polite">
+    <header className="pg-pane-head"><strong>{String(component?.component ?? "Component")}</strong><span className="pg-pane-meta">id {id}</span></header>
+    {component ? <pre className="pg-pane-code pg-inspect-code"><code>{JSON.stringify(component, null, 2)}</code></pre>
+      : <p className="pg-note pg-pane-note">Not found in this surface's messages.</p>}
+  </section>;
+}
+
 /** What the model wrote for the latest answer, beside the conversation: every attempt, the rejected ones with why. */
-function SourcePane({ turn }: { turn?: Turn }) {
+function SourcePane({ turn, hovered, component }: { turn?: Turn; hovered?: Hovered | null; component?: Record<string, unknown> | null }) {
   const [pick, setPick] = useState<number | null>(null);
   const sources = turn?.sources ?? [];
   useEffect(() => setPick(null), [turn?.id, sources.length]);
   const at = pick ?? sources.length - 1;
   const shown = sources[at];
   const lines = shown ? shown.source.split("\n") : [];
+  const marked = hovered && shown ? linesOf(shown.source, hovered.id) : new Set<number>();
+  const code = useRef<HTMLPreElement>(null);
+  useEffect(() => { code.current?.querySelector(".pg-pane-hit")?.scrollIntoView?.({ block: "nearest" }); }, [hovered?.id, hovered?.surfaceKey]);
   return <aside className="pg-pane" aria-label="What the model wrote">
+    {hovered && <ComponentCard component={component ?? null} id={hovered.id} />}
     <header className="pg-pane-head">
       <strong>{turn?.stats?.model ?? "The model"} wrote</strong>
       {shown && <span className="pg-pane-meta">{shown.format === "express" ? "A2UI Express" : "A2UI JSON"} · {lines.length} lines · {(shown.ms / 1000).toFixed(1)} s</span>}
@@ -62,7 +104,7 @@ function SourcePane({ turn }: { turn?: Turn }) {
         Try {i + 1}{s.rejected ? " ✕" : " ✓"}</button>)}</div>}
     {turn?.writing && !shown && <p className="pg-note pg-pane-note">Writing… {turn.writing.chars.toLocaleString()} characters</p>}
     {shown?.rejected && <p className="pg-pane-reason">{shown.rejected}</p>}
-    {shown ? <pre className="pg-pane-code"><code>{lines.map((l, i) => <span key={i} className="pg-pane-line"><span className="pg-pane-no">{i + 1}</span>{l}{"\n"}</span>)}</code></pre>
+    {shown ? <pre ref={code} className="pg-pane-code"><code>{lines.map((l, i) => <span key={i} className={`pg-pane-line${marked.has(i) ? " pg-pane-hit" : ""}`}><span className="pg-pane-no">{i + 1}</span>{l}{"\n"}</span>)}</code></pre>
       : !turn?.writing && <p className="pg-note pg-pane-note">Nothing yet. Ask for a UI and the source appears here.</p>}
     {turn?.notes.length ? <ul className="pg-pane-notes">{turn.notes.map((n, i) => <li key={i}>{n}</li>)}</ul> : null}
   </aside>;
@@ -74,6 +116,7 @@ export function Playground({ embed }: { embed: boolean }) {
   const [models, setModels] = useState<string[]>([]);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
+  const [hovered, setHovered] = useState<Hovered | null>(null);
   const pending = useRef<AbortController | null>(null);
   const capabilities = useMemo(() => ainuiCapabilities(), []);
 
@@ -95,6 +138,9 @@ export function Playground({ embed }: { embed: boolean }) {
 
   const latest = [...turns].reverse().find((t) => t.role === "assistant" && (t.sources.length || t.writing));
   const pane = settings.source && turns.length > 0;
+  // Hovering a component shows that turn's source (not only the latest) with the component's lines marked.
+  const hoveredTurn = hovered ? turns.find((t) => t.id === hovered.turnId) : undefined;
+  const hoveredComponent = hovered && hoveredTurn ? componentOf(hoveredTurn.surfaces.find((x) => x.key === hovered.surfaceKey)?.messages ?? [], hovered.id) : null;
   return <div className={`pg${embed ? " pg-embed" : ""}${pane ? " pg-with-pane" : ""}`}>
     <div className="pg-column">
     <div className="pg-main">
@@ -104,6 +150,7 @@ export function Playground({ embed }: { embed: boolean }) {
         <div className="pg-suggestions">{SUGGESTIONS.map((s) => <button key={s} type="button" onClick={() => send(s)} disabled={!model}>{s}</button>)}</div>
         {!model && <p className="pg-note">No model is connected to this playground right now. The recorded runs under <a href="/watch">Watch</a> still play.</p>}
       </div> : <Stage turns={turns} theme={settings.theme} showSource={settings.source}
+        onHover={pane ? setHovered : undefined} hovered={hovered}
         onAction={(a) => void start({ text: a.name, action: { name: a.name, surfaceId: a.surfaceId, context: a.context } })} onSend={send} />}
     </div>
     <form className="pg-composer" onSubmit={(e) => { e.preventDefault(); send(draft); }}>
@@ -121,6 +168,6 @@ export function Playground({ embed }: { embed: boolean }) {
       </div>
     </form>
     </div>
-    {pane && <SourcePane turn={latest} />}
+    {pane && <SourcePane turn={hoveredTurn ?? latest} hovered={hovered} component={hoveredComponent} />}
   </div>;
 }

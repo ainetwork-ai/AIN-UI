@@ -8,7 +8,7 @@ import { renderMarkdown } from "@a2ui/markdown-it";
 import { upgradeMessages, type A2uiAction, type A2uiMessage } from "../protocol.js";
 import { ainuiFolderChat, type ChatUpdate, type FolderChatAgent, type FolderChatMessage } from "../chat.js";
 import { ainuiCatalog } from "./catalog.js";
-import { HostContext, type AssetResolver, type FileViewRenderer, type Host } from "./core.js";
+import { HostContext, InspectContext, type AssetResolver, type FileViewRenderer, type Host } from "./core.js";
 
 const catalogs = [ainuiCatalog, basicCatalog] as never;
 
@@ -37,9 +37,11 @@ export type AinuiSurfaceProps = {
   /** Design system: "ain" (default), "plain" or "material", or any name the host styles via `[data-ainui-theme]`. */
   theme?: string;
   className?: string;
+  /** Tag each drawn component with its id (`data-ainui-id`), for tools that show a component's source on hover. */
+  inspect?: boolean;
 };
 
-export function AinuiSurface({ messages, onAction, onMessage, onError, resolveAsset, renderFile, sendMessage, openUrl, theme, className }: AinuiSurfaceProps) {
+export function AinuiSurface({ messages, onAction, onMessage, onError, resolveAsset, renderFile, sendMessage, openUrl, theme, className, inspect = false }: AinuiSurfaceProps) {
   const handlers = useRef({ onAction, onMessage, onError });
   handlers.current = { onAction, onMessage, onError };
   const live = useRef<{ processor: MessageProcessor<never>; seen: readonly A2uiMessage[] } | null>(null);
@@ -84,9 +86,9 @@ export function AinuiSurface({ messages, onAction, onMessage, onError, resolveAs
   const shell = `ain-ui${className ? ` ${className}` : ""}`;
   if (state.error) return <div className={shell} data-ainui-theme={theme} role="alert">{state.error}</div>;
   if (!state.processor) return <div className={shell} data-ainui-theme={theme} aria-busy="true" />;
-  return <MarkdownContext.Provider value={renderMarkdown}><HostContext.Provider value={host}><div className={shell} data-ainui-theme={theme}>
+  return <InspectContext.Provider value={inspect}><MarkdownContext.Provider value={renderMarkdown}><HostContext.Provider value={host}><div className={shell} data-ainui-theme={theme}>
     {Array.from(state.processor.model.surfacesMap.values()).map((surface) => <A2uiSurface key={surface.id} surface={surface as never} />)}
-  </div></HostContext.Provider></MarkdownContext.Provider>;
+  </div></HostContext.Provider></MarkdownContext.Provider></InspectContext.Provider>;
 }
 
 export type FolderChatSend = (turn: { q: string; agentId: string; contextId?: string; signal: AbortSignal; onUpdate: (update: ChatUpdate) => void }) => Promise<ChatUpdate>;

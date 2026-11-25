@@ -162,6 +162,27 @@ test("small schema slips a model makes are repaired, not refused (seen 11-25 fro
   assert.ok(notes.some((n) => /ghost/.test(n)));
 });
 
+test("a check written as the call with its message beside it, or a condition carrying the message, is repaired (playground 11-25: 'A sign-up form for a workshop with validation')", () => {
+  const notes: string[] = [];
+  const at = (path: string) => ({ "@path": path });
+  const out = createUiAuthor({ format: "json" }).fromToolCall({ components: [
+    { id: "root", component: "Column", children: ["f_name", "f_email", "f_session"] },
+    { id: "f_name", component: "TextField", label: "Name", value: at("/s/name"), checks: [
+      { condition: { "@call": "required", args: { value: at("/s/name") } }, message: "Please enter your name." },
+      { "@call": "length", args: { value: at("/s/name"), min: 2, max: 60 } },
+    ] },
+    { id: "f_email", component: "TextField", label: "Email", value: at("/s/email"), checks: [{ "@call": "email", args: { value: at("/s/email") }, message: "Please enter a valid email address." }] },
+    { id: "f_session", component: "TextField", label: "Session", value: at("/s/session"), checks: [{ condition: { call: "required", args: { value: at("/s/session") }, message: "Choose a session." } }] },
+  ], data: { s: { name: "", email: "", session: "" } } }, notes) as any[];
+  const byId = Object.fromEntries(out[0].createSurface.components.map((c: any) => [c.id, c]));
+  const checks = (id: string) => byId[id]["checks"] ?? byId[id]["@checks"];
+  assert.deepEqual(checks("f_email")[0], { condition: { "@call": "email", args: { value: at("/s/email") } }, message: "Please enter a valid email address." }, "the model's own message is kept, outside the call");
+  assert.equal(checks("f_name")[1].message, "Check the length");
+  assert.equal(checks("f_name")[0].message, "Please enter your name.");
+  assert.deepEqual(checks("f_session")[0], { condition: { call: "required", args: { value: at("/s/session") } }, message: "Choose a session." });
+  assert.ok(notes.some((n) => /f_email.*condition/.test(n)));
+});
+
 test("Express: names and values the compiler refuses, and components used as list items, are repaired (evaluation 11-25)", () => {
   const author = createUiAuthor({ format: "express" });
   const notes: string[] = [];

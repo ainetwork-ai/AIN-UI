@@ -27,12 +27,27 @@ export type ViewProps<P = Record<string, any>> = {
   validationErrorsRef?: (element: Element | null) => void;
 };
 
+/**
+ * Inspect mode (`<AinuiSurface inspect>`): every component is drawn inside an element that names it —
+ * `data-ainui-id` and `data-ainui-component` on a `display: contents` span, so it adds no box and moves nothing —
+ * letting a host find which component the pointer is over (`event.target.closest("[data-ainui-id]")`).
+ * Off by default: a surface drawn for people has no extra elements.
+ */
+export const InspectContext = createContext(false);
+
 /** A view for one component of the catalog. The name must exist in standard.json or ain.json. */
 export function standard<P = Record<string, any>>(name: string, View: React.FC<ViewProps<P>>): ReactComponentImplementation {
   const api = STANDARD.components.get(name);
   if (!api) throw new Error(`"${name}" is not in the AINUI catalog`);
   View.displayName = name;
-  return createComponentImplementation(api as never, View as never);
+  const Tagged: React.FC<ViewProps<P>> = (props) => {
+    const inspect = useContext(InspectContext);
+    if (!inspect) return <View {...props} />;
+    const id = props.context?.componentModel?.id;
+    return <span data-ainui-id={id} data-ainui-component={name} style={{ display: "contents" }}><View {...props} /></span>;
+  };
+  Tagged.displayName = name;
+  return createComponentImplementation(api as never, Tagged as never);
 }
 
 /** One child, by the reference the binder resolved: an id, or a template instance `{id, basePath}`. */

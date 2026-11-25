@@ -125,3 +125,9 @@ button, input, select, textarea { font: inherit; }
 /* The composer stays at the bottom without covering the last surface. */
 .pg-main { padding-bottom: 32px; }
 .pg-composer { background: linear-gradient(transparent, var(--bg) 24px); }
+
+/* Hovering a component on a surface: its JSON at the top of the pane, its lines marked in the model's source. */
+.pg-inspect { border-bottom: 1px solid var(--line); max-height: 45%; display: flex; flex-direction: column; min-height: 0; }
+.pg-inspect-code { flex: 1 1 auto; padding: 10px 16px; white-space: pre-wrap; word-break: break-word; }
+.pg-pane-hit { background: color-mix(in srgb, var(--accent, #6b5cff) 16%, transparent); box-shadow: inset 3px 0 0 var(--accent, #6b5cff); }
+.pg-surface [data-ainui-id] { cursor: default; }
