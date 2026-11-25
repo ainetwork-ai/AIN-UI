@@ -3,7 +3,7 @@
  "prompt": "A pricing page with three plans. Mark the recommended one.",
  "model": "Qwen3.8-Flash-Next",
  "format": "json",
- "recordedAt": "2026-11-25T02:35:16.677Z",
+ "recordedAt": "2026-11-25T06:33:54.013Z",
  "events": [
   {
    "at": 0,
@@ -15,32 +15,43 @@
    }
   },
   {
-   "at": 5447,
+   "at": 14318,
+   "event": {
+    "type": "RUN_ERROR"
+   }
+  },
+  {
+   "at": 14319,
    "event": {
     "type": "CUSTOM",
     "name": "ainui.source",
     "value": {
      "format": "json",
-     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"children\": [\n    \"header\",\n    \"grid\"\n   ],\n   \"gap\": \"lg\",\n   \"padding\": \"lg\"\n  },\n  {\n   \"id\": \"header\",\n   \"component\": \"Column\",\n   \"children\": [\n    \"title\",\n    \"subtitle\"\n   ],\n   \"gap\": \"xs\"\n  },\n  {\n   \"id\": \"title\",\n   \"component\": \"Title\",\n   \"text\": \"Choose your plan\",\n   \"size\": \"xl\"\n  },\n  {\n   \"id\": \"subtitle\",\n   \"component\": \"Caption\",\n   \"text\": \"Simple pricing that scales with your team. Switch or cancel anytime.\"\n  },\n  {\n   \"id\": \"grid\",\n   \"component\": \"Grid\",\n   \"columns\": 3,\n   \"gap\": \"md\",\n   \"children\": [\n    \"plan1\",\n    \"plan2\",\n    \"plan3\"\n   ]\n  },\n  {\n   \"id\": \"plan1\",\n   \"component\": \"EntityCard\",\n   \"title\": \"Starter\",\n   \"subtitle\": \"For individuals getting started\",\n   \"description\": \"1 workspace, 3 projects, 2 GB storage, community support.\",\n   \"meta\": \"$9 / month\",\n   \"badge\": {\n    \"label\": \"Best value\",\n    \"color\": \"info\"\n   },\n   \"actions\": [\n    {\n     \"label\": \"Choose Starter\",\n     \"variant\": \"outline\"\n    }\n   ],\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"select_plan\",\n     \"context\": {\n      \"plan\": \"starter\",\n      \"price\": 9\n     }\n    }\n   }\n  },\n  {\n   \"id\": \"plan2\",\n   \"component\": \"EntityCard\",\n   \"title\": \"Pro\",\n   \"subtitle\": \"For growing teams\",\n   \"description\": \"Unlimited projects, 50 GB storage, roles and permissions, priority email support.\",\n   \"meta\": \"$29 / month\",\n   \"badge\": {\n    \"label\": \"Recommended\",\n    \"color\": \"success\"\n   },\n   \"actions\": [\n    {\n     \"label\": \"Choose Pro\",\n     \"variant\": \"solid\"\n    }\n   ],\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"select_plan\",\n     \"context\": {\n      \"plan\": \"pro\",\n      \"price\": 29\n     }\n    }\n   }\n  },\n  {\n   \"id\": \"plan3\",\n   \"component\": \"EntityCard\",\n   \"title\": \"Business\",\n   \"subtitle\": \"For companies at scale\",\n   \"description\": \"SSO and audit logs, 500 GB storage, dedicated manager, 99.9% SLA.\",\n   \"meta\": \"$99 / month\",\n   \"actions\": [\n    {\n     \"label\": \"Choose Business\",\n     \"variant\": \"outline\"\n    }\n   ],\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"select_plan\",\n     \"context\": {\n      \"plan\": \"business\",\n      \"price\": 99\n     }\n    }\n   }\n  },\n  {\n   \"id\": \"note\",\n   \"component\": \"Caption\",\n   \"text\": \"Sample prices for illustration only.\"\n  },\n  {\n   \"id\": \"next\",\n   \"component\": \"FollowUp\",\n   \"items\": [\n    \"Compare all features\",\n    \"Show annual discounts\",\n    \"Start with the Pro plan\"\n   ]\n  }\n ]\n}",
-     "ms": 5371,
+     "source": "{\n \"components\": \"[{\\\"id\\\": \\\"root\\\", \\\"component\\\": \\\"Column\\\", \\\"gap\\\": 6, \\\"children\\\": [\\\"head\\\", \\\"grid\\\", \\\"note\\\", \\\"next\\\"]}, {\\\"id\\\": \\\"head\\\", \\\"component\\\": \\\"Heading\\\", \\\"text\\\": \\\"Choose your plan\\\", \\\"eyebrow\\\": \\\"Pricing\\\", \\\"subtitle\\\": \\\"Three plans for teams of any size — switch or cancel anytime.\\\"}, {\\\"id\\\": \\\"grid\\\", \\\"component\\\": \\\"Grid\\\", \\\"columns\\\": 3, \\\"gap\\\": 4, \\\"children\\\": [\\\"p1c\\\", \\\"p2c\\\", \\\"p3c\\\"]}, {\\\"id\\\": \\\"p1c\\\", \\\"component\\\": \\\"Card\\\", \\\"variant\\\": \\\"outline\\\", \\\"children\\\": [\\\"p1\\\", \\\"p1b\\\"]}, {\\\"id\\\": \\\"p1\\\", \\\"component\\\": \\\"EntityCard\\\", \\\"title\\\": \\\"Starter\\\", \\\"subtitle\\\": \\\"For individuals getting started\\\", \\\"description\\\": \\\"1 workspace, up to 3 projects, community support, 5 GB storage.\\\", \\\"meta\\\": \\\"$12 / month\\\", \\\"actions\\\": [{\\\"label\\\": \\\"Choose Starter\\\", \\\"variant\\\": \\\"outline\\\", \\\"onClick\\\": {\\\"event\\\": {\\\"name\\\": \\\"select_plan\\\", \\\"context\\\": {\\\"plan\\\": \\\"starter\\\", \\\"price\\\": \\\"12\\\"}}}}]}, {\\\"id\\\": \\\"p1b\\\", \\\"component\\\": \\\"Caption\\\", \\\"text\\\": \\\"Best for solo work\\\"}, {\\\"id\\\": \\\"p2c\\\", \\\"component\\\": \\\"Card\\\", \\\"variant\\\": \\\"outline\\\", \\\"border\\\": true, \\\"children\\\": [\\\"p2badge\\\", \\\"p2\\\", \\\"p2b\\\"]}, {\\\"id\\\": \\\"p2badge\\\", \\\"component\\\": \\\"Badge\\\", \\\"label\\\": \\\"Recommended\\\", \\\"color\\\": \\\"success\\\", \\\"pill\\\": true}, {\\\"id\\\": \\\"p2\\\", \\\"component\\\": \\\"EntityCard\\\", \\\"title\\\": \\\"Team\\\", \\\"subtitle\\\": \\\"For growing product teams\\\", \\\"description\\\": \\\"Unlimited projects, roles & permissions, shared drives, priority support, 200 GB storage.\\\", \\\"meta\\\": \\\"$39 / month\\\", \\\"rating\\\": 4.8, \\\"ratingCount\\\": 412, \\\"actions\\\": [{\\\"label\\\": \\\"Choose Team\\\", \\\"variant\\\": \\\"solid\\\", \\\"onClick\\\": {\\\"event\\\": {\\\"name\\\": \\\"select_plan\\\", \\\"context\\\": {\\\"plan\\\": \\\"team\\\", \\\"price\\\": \\\"39\\\"}}}}]}, {\\\"id\\\": \\\"p2b\\\", \\\"component\\\": \\\"Caption\\\", \\\"text\\\": \\\"Most teams pick this\\\"}, {\\\"id\\\": \\\"p3c\\\", \\\"component\\\": \\\"Card\\\", \\\"variant\\\": \\\"outline\\\", \\\"children\\\": [\\\"p3\\\", \\\"p3b\\\"]}, {\\\"id\\\": \\\"p3\\\", \\\"component\\\": \\\"EntityCard\\\", \\\"title\\\": \\\"Business\\\", \\\"subtitle\\\": \\\"For companies with compliance needs\\\", \\\"description\\\": \\\"Everything in Team, plus SSO/SAML, audit logs, SLA and a dedicated manager.\\\", \\\"meta\\\": \\\"$99 / month\\\", \\\"actions\\\": [{\\\"label\\\": \\\"Choose Business\\\", \\\"variant\\\": \\\"outline\\\", \\\"onClick\\\": {\\\"sample\\\": \\\"x\\\", \\\"onClick2\\\": {\\\"event\\\": {\\\"name\\\": \\\"select_plan\\\", \\\"context\\\": {\\\"plan\\\": \\\"business\\\", \\\"price\\\": \\\"99\\\"}}}}}]}}, {\\\"id\\\": \\\"p3b\\\", \\\"component\\\": \\\"Caption\\\", \\\"text\\\": \\\"Enterprise on request\\\"}, {\\\"id\\\": \\\"note\\\", \\\"component\\\": \\\"Caption\\\", \\\"text\\\": \\\"Illustrative prices. Annual billing saves 20%.\\\"}, {\\\"id\\\": \\\"next\\\", \\\"component\\\": \\\"FollowUp\\\", \\\"items\\\": [\\\"Compare the plans side by side\\\", \\\"Show annual pricing\\\", \\\"Talk to sales\\\"]}]\"\n}",
+     "ms": 14275,
      "attempt": 1
     }
    }
   },
   {
-   "at": 5549,
+   "at": 14460,
    "event": {
     "type": "CUSTOM",
     "name": "ainui.forgiven",
     "value": {
      "notes": [
-      "not used by any parent, left out: note, next"
+      "components was sent as text with 1 unmatched bracket(s); repaired",
+      "EntityCard \"p1\": the actions buttons' event became its onAction (the pressed one is in the context)",
+      "EntityCard \"p1\".actions[0].onClick is not a property; ignored",
+      "EntityCard \"p2\": the actions buttons' event became its onAction (the pressed one is in the context)",
+      "EntityCard \"p2\".actions[0].onClick is not a property; ignored",
+      "EntityCard \"p3\".actions[0].onClick is not a property; ignored"
      ]
     }
    }
   },
   {
-   "at": 5549,
+   "at": 14460,
    "event": {
     "type": "ACTIVITY_SNAPSHOT",
     "activityType": "a2ui-surface",
@@ -49,126 +60,164 @@
       {
        "version": "1.0",
        "createSurface": {
-        "surfaceId": "ui-mwvig272-n3d81l",
+        "surfaceId": "ui-mwvqz9oc-mx5v0q",
         "catalogId": "https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json",
         "components": [
          {
           "id": "root",
           "component": "Column",
+          "gap": 6,
           "children": [
-           "header",
-           "grid"
-          ],
-          "gap": "lg",
-          "padding": "lg"
+           "head",
+           "grid",
+           "note",
+           "next"
+          ]
          },
          {
-          "id": "header",
-          "component": "Column",
-          "children": [
-           "title",
-           "subtitle"
-          ],
-          "gap": "xs"
-         },
-         {
-          "id": "title",
-          "component": "Title",
+          "id": "head",
+          "component": "Heading",
           "text": "Choose your plan",
-          "size": "xl"
-         },
-         {
-          "id": "subtitle",
-          "component": "Caption",
-          "text": "Simple pricing that scales with your team. Switch or cancel anytime."
+          "eyebrow": "Pricing",
+          "subtitle": "Three plans for teams of any size — switch or cancel anytime."
          },
          {
           "id": "grid",
           "component": "Grid",
           "columns": 3,
-          "gap": "md",
+          "gap": 4,
           "children": [
-           "plan1",
-           "plan2",
-           "plan3"
+           "p1c",
+           "p2c",
+           "p3c"
           ]
          },
          {
-          "id": "plan1",
+          "id": "p1c",
+          "component": "Card",
+          "variant": "outline",
+          "children": [
+           "p1",
+           "p1b"
+          ]
+         },
+         {
+          "id": "p1",
           "component": "EntityCard",
           "title": "Starter",
           "subtitle": "For individuals getting started",
-          "description": "1 workspace, 3 projects, 2 GB storage, community support.",
-          "meta": "$9 / month",
-          "badge": {
-           "label": "Best value",
-           "color": "info"
-          },
+          "description": "1 workspace, up to 3 projects, community support, 5 GB storage.",
+          "meta": "$12 / month",
           "actions": [
            {
             "label": "Choose Starter",
             "variant": "outline"
            }
           ],
-          "onClick": {
+          "onAction": {
            "event": {
             "name": "select_plan",
             "context": {
              "plan": "starter",
-             "price": 9
+             "price": "12"
             }
            }
           }
          },
          {
-          "id": "plan2",
+          "id": "p1b",
+          "component": "Caption",
+          "text": "Best for solo work"
+         },
+         {
+          "id": "p2c",
+          "component": "Card",
+          "variant": "outline",
+          "border": true,
+          "children": [
+           "p2badge",
+           "p2",
+           "p2b"
+          ]
+         },
+         {
+          "id": "p2badge",
+          "component": "Badge",
+          "label": "Recommended",
+          "color": "success",
+          "pill": true
+         },
+         {
+          "id": "p2",
           "component": "EntityCard",
-          "title": "Pro",
-          "subtitle": "For growing teams",
-          "description": "Unlimited projects, 50 GB storage, roles and permissions, priority email support.",
-          "meta": "$29 / month",
-          "badge": {
-           "label": "Recommended",
-           "color": "success"
-          },
+          "title": "Team",
+          "subtitle": "For growing product teams",
+          "description": "Unlimited projects, roles & permissions, shared drives, priority support, 200 GB storage.",
+          "meta": "$39 / month",
+          "rating": 4.8,
+          "ratingCount": 412,
           "actions": [
            {
-            "label": "Choose Pro",
+            "label": "Choose Team",
             "variant": "solid"
            }
           ],
-          "onClick": {
+          "onAction": {
            "event": {
             "name": "select_plan",
             "context": {
-             "plan": "pro",
-             "price": 29
+             "plan": "team",
+             "price": "39"
             }
            }
           }
          },
          {
-          "id": "plan3",
+          "id": "p2b",
+          "component": "Caption",
+          "text": "Most teams pick this"
+         },
+         {
+          "id": "p3c",
+          "component": "Card",
+          "variant": "outline",
+          "children": [
+           "p3",
+           "p3b"
+          ]
+         },
+         {
+          "id": "p3",
           "component": "EntityCard",
           "title": "Business",
-          "subtitle": "For companies at scale",
-          "description": "SSO and audit logs, 500 GB storage, dedicated manager, 99.9% SLA.",
+          "subtitle": "For companies with compliance needs",
+          "description": "Everything in Team, plus SSO/SAML, audit logs, SLA and a dedicated manager.",
           "meta": "$99 / month",
           "actions": [
            {
             "label": "Choose Business",
             "variant": "outline"
            }
-          ],
-          "onClick": {
-           "event": {
-            "name": "select_plan",
-            "context": {
-             "plan": "business",
-             "price": 99
-            }
-           }
-          }
+          ]
+         },
+         {
+          "id": "p3b",
+          "component": "Caption",
+          "text": "Enterprise on request"
+         },
+         {
+          "id": "note",
+          "component": "Caption",
+          "text": "Illustrative prices. Annual billing saves 20%."
+         },
+         {
+          "id": "next",
+          "component": "FollowUp",
+          "items": [
+           "Compare the plans side by side",
+           "Show annual pricing",
+           "Talk to sales"
+          ]
          }
         ]
        }
@@ -176,16 +225,16 @@
      ]
     },
     "format": "json",
-    "ms": 5371
+    "ms": 14275
    }
   },
   {
-   "at": 5549,
+   "at": 14460,
    "event": {
     "type": "RUN_FINISHED",
     "calls": 1,
     "shown": 1,
-    "ms": 5549
+    "ms": 14460
    }
   }
  ]

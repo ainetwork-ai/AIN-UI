@@ -3,7 +3,7 @@
  "prompt": "A sign-up form for a workshop: name, email, a session choice and a consent checkbox, with validation and a submit button.",
  "model": "Qwen3.8-Flash-Next",
  "format": "json",
- "recordedAt": "2026-11-25T02:35:16.676Z",
+ "recordedAt": "2026-11-25T06:33:54.013Z",
  "events": [
   {
    "at": 0,
@@ -15,44 +15,99 @@
    }
   },
   {
-   "at": 7964,
+   "at": 8445,
+   "event": {
+    "type": "RUN_ERROR"
+   }
+  },
+  {
+   "at": 9544,
    "event": {
     "type": "CUSTOM",
     "name": "ainui.source",
     "value": {
      "format": "json",
-     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"gap\": 4,\n   \"children\": [\n    \"title\",\n    \"caption\",\n    \"form\"\n   ]\n  },\n  {\n   \"id\": \"title\",\n   \"component\": \"Title\",\n   \"text\": \"Sign up for the workshop\",\n   \"size\": \"lg\"\n  },\n  {\n   \"id\": \"caption\",\n   \"component\": \"Caption\",\n   \"text\": \"Fill in your details and pick a session. All fields except the notes are required.\",\n   \"color\": \"secondary\"\n  },\n  {\n   \"id\": \"form\",\n   \"component\": \"Card\",\n   \"variant\": \"outline\",\n   \"children\": [\n    \"formBody\"\n   ]\n  },\n  {\n   \"id\": \"formBody\",\n   \"component\": \"Column\",\n   \"gap\": 3,\n   \"children\": [\n    \"name\",\n    \"email\",\n    \"session\",\n    \"consent\",\n    \"submitRow\"\n   ]\n  },\n  {\n   \"id\": \"name\",\n   \"component\": \"TextField\",\n   \"label\": \"Full name\",\n   \"placeholder\": \"e.g. Ada Lovelace\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/name\"\n   },\n   \"checks\": [\n    {\n     \"@call\": \"required\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/name\"\n      }\n     },\n     \"message\": \"Please enter your name\"\n    },\n    {\n     \"@call\": \"length\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/name\"\n      },\n      \"min\": 2,\n      \"max\": 60\n     },\n     \"message\": \"Name must be between 2 and 60 characters\"\n    }\n   ]\n  },\n  {\n   \"id\": \"email\",\n   \"component\": \"TextField\",\n   \"label\": \"Email\",\n   \"variant\": \"email\",\n   \"placeholder\": \"you@example.com\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/email\"\n   },\n   \"checks\": [\n    {\n     \"@call\": \"email\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/email\"\n      }\n     },\n     \"message\": \"Please enter a valid email address\"\n    }\n   ]\n  },\n  {\n   \"id\": \"session\",\n   \"component\": \"Select\",\n   \"label\": \"Session\",\n   \"placeholder\": \"Choose a session\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/session\"\n   },\n   \"options\": [\n    {\n     \"value\": \"sat-morning\",\n     \"label\": \"Saturday morning — 09:30\",\n     \"description\": \"Foundations, 3 hours, 6 seats left\"\n    },\n    {\n     \"value\": \"sat-afternoon\",\n     \"label\": \"Saturday afternoon — 13:30\",\n     \"description\": \"Hands-on practice, 3 hours, 12 seats left\"\n    },\n    {\n     \"value\": \"sun-morning\",\n     \"label\": \"Sunday morning — 09:30\",\n     \"description\": \"Advanced topics, 3 hours, 4 seats left\"\n    }\n   ],\n   \"checks\": [\n    {\n     \"@call\": \"required\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/session\"\n      }\n     },\n     \"message\": \"Please choose a session\"\n    }\n   ]\n  },\n  {\n   \"id\": \"consent\",\n   \"component\": \"CheckBox\",\n   \"label\": \"I agree to the workshop terms and to being contacted about this event.\",\n   \"value\": {\n    \"@path\": \"/signup/consent\"\n   },\n   \"checks\": [\n    {\n     \"@call\": \"required\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/consent\"\n      }\n     },\n     \"message\": \"Please accept the terms to continue\"\n    }\n   ]\n  },\n  {\n   \"id\": \"submitRow\",\n   \"component\": \"Row\",\n   \"justify\": \"end\",\n   \"children\": [\n    \"submit\"\n   ]\n  },\n  {\n   \"id\": \"submit\",\n   \"component\": \"Button\",\n   \"label\": \"Sign up\",\n   \"variant\": \"primary\",\n   \"submit\": true,\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"workshop.signup.submit\",\n     \"context\": {\n      \"name\": {\n       \"@path\": \"/signup/name\"\n      },\n      \"email\": {\n       \"@path\": \"/signup/email\"\n      },\n      \"session\": {\n       \"@path\": \"/signup/session\"\n      },\n      \"consent\": {\n       \"@path\": \"/signup/consent\"\n      }\n     }\n    }\n   }\n  }\n ],\n \"data\": {\n  \"signup\": {\n   \"name\": \"\",\n   \"email\": \"\",\n   \"session\": \"\",\n   \"consent\": false\n  }\n }\n}",
-     "ms": 7922,
+     "source": "{\n \"components\": \"[\\n {\\\"id\\\": \\\"root\\\", \\\"component\\\": \\\"Column\\\", \\\"gap\\\": \\\"md\\\", \\\"children\\\": [\\\"head\\\", \\\"form\\\", \\\"note\\\", \\\"next\\\"]},\\n {\\\"id\\\": \\\"head\\\", \\\"component\\\": \\\"Heading\\\", \\\"text\\\": \\\"Sign up for the workshop\\\", \\\"eyebrow\\\": \\\"Hands-on AI Workshop\\\", \\\"subtitle\\\": \\\"Thu, Nov 14 · 09:30–12:30 · Studio Hall B — 24 seats left\\\"},\\n {\\\"id\\\": \\\"form\\\", \\\"component\\\": \\\"Form\\\", \\\"children\\\": [\\\"f-name\\\", \\\"f-email\\\", \\\"f-session\\\", \\\"f-consent\\\", \\\"f-submit\\\"], \\\"onSubmit\\\": {\\\"event\\\": {\\\"name\\\": \\\"workshop_signup_submit\\\", \\\"context\\\": {\\\"name\\\": {\\\"@path\\\": \\\"/signup/name\\\"}, \\\"email\\\": {\\\"@path\\\": \\\"/signup/email\\\"}, \\\"session\\\": {\\\"@path\\\": \\\"/signup/session\\\"}, \\\"consent\\\": {\\\"@path\\\": \\\"/signup/consent\\\"}}}},\\n {\\\"id\\\": \\\"f-name\\\", \\\"component\\\": \\\"TextField\\\", \\\"label\\\": \\\"Full name\\\", \\\"placeholder\\\": \\\"e.g. Alina Meyer\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/name\\\"}, \\\"checks\\\": [{\\\"condition\\\": {\\\"@call\\\": \\\"required\\\", \\\"args\\\": {\\\"value\\\": {\\\"@path\\\": \\\"/signup/name\\\"}}}, \\\"message\\\": \\\"Please enter your name.\\\"}, {\\\"@call\\\": \\\"length\\\", \\\"args\\\": {\\\"value\\\": {\\\"@path\\\": \\\"/signup/name\\\"}, \\\"min\\\": 2, \\\"max\\\": 60}}]},\\n {\\\"id\\\": \\\"f-email\\\", \\\"component\\\": \\\"TextField\\\", \\\"label\\\": \\\"Email\\\", \\\"variant\\\": \\\"email\\\", \\\"placeholder\\\": \\\"you@example.com\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/email\\\"}, \\\"checks\\\": [{\\\"@call\\\": \\\"email\\\", \\\"args\\\": {\\\"value\\\": {\\\"@path\\\": \\\"/signup/email\\\"}}, \\\"message\\\": \\\"Please enter a valid email address.\\\"}]},\\n {\\\"id\\\": \\\"f-session\\\", \\\"component\\\": \\\"Select\\\", \\\"label\\\": \\\"Session\\\", \\\"placeholder\\\": \\\"Choose a session\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/session\\\"}, \\\"options\\\": [{\\\"value\\\": \\\"s1\\\", \\\"label\\\": \\\"Session 1 — Prompting basics (09:30)\\\"}, {\\\"value\\\": \\\"s2\\\", \\\"label\\\": \\\"Session 2 — Building agents (11:00)\\\"}, {\\\"value\\\": \\\"s3\\\", \\\"label\\\": \\\"Session 3 — Design + UI review (14:00)\\\"}], \\\"checks\\\": [{\\\"@call\\\": \\\"required\\\", \\\"args\\\": {\\\"value\\\": {\\\"@path\\\": \\\"/signup/session\\\"}}, \\\"message\\\": \\\"Please choose a session.\\\"}]},\\n {\\\"id\\\": \\\"f-consent\\\", \\\"component\\\": \\\"CheckBox\\\", \\\"label\\\": \\\"I agree to the code of conduct and to being photographed.\\\", \\\"value\\\": true, \\\"checks\\\": [{\\\"@call\\\": \\\"required\\\", \\\"args\\\": {\\\"value\\\": {\\\"@path\\\": \\\"/signup/consent\\\"}}, \\\"message\\\": \\\"Please accept the code of conduct to continue.\\\"}]},\\n {\\\"id\\\": \\\"f-submit\\\", \\\"component\\\": \\\"Button\\\", \\\"label\\\": \\\"Reserve my seat\\\", \\\"variant\\\": \\\"primary\\\", \\\"submit\\\": true, \\\"block\\\": true},\\n {\\\"id\\\": \\\"note\\\", \\\"component\\\": \\\"Caption\\\", \\\"text\\\": \\\"Sample form — session times and seat count are illustrative.\\\"},\\n {\\\"id\\\": \\\"next\\\", \\\"component\\\": \\\"FollowUp\\\", \\\"items\\\": [\\\"Show the full workshop agenda\\\", \\\"Add a phone number field\\\", \\\"What happens after I submit?\\\"]}\\n]\",\n \"data\": {\n  \"signup\": {\n   \"name\": \"\",\n   \"email\": \"\",\n   \"session\": \"\",\n   \"consent\": false\n  }\n }\n}",
+     "ms": 9506,
      "attempt": 1
     }
    }
   },
   {
-   "at": 8131,
+   "at": 9683,
    "event": {
     "type": "CUSTOM",
     "name": "ainui.rejected",
     "value": {
      "format": "json",
-     "message": "The UI was not valid for the catalog: Validation failed for component 'TextField' (name): checks.0: Unrecognized key(s) in object: '@call', 'args', checks.1: Unrecognized key(s) in object: '@call', 'args'. Fix it and call render_ui again."
+     "message": "The UI was not valid for the catalog: Validation failed for component 'TextField' (f_email): checks.0.condition: Either '@path' or 'path' must be provided.. Fix it and call render_ui again."
     }
    }
   },
   {
-   "at": 15237,
+   "at": 18854,
+   "event": {
+    "type": "RUN_ERROR"
+   }
+  },
+  {
+   "at": 20469,
    "event": {
     "type": "CUSTOM",
     "name": "ainui.source",
     "value": {
      "format": "json",
-     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"gap\": 4,\n   \"children\": [\n    \"title\",\n    \"caption\",\n    \"form\"\n   ]\n  },\n  {\n   \"id\": \"title\",\n   \"component\": \"Title\",\n   \"text\": \"Sign up for the workshop\",\n   \"size\": \"lg\"\n  },\n  {\n   \"id\": \"caption\",\n   \"component\": \"Caption\",\n   \"text\": \"Fill in your details and pick a session. All fields are required.\",\n   \"color\": \"secondary\"\n  },\n  {\n   \"id\": \"form\",\n   \"component\": \"Card\",\n   \"variant\": \"outline\",\n   \"children\": [\n    \"formBody\"\n   ]\n  },\n  {\n   \"id\": \"formBody\",\n   \"component\": \"Column\",\n   \"gap\": 3,\n   \"children\": [\n    \"name\",\n    \"email\",\n    \"session\",\n    \"consent\",\n    \"submitRow\"\n   ]\n  },\n  {\n   \"id\": \"name\",\n   \"component\": \"TextField\",\n   \"label\": \"Full name\",\n   \"placeholder\": \"e.g. Ada Lovelace\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/name\"\n   },\n   \"checks\": [\n    {\n     \"condition\": {\n      \"@call\": \"required\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/name\"\n       }\n      }\n     },\n     \"message\": \"Please enter your name\"\n    },\n    {\n     \"condition\": {\n      \"@call\": \"length\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/name\"\n       },\n       \"min\": 2,\n       \"max\": 60\n      }\n     },\n     \"message\": \"Name must be between 2 and 60 characters\"\n    }\n   ]\n  },\n  {\n   \"id\": \"email\",\n   \"component\": \"TextField\",\n   \"label\": \"Email\",\n   \"variant\": \"email\",\n   \"placeholder\": \"you@example.com\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/email\"\n   },\n   \"checks\": [\n    {\n     \"condition\": {\n      \"@call\": \"email\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/email\"\n       }\n      }\n     },\n     \"message\": \"Please enter a valid email address\"\n    }\n   ]\n  },\n  {\n   \"id\": \"session\",\n   \"component\": \"Select\",\n   \"label\": \"Session\",\n   \"placeholder\": \"Choose a session\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/session\"\n   },\n   \"options\": [\n    {\n     \"value\": \"sat-morning\",\n     \"label\": \"Saturday morning — 09:30\",\n     \"description\": \"Foundations, 3 hours, 6 seats left\"\n    },\n    {\n     \"value\": \"sat-afternoon\",\n     \"label\": \"Saturday afternoon — 13:30\",\n     \"description\": \"Hands-on practice, 3 hours, 12 seats left\"\n    },\n    {\n     \"value\": \"sun-morning\",\n     \"label\": \"Sunday morning — 09:30\",\n     \"description\": \"Advanced topics, 3 hours, 4 seats left\"\n    }\n   ],\n   \"checks\": [\n    {\n     \"condition\": {\n      \"@call\": \"required\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/session\"\n       }\n      }\n     },\n     \"message\": \"Please choose a session\"\n    }\n   ]\n  },\n  {\n   \"id\": \"consent\",\n   \"component\": \"CheckBox\",\n   \"label\": \"I agree to the workshop terms and to being contacted about this event.\",\n   \"value\": {\n    \"@path\": \"/signup/consent\"\n   },\n   \"checks\": [\n    {\n     \"condition\": {\n      \"@call\": \"required\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/consent\"\n       }\n      }\n     },\n     \"message\": \"Please accept the terms to continue\"\n    }\n   ]\n  },\n  {\n   \"id\": \"submitRow\",\n   \"component\": \"Row\",\n   \"justify\": \"end\",\n   \"children\": [\n    \"submit\"\n   ]\n  },\n  {\n   \"id\": \"submit\",\n   \"component\": \"Button\",\n   \"label\": \"Sign up\",\n   \"variant\": \"primary\",\n   \"submit\": true,\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"workshop.signup.submit\",\n     \"context\": {\n      \"name\": {\n       \"@path\": \"/signup/name\"\n      },\n      \"email\": {\n       \"@path\": \"/signup/email\"\n      },\n      \"session\": {\n       \"@path\": \"/signup/session\"\n      },\n      \"consent\": {\n       \"@path\": \"/signup/consent\"\n      }\n     }\n    }\n   }\n  }\n ],\n \"data\": {\n  \"signup\": {\n   \"name\": \"\",\n   \"email\": \"\",\n   \"session\": \"\",\n   \"consent\": false\n  }\n }\n}",
-     "ms": 7106,
+     "source": "{\n \"components\": \"[{\\\"id\\\": \\\"root\\\", \\\"component\\\": \\\"Column\\\", \\\"gap\\\": \\\"md\\\", \\\"children\\\": [\\\"head\\\", \\\"form\\\", \\\"note\\\", \\\"next\\\"]}, {\\\"id\\\": \\\"head\\\", \\\"component\\\": \\\"Heading\\\", \\\"eyebrow\\\": \\\"Hands-on AI Workshop\\\", \\\"subtitle\\\": \\\"Thu, Nov 14 · 09:30–12:30 · Studio Hall B — 24 seats left\\\", \\\"text\\\": \\\"Sign up for the workshop\\\"}, {\\\"id\\\": \\\"form\\\", \\\"component\\\": \\\"Form\\\", \\\"children\\\": [\\\"f-name\\\", \\\"f-email\\\", \\\"f-session\\\", \\\"f-consent\\\", \\\"f-submit\\\"], \\\"onSubmit\\\": {\\\"event\\\": {\\\"context\\\": {\\\"consent\\\": {\\\"@path\\\": \\\"/signup/consent\\\"}, \\\"email\\\": {\\\"@path\\\": \\\"/signup/email\\\"}, \\\"name\\\": {\\\"@path\\\": \\\"/signup/name\\\"}, \\\"session\\\": {\\\"@path\\\": \\\"/signup/session\\\"}}, \\\"name\\\": \\\"workshop_signup_submit\\\"}, \\\"args\\\": {\\\"consent\\\": {\\\"@path\\\": \\\"/signup/consent\\\"}, \\\"email\\\": {\\\"@path\\\": \\\"/signup/email\\\"}, \\\"name\\\": {\\\"@path\\\": \\\"/signup/name\\\"}, \\\"session\\\": {\\\"@path\\\": \\\"/signup/session\\\"}}}, {\\\"id\\\": \\\"f-name\\\", \\\"component\\\": \\\"TextField\\\", \\\"label\\\": \\\"Full name\\\", \\\"placeholder\\\": \\\"e.g. Alina Meyer\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/name\\\"}, \\\"checks\\\": [{\\\"message\\\": \\\"Please enter your name.\\\", \\\"path\\\": \\\"/signup/name\\\", \\\"predicate\\\": \\\"required\\\"}]}, {\\\"id\\\": \\\"f-email\\\", \\\"component\\\": \\\"TextField\\\", \\\"label\\\": \\\"Email\\\", \\\"placeholder\\\": \\\"you@example.com\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/email\\\"}, \\\"checks\\\": [{\\\"message\\\": \\\"Please enter a valid email address.\\\", \\\"path\\\": \\\"/signup/email\\\", \\\"predicate\\\": \\\"email\\\"}]}, {\\\"id\\\": \\\"f-session\\\", \\\"component\\\": \\\"Select\\\", \\\"label\\\": \\\"Session\\\", \\\"placeholder\\\": \\\"Choose a session\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/session\\\"}, \\\"options\\\": [{\\\"value\\\": \\\"s1\\\", \\\"label\\\": \\\"Session 1 — Prompting basics (09:30)\\\"}, {\\\"value\\\": \\\"s2\\\", \\\"label\\\": \\\"Session 2 — Building agents (11:00)\\\"}, {\\\"value\\\": \\\"s3\\\", \\\"label\\\": \\\"Session 3 — Design + UI review (14:00)\\\"}], \\\"checks\\\": [{\\\"message\\\": \\\"Please choose a session.\\\", \\\"path\\\": \\\"/signup/session\\\", \\\"predicate\\\": \\\"required\\\"}]}, {\\\"id\\\": \\\"f-consent\\\", \\\"component\\\": \\\"CheckBox\\\", \\\"label\\\": \\\"I agree to the code of conduct and to being photographed.\\\", \\\"value\\\": true, \\\"checks\\\": [{\\\"message\\\": \\\"Please accept the code of conduct to continue.\\\", \\\"path\\\": \\\"/signup/consent\\\", \\\"predicate\\\": \\\"required\\\"}]}, {\\\"id\\\": \\\"f-submit\\\", \\\"component\\\": \\\"Button\\\", \\\"label\\\": \\\"Reserve my seat\\\", \\\"variant\\\": \\\"primary\\\", \\\"submit\\\": true, \\\"block\\\": true}, {\\\"id\\\": \\\"note\\\", \\\"component\\\": \\\"Caption\\\", \\\"text\\\": \\\"Sample form — session times and seat count are illustrative.\\\"}, {\\\"id\\\": \\\"next\\\", \\\"component\\\": \\\"FollowUp\\\", \\\"items\\\": [\\\"Show the full workshop agenda\\\", \\\"Add a phone number field\\\", \\\"What happens after I submit?\\\"]}]\",\n \"data\": {\n  \"signup\": {\n   \"name\": \"\",\n   \"email\": \"\",\n   \"session\": \"\",\n   \"consent\": false\n  }\n }\n}",
+     "ms": 10786,
      "attempt": 2
     }
    }
   },
   {
-   "at": 15266,
+   "at": 20474,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.rejected",
+    "value": {
+     "format": "json",
+     "message": "The UI was not valid for the catalog: Validation failed for component 'Form' (form): onSubmit: Unrecognized key(s) in object: 'args'. Fix it and call render_ui again."
+    }
+   }
+  },
+  {
+   "at": 29685,
+   "event": {
+    "type": "RUN_ERROR"
+   }
+  },
+  {
+   "at": 29686,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.source",
+    "value": {
+     "format": "json",
+     "source": "{\n \"components\": \"[{\\\"id\\\": \\\"root\\\", \\\"component\\\": \\\"Column\\\", \\\"gap\\\": \\\"md\\\", \\\"children\\\": [\\\"head\\\", \\\"form\\\", \\\"note\\\", \\\"next\\\"]}, {\\\"id\\\": \\\"head\\\", \\\"component\\\": \\\"Heading\\\", \\\"eyebrow\\\": \\\"Hands-on AI Workshop\\\", \\\"subtitle\\\": \\\"Thu, Nov 14 · 09:30–12:30 · Studio Hall B — 24 seats left\\\", \\\"text\\\": \\\"Sign up for the workshop\\\"}, {\\\"id\\\": \\\"form\\\", \\\"component\\\": \\\"Form\\\", \\\"children\\\": [\\\"f-name\\\", \\\"f-email\\\", \\\"f-session\\\", \\\"f-consent\\\", \\\"f-submit\\\"], \\\"onSubmit\\\": {\\\"event\\\": {\\\"context\\\": {\\\"consent\\\": {\\\"@path\\\": \\\"/signup/consent\\\"}, \\\"email\\\": {\\\"@path\\\": \\\"/signup/email\\\"}, \\\"name\\\": {\\\"@path\\\": \\\"/signup/name\\\"}, \\\"session\\\": {\\\"@path\\\": \\\"/signup/session\\\"}}, \\\"name\\\": \\\"workshop_signup_submit\\\"}}, {\\\"id\\\": \\\"f-name\\\", \\\"component\\\": \\\"TextField\\\", \\\"label\\\": \\\"Full name\\\", \\\"placeholder\\\": \\\"e.g. Alina Meyer\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/name\\\"}, \\\"checks\\\": [{\\\"message\\\": \\\"Please enter your name.\\\", \\\"path\\\": \\\"/signup/name\\\", \\\"predicate\\\": \\\"required\\\"}]}, {\\\"id\\\": \\\"f-email\\\", \\\"component\\\": \\\"TextField\\\", \\\"label\\\": \\\"Email\\\", \\\"placeholder\\\": \\\"you@example.com\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/email\\\"}, \\\"checks\\\": [{\\\"message\\\": \\\"Please enter a valid email address.\\\", \\\"path\\\": \\\"/signup/email\\\", \\\"predicate\\\": \\\"email\\\"}]}, {\\\"id\\\": \\\"f-session\\\", \\\"component\\\": \\\"Select\\\", \\\"label\\\": \\\"Session\\\", \\\"placeholder\\\": \\\"Choose a session\\\", \\\"required\\\": true, \\\"value\\\": {\\\"@path\\\": \\\"/signup/session\\\"}, \\\"options\\\": [{\\\"value\\\": \\\"s1\\\", \\\"label\\\": \\\"Session 1 — Prompting basics (09:30)\\\"}, {\\\"value\\\": \\\"s2\\\", \\\"label\\\": \\\"Session 2 — Building agents (11:00)\\\"}, {\\\"value\\\": \\\"s3\\\", \\\"label\\\": \\\"Session 3 — Design + UI review (14:00)\\\"}], \\\"checks\\\": [{\\\"message\\\": \\\"Please choose a session.\\\", \\\"path\\\": \\\"/signup/session\\\", \\\"predicate\\\": \\\"required\\\"}]}, {\\\"id\\\": \\\"f-consent\\\", \\\"component\\\": \\\"CheckBox\\\", \\\"label\\\": \\\"I agree to the code of conduct and to being photographed.\\\", \\\"value\\\": true, \\\"checks\\\": [{\\\"message\\\": \\\"Please accept the code of conduct to continue.\\\", \\\"path\\\": \\\"/signup/consent\\\", \\\"predicate\\\": \\\"required\\\"}]}, {\\\"id\\\": \\\"f-submit\\\", \\\"component\\\": \\\"Button\\\", \\\"label\\\": \\\"Reserve my seat\\\", \\\"variant\\\": \\\"primary\\\", \\\"submit\\\": true, \\\"block\\\": true}, {\\\"id\\\": \\\"note\\\", \\\"component\\\": \\\"Caption\\\", \\\"text\\\": \\\"Sample form — session times and seat count are illustrative.\\\"}, {\\\"id\\\": \\\"next\\\", \\\"component\\\": \\\"FollowUp\\\", \\\"items\\\": [\\\"Show the full workshop agenda\\\", \\\"Add a phone number field\\\", \\\"What happens after I submit?\\\"]}]\",\n \"data\": {\n  \"signup\": {\n   \"name\": \"\",\n   \"email\": \"\",\n   \"session\": \"\",\n   \"consent\": false\n  }\n }\n}",
+     "ms": 9212,
+     "attempt": 3
+    }
+   }
+  },
+  {
+   "at": 29694,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.forgiven",
+    "value": {
+     "notes": [
+      "components was sent as text with 1 unmatched bracket(s); repaired",
+      "ids renamed to identifiers: f-name → f_name, f-email → f_email, f-session → f_session, f-consent → f_consent, …"
+     ]
+    }
+   }
+  },
+  {
+   "at": 29694,
    "event": {
     "type": "ACTIVITY_SNAPSHOT",
     "activityType": "a2ui-surface",
@@ -61,92 +116,78 @@
       {
        "version": "1.0",
        "createSurface": {
-        "surfaceId": "ui-mwvifxyy-lc77pp",
+        "surfaceId": "ui-mwvqzdvi-bb24i1",
         "catalogId": "https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json",
         "components": [
          {
           "id": "root",
           "component": "Column",
-          "gap": 4,
+          "gap": "md",
           "children": [
-           "title",
-           "caption",
-           "form"
+           "head",
+           "form",
+           "note",
+           "next"
           ]
          },
          {
-          "id": "title",
-          "component": "Title",
-          "text": "Sign up for the workshop",
-          "size": "lg"
-         },
-         {
-          "id": "caption",
-          "component": "Caption",
-          "text": "Fill in your details and pick a session. All fields are required.",
-          "color": "secondary"
+          "id": "head",
+          "component": "Heading",
+          "eyebrow": "Hands-on AI Workshop",
+          "subtitle": "Thu, Nov 14 · 09:30–12:30 · Studio Hall B — 24 seats left",
+          "text": "Sign up for the workshop"
          },
          {
           "id": "form",
-          "component": "Card",
-          "variant": "outline",
+          "component": "Form",
           "children": [
-           "formBody"
-          ]
+           "f_name",
+           "f_email",
+           "f_session",
+           "f_consent",
+           "f_submit"
+          ],
+          "onSubmit": {
+           "event": {
+            "context": {
+             "consent": {
+              "@path": "/signup/consent"
+             },
+             "email": {
+              "@path": "/signup/email"
+             },
+             "name": {
+              "@path": "/signup/name"
+             },
+             "session": {
+              "@path": "/signup/session"
+             }
+            },
+            "name": "workshop_signup_submit"
+           }
+          }
          },
          {
-          "id": "formBody",
-          "component": "Column",
-          "gap": 3,
-          "children": [
-           "name",
-           "email",
-           "session",
-           "consent",
-           "submitRow"
-          ]
-         },
-         {
-          "id": "name",
+          "id": "f_name",
           "component": "TextField",
           "label": "Full name",
-          "placeholder": "e.g. Ada Lovelace",
+          "placeholder": "e.g. Alina Meyer",
           "required": true,
           "value": {
            "@path": "/signup/name"
           },
           "checks": [
            {
-            "condition": {
-             "@call": "required",
-             "args": {
-              "value": {
-               "@path": "/signup/name"
-              }
-             }
-            },
-            "message": "Please enter your name"
-           },
-           {
-            "condition": {
-             "@call": "length",
-             "args": {
-              "value": {
-               "@path": "/signup/name"
-              },
-              "min": 2,
-              "max": 60
-             }
-            },
-            "message": "Name must be between 2 and 60 characters"
+            "message": "Please enter your name.",
+            "path": "/signup/name",
+            "predicate": "required"
            }
           ]
          },
          {
-          "id": "email",
+          "id": "f_email",
           "component": "TextField",
           "label": "Email",
-          "variant": "email",
           "placeholder": "you@example.com",
           "required": true,
           "value": {
@@ -154,20 +195,14 @@
           },
           "checks": [
            {
-            "condition": {
-             "@call": "email",
-             "args": {
-              "value": {
-               "@path": "/signup/email"
-              }
-             }
-            },
-            "message": "Please enter a valid email address"
+            "message": "Please enter a valid email address.",
+            "path": "/signup/email",
+            "predicate": "email"
            }
           ]
          },
          {
-          "id": "session",
+          "id": "f_session",
           "component": "Select",
           "label": "Session",
           "placeholder": "Choose a session",
@@ -177,89 +212,60 @@
           },
           "options": [
            {
-            "value": "sat-morning",
-            "label": "Saturday morning — 09:30",
-            "description": "Foundations, 3 hours, 6 seats left"
+            "value": "s1",
+            "label": "Session 1 — Prompting basics (09:30)"
            },
            {
-            "value": "sat-afternoon",
-            "label": "Saturday afternoon — 13:30",
-            "description": "Hands-on practice, 3 hours, 12 seats left"
+            "value": "s2",
+            "label": "Session 2 — Building agents (11:00)"
            },
            {
-            "value": "sun-morning",
-            "label": "Sunday morning — 09:30",
-            "description": "Advanced topics, 3 hours, 4 seats left"
+            "value": "s3",
+            "label": "Session 3 — Design + UI review (14:00)"
            }
           ],
           "checks": [
            {
-            "condition": {
-             "@call": "required",
-             "args": {
-              "value": {
-               "@path": "/signup/session"
-              }
-             }
-            },
-            "message": "Please choose a session"
+            "message": "Please choose a session.",
+            "path": "/signup/session",
+            "predicate": "required"
            }
           ]
          },
          {
-          "id": "consent",
+          "id": "f_consent",
           "component": "CheckBox",
-          "label": "I agree to the workshop terms and to being contacted about this event.",
-          "value": {
-           "@path": "/signup/consent"
-          },
+          "label": "I agree to the code of conduct and to being photographed.",
+          "value": true,
           "checks": [
            {
-            "condition": {
-             "@call": "required",
-             "args": {
-              "value": {
-               "@path": "/signup/consent"
-              }
-             }
-            },
-            "message": "Please accept the terms to continue"
+            "message": "Please accept the code of conduct to continue.",
+            "path": "/signup/consent",
+            "predicate": "required"
            }
           ]
          },
          {
-          "id": "submitRow",
-          "component": "Row",
-          "justify": "end",
-          "children": [
-           "submit"
-          ]
-         },
-         {
-          "id": "submit",
+          "id": "f_submit",
           "component": "Button",
-          "label": "Sign up",
+          "label": "Reserve my seat",
           "variant": "primary",
           "submit": true,
-          "onClick": {
-           "event": {
-            "name": "workshop.signup.submit",
-            "context": {
-             "name": {
-              "@path": "/signup/name"
-             },
-             "email": {
-              "@path": "/signup/email"
-             },
-             "session": {
-              "@path": "/signup/session"
-             },
-             "consent": {
-              "@path": "/signup/consent"
-             }
-            }
-           }
-          }
+          "block": true
+         },
+         {
+          "id": "note",
+          "component": "Caption",
+          "text": "Sample form — session times and seat count are illustrative."
+         },
+         {
+          "id": "next",
+          "component": "FollowUp",
+          "items": [
+           "Show the full workshop agenda",
+           "Add a phone number field",
+           "What happens after I submit?"
+          ]
          }
         ],
         "dataModel": {
@@ -275,16 +281,16 @@
      ]
     },
     "format": "json",
-    "ms": 7106
+    "ms": 9212
    }
   },
   {
-   "at": 15266,
+   "at": 29694,
    "event": {
     "type": "RUN_FINISHED",
-    "calls": 2,
+    "calls": 3,
     "shown": 1,
-    "ms": 15266
+    "ms": 29694
    }
   }
  ]

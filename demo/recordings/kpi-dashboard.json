@@ -1,0 +1,259 @@
+{
+ "title": "A dashboard for a small online shop",
+ "prompt": "A dashboard for a small online shop: four KPIs, a revenue chart for the last six months and the top five products.",
+ "model": "Qwen3.8-Flash-Next",
+ "format": "json",
+ "recordedAt": "2026-11-25T06:33:54.012Z",
+ "events": [
+  {
+   "at": 0,
+   "event": {
+    "type": "RUN_STARTED",
+    "runId": "kpi-dashboard",
+    "model": "Qwen3.8-Flash-Next",
+    "format": "json"
+   }
+  },
+  {
+   "at": 9812,
+   "event": {
+    "type": "RUN_ERROR"
+   }
+  },
+  {
+   "at": 9869,
+   "event": {
+    "type": "TEXT_MESSAGE_CONTENT",
+    "delta": "I'll build the shop dashboard with KPIs, a revenue trend, and top products."
+   }
+  },
+  {
+   "at": 9870,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.source",
+    "value": {
+     "format": "json",
+     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"gap\": \"lg\",\n   \"children\": [\n    \"head\",\n    \"kpis\",\n    \"rev\",\n    \"top\",\n    \"foot\",\n    \"next\"\n   ]\n  },\n  {\n   \"id\": \"head\",\n   \"component\": \"Heading\",\n   \"text\": \"Northwind Goods — Shop Overview\",\n   \"eyebrow\": \"Store dashboard\",\n   \"subtitle\": \"Last 30 days compared with the previous 30 days\"\n  },\n  {\n   \"id\": \"kpis\",\n   \"component\": \"Grid\",\n   \"columns\": 4,\n   \"gap\": \"md\",\n   \"children\": [\n    \"k1\",\n    \"k2\",\n    \"k3\",\n    \"k4\"\n   ]\n  },\n  {\n   \"id\": \"k1\",\n   \"component\": \"Stat\",\n   \"label\": \"Revenue\",\n   \"value\": \"$18,420\",\n   \"delta\": \"+12.4%\",\n   \"trend\": \"up\",\n   \"tone\": \"positive\"\n  },\n  {\n   \"id\": \"k2\",\n   \"component\": \"Stat\",\n   \"label\": \"Orders\",\n   \"value\": \"312\",\n   \"delta\": \"+8.1%\",\n   \"trend\": \"up\",\n   \"tone\": \"positive\"\n  },\n  {\n   \"id\": \"k3\",\n   \"component\": \"Stat\",\n   \"label\": \"Conversion rate\",\n   \"value\": \"3.1%\",\n   \"delta\": \"-0.4 pt\",\n   \"trend\": \"down\",\n   \"tone\": \"warning\"\n  },\n  {\n   \"id\": \"k4\",\n   \"component\": \"Stat\",\n   \"label\": \"Avg. order value\",\n   \"value\": \"$59.04\",\n   \"delta\": \"+3.9%\",\n   \"trend\": \"up\",\n   \"tone\": \"positive\"\n  },\n  {\n   \"id\": \"rev\",\n   \"component\": \"Section\",\n   \"title\": \"Revenue\",\n   \"description\": \"Monthly revenue over the last six months\",\n   \"children\": [\n    \"revchart\"\n   ]\n  },\n  {\n   \"id\": \"revchart\",\n   \"component\": \"Chart\",\n   \"chartType\": \"bar\",\n   \"xKey\": \"month\",\n   \"series\": [\n    \"revenue\"\n   ],\n   \"data\": [\n    {\n     \"month\": \"Feb\",\n     \"revenue\": 11200\n    },\n    {\n     \"month\": \"Mar\",\n     \"revenue\": 13850\n    },\n    {\n     \"month\": \"Apr\",\n     \"revenue\": 12600\n    },\n    {\n     \"month\": \"May\",\n     \"revenue\": 15980\n    },\n    {\n     \"month\": \"Jun\",\n     \"revenue\": 17310\n    },\n    {\n     \"month\": \"Jul\",\n     \"revenue\": 18420\n    }\n   ],\n   \"format\": \"currency\",\n   \"currency\": \"USD\",\n   \"height\": 260\n  },\n  {\n   \"id\": \"top\",\n   \"component\": \"Section\",\n   \"title\": \"Top 5 products\",\n   \"description\": \"By units sold in the last 30 days\",\n   \"children\": [\n    \"toptable\"\n   ]\n  },\n  {\n   \"id\": \"toptable\",\n   \"component\": \"Table\",\n   \"columns\": [\n    \"Product\",\n    \"Units\",\n    \"Revenue\",\n    \"Stock\"\n   ],\n   \"rows\": [\n    [\n     \"Aurora Insulated Bottle\",\n     \"184\",\n     \"$3,680\",\n     \"In stock\"\n    ],\n    [\n     \"Trailfold Weekender Bag\",\n     \"131\",\n     \"$5,240\",\n     \"Low stock\"\n    ],\n    [\n     \"Lumen Desk Lamp\",\n     \"118\",\n     \"$4,130\",\n     \"In stock\"\n    ],\n    [\n     \"Merino Crew Socks (3-pack)\",\n     \"106\",\n     \"$1,908\",\n     \"In stock\"\n    ],\n    [\n     \"Cortado Ceramic Mug\",\n     \"92\",\n     \"$1,472\",\n     \"Out of stock\"\n    ]\n   ],\n   \"dividers\": true\n  },\n  {\n   \"id\": \"foot\",\n   \"component\": \"Caption\",\n   \"text\": \"Illustrative data — figures are sample values for this demo shop.\"\n  },\n  {\n   \"id\": \"next\",\n   \"component\": \"FollowUp\",\n   \"items\": [\n    \"Show the full order list\",\n    \"Which products need restocking?\",\n    \"Compare with last quarter\"\n   ]\n  }\n ],\n \"data\": {\n  \"shop\": \"Northwind Goods\"\n }\n}",
+     "ms": 9807,
+     "attempt": 1
+    }
+   }
+  },
+  {
+   "at": 10036,
+   "event": {
+    "type": "ACTIVITY_SNAPSHOT",
+    "activityType": "a2ui-surface",
+    "content": {
+     "a2ui_operations": [
+      {
+       "version": "1.0",
+       "createSurface": {
+        "surfaceId": "ui-mwvqyyhz-5zqqgr",
+        "catalogId": "https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json",
+        "components": [
+         {
+          "id": "root",
+          "component": "Column",
+          "gap": "lg",
+          "children": [
+           "head",
+           "kpis",
+           "rev",
+           "top",
+           "foot",
+           "next"
+          ]
+         },
+         {
+          "id": "head",
+          "component": "Heading",
+          "text": "Northwind Goods — Shop Overview",
+          "eyebrow": "Store dashboard",
+          "subtitle": "Last 30 days compared with the previous 30 days"
+         },
+         {
+          "id": "kpis",
+          "component": "Grid",
+          "columns": 4,
+          "gap": "md",
+          "children": [
+           "k1",
+           "k2",
+           "k3",
+           "k4"
+          ]
+         },
+         {
+          "id": "k1",
+          "component": "Stat",
+          "label": "Revenue",
+          "value": "$18,420",
+          "delta": "+12.4%",
+          "trend": "up",
+          "tone": "positive"
+         },
+         {
+          "id": "k2",
+          "component": "Stat",
+          "label": "Orders",
+          "value": "312",
+          "delta": "+8.1%",
+          "trend": "up",
+          "tone": "positive"
+         },
+         {
+          "id": "k3",
+          "component": "Stat",
+          "label": "Conversion rate",
+          "value": "3.1%",
+          "delta": "-0.4 pt",
+          "trend": "down",
+          "tone": "warning"
+         },
+         {
+          "id": "k4",
+          "component": "Stat",
+          "label": "Avg. order value",
+          "value": "$59.04",
+          "delta": "+3.9%",
+          "trend": "up",
+          "tone": "positive"
+         },
+         {
+          "id": "rev",
+          "component": "Section",
+          "title": "Revenue",
+          "description": "Monthly revenue over the last six months",
+          "children": [
+           "revchart"
+          ]
+         },
+         {
+          "id": "revchart",
+          "component": "Chart",
+          "chartType": "bar",
+          "xKey": "month",
+          "series": [
+           "revenue"
+          ],
+          "data": [
+           {
+            "month": "Feb",
+            "revenue": 11200
+           },
+           {
+            "month": "Mar",
+            "revenue": 13850
+           },
+           {
+            "month": "Apr",
+            "revenue": 12600
+           },
+           {
+            "month": "May",
+            "revenue": 15980
+           },
+           {
+            "month": "Jun",
+            "revenue": 17310
+           },
+           {
+            "month": "Jul",
+            "revenue": 18420
+           }
+          ],
+          "format": "currency",
+          "currency": "USD",
+          "height": 260
+         },
+         {
+          "id": "top",
+          "component": "Section",
+          "title": "Top 5 products",
+          "description": "By units sold in the last 30 days",
+          "children": [
+           "toptable"
+          ]
+         },
+         {
+          "id": "toptable",
+          "component": "Table",
+          "columns": [
+           "Product",
+           "Units",
+           "Revenue",
+           "Stock"
+          ],
+          "rows": [
+           [
+            "Aurora Insulated Bottle",
+            "184",
+            "$3,680",
+            "In stock"
+           ],
+           [
+            "Trailfold Weekender Bag",
+            "131",
+            "$5,240",
+            "Low stock"
+           ],
+           [
+            "Lumen Desk Lamp",
+            "118",
+            "$4,130",
+            "In stock"
+           ],
+           [
+            "Merino Crew Socks (3-pack)",
+            "106",
+            "$1,908",
+            "In stock"
+           ],
+           [
+            "Cortado Ceramic Mug",
+            "92",
+            "$1,472",
+            "Out of stock"
+           ]
+          ],
+          "dividers": true
+         },
+         {
+          "id": "foot",
+          "component": "Caption",
+          "text": "Illustrative data — figures are sample values for this demo shop."
+         },
+         {
+          "id": "next",
+          "component": "FollowUp",
+          "items": [
+           "Show the full order list",
+           "Which products need restocking?",
+           "Compare with last quarter"
+          ]
+         }
+        ],
+        "dataModel": {
+         "shop": "Northwind Goods"
+        }
+       }
+      }
+     ]
+    },
+    "format": "json",
+    "ms": 9807
+   }
+  },
+  {
+   "at": 10036,
+   "event": {
+    "type": "RUN_FINISHED",
+    "calls": 1,
+    "shown": 1,
+    "ms": 10035
+   }
+  }
+ ]
+}
