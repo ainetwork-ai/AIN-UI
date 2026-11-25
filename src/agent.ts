@@ -394,6 +394,25 @@ function hoistItemEvents(c: A2uiComponent, schema: Doc, notes: string[]): A2uiCo
 
 const CHECK_MESSAGES: Record<string, string> = { required: "Required", email: "Enter a valid email address", regex: "Check the format", length: "Check the length", numeric: "Enter a number in range" };
 
+/** The name a function call is written with: `@call`, or `call` as models also write it. */
+const callName = (x: unknown): string | null => (isObj(x) && typeof (x["@call"] ?? x.call) === "string" ? String(x["@call"] ?? x.call) : null);
+
+/** One `checks` entry as the catalog wants it: `{ condition, message }`, the condition a bare call or a path. */
+function checkRule(x: unknown, where: string, notes: string[]): unknown {
+  if (!isObj(x)) return x;
+  const name = callName(x);
+  if (name && !("condition" in x)) {
+    const { message, ...call } = x;
+    notes.push(`${where}: a check was written as the call itself; it became the check's condition`);
+    return { condition: call, message: typeof message === "string" && message.trim() ? message : CHECK_MESSAGES[name] ?? "Check this value" };
+  }
+  if (isObj(x.condition) && callName(x.condition) && "message" in x.condition) {
+    const { message, ...call } = x.condition;
+    return { ...x, condition: call, message: typeof x.message === "string" && x.message.trim() ? x.message : typeof message === "string" ? message : CHECK_MESSAGES[callName(call)!] ?? "Check this value" };
+  }
+  return x;
+}
+
 /**
  * A Table's cells may hold components (`{"componentId": "b"}` in rows or columns), and the renderer counts them as
  * the table's only when they are also listed in `cellComponents`. Models list them in the rows and forget the list.
@@ -430,9 +449,11 @@ function tidyComponent(c: A2uiComponent, docs: Doc[], notes: string[]): A2uiComp
       out[k] = v.map((x) => (isObj(x) && typeof (x.componentId ?? x.id) === "string" && Object.keys(x).length === 1 ? (x.componentId ?? x.id) : x));
       continue;
     }
-    // a validation check written as the bare function call: it is the condition
+    // A validation check written as the bare function call — often with its message beside the call
+    // ({"@call": "email", args, message}) — is the condition; the message belongs to the check, not to the call,
+    // whose arguments the catalog checks strictly. A condition that itself carries the message is moved the same way.
     if (k === "checks" && Array.isArray(v)) {
-      out[k] = v.map((x) => (isObj(x) && typeof x["@call"] === "string" ? { condition: x, message: CHECK_MESSAGES[x["@call"] as string] ?? "Check this value" } : x));
+      out[k] = v.map((x) => checkRule(x, `${c.component} "${c.id}"`, notes));
       continue;
     }
     out[k] = tidy(v, prop, notes, `${c.component} "${c.id}".${k}`);
