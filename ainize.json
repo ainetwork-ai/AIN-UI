@@ -27,10 +27,10 @@
     "AINUI_RUNS_PER_DAY": "120"
   },
   "secrets": [
-    "AINIZE_API_KEY"
+    "AINUI_AINIZE_KEY"
   ],
   "requiredSecrets": [
-    "AINIZE_API_KEY"
+    "AINUI_AINIZE_KEY"
   ],
   "allowedHosts": [
     "ainize.ai"
@@ -42,7 +42,7 @@
   },
   "checks": [
     {
-      "name": "library tests",
+      "name": "library",
       "command": [
         "env",
         "NODE_ENV=test",
@@ -55,7 +55,7 @@
       "timeoutSeconds": 900
     },
     {
-      "name": "playground tests",
+      "name": "playground",
       "command": [
         "npm",
         "--prefix",

@@ -1,7 +1,7 @@
 /**
  * Evaluation: the same requests through the playground's own agent loop, for each model and format.
  *
- *   AINIZE_API_KEY=… node evals/run.mjs [--models a,b] [--formats express,json] [--concurrency 3] [--record 4]
+ *   AINUI_AINIZE_KEY=… node evals/run.mjs [--models a,b] [--formats express,json] [--concurrency 3] [--record 4]
  *
  * Writes evals/results.json (shown on /evals) and, with --record N, the first N valid runs of the first
  * model/format as recordings/*.json (replayed on /watch).
@@ -57,8 +57,9 @@ async function pool(items, size, fn) {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
-  if (!process.env.AINIZE_API_KEY) { console.error("AINIZE_API_KEY is not set"); process.exit(1); }
-  const client = new OpenAI({ apiKey: process.env.AINIZE_API_KEY, baseURL: process.env.AINUI_MODEL_BASE_URL ?? "https://ainize.ai/v1", timeout: 120_000, maxRetries: 1 });
+  const apiKey = process.env.AINUI_AINIZE_KEY || process.env.AINIZE_API_KEY;
+  if (!apiKey) { console.error("AINUI_AINIZE_KEY is not set"); process.exit(1); }
+  const client = new OpenAI({ apiKey, baseURL: process.env.AINUI_MODEL_BASE_URL ?? "https://ainize.ai/v1", timeout: 120_000, maxRetries: 1 });
   const chat = (body) => client.chat.completions.create(body);
   const models = arg("models", "Qwen3.8-Flash-Next,GLM-5.3-Flash").split(",");
   const formats = arg("formats", "express,json").split(",");
