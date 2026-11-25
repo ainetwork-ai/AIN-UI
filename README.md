@@ -120,6 +120,14 @@ for (const call of reply.choices[0].message.tool_calls ?? []) {
   tool calling. `toExpress(messages)` turns messages back into Express. `exportSkills({ format })` returns the
   Markdown skill files that teach a coding agent this catalog.
 
+### As a service
+
+The playground also serves the catalog guide and the checker to agent hosts that would rather not install this
+package: `POST https://ainui.ainetwork.xyz/api/ui/author {capabilities, format?}` returns `{prompt, tool}` for the
+catalogs the renderer draws, and `POST …/api/ui/render {capabilities, format?, args}` returns `{messages, notes}`
+or `422 {error: {code: "ui_invalid", message}}` with a message to hand back to the model. No model is called.
+ainize hosted agents use it for their `render_ui` tool.
+
 ### Macros
 
 A macro is one short call the model writes that the server expands into standard components before anything is

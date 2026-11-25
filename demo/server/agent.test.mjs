@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { inPlace, runTurn } from "./agent.mjs";
 import { createBudget } from "./limits.mjs";
 import { zip } from "./zip.mjs";
+import { describeUi, renderUi, UiError } from "./uidoor.mjs";
 
 /** A model that answers with the scripted replies, in order, and records what it was sent. */
 function scripted(...replies) {
@@ -100,4 +101,20 @@ test("a streaming model reports the surface as it is written, then shows it", as
   assert.deepEqual(types.filter((t) => t !== "writing"), ["text", "source", "surface", "done"]);
   assert.ok(events.find((e) => e.type === "writing").source.startsWith('{"express"'));
   assert.equal(events.find((e) => e.type === "surface").messages[0].createSurface.components.length, 32);
+});
+
+test("the UI door: what to tell a model for a renderer's catalogs, and a check of what it wrote", () => {
+  const AINUI = "https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json";
+  const capabilities = { "1.0": { supportedCatalogIds: [AINUI] } };
+  assert.equal(describeUi({ capabilities: { "1.0": { supportedCatalogIds: ["https://example.test/other.json"] } } }), null);
+  const d = describeUi({ capabilities });
+  assert.equal(d.format, "json"); assert.equal(d.tool.name, "render_ui"); assert.deepEqual(d.catalogIds, [AINUI]);
+  assert.match(d.prompt, /- Table — /); assert.match(d.prompt, /FileCard/, "macros are offered for AIN-UI's own catalog");
+  assert.deepEqual(d.tool.parameters.required, ["components"]);
+  assert.equal(describeUi({ capabilities, format: "express" }).tool.parameters.required[0], "express");
+  const out = renderUi({ capabilities, args: { components: [{ id: "root", component: "Column", children: ["t"], colour: "red" }, { id: "t", component: "Text", text: "hi" }] } });
+  assert.equal(out.messages[0].version, "1.0"); assert.equal(out.messages[0].createSurface.catalogId, AINUI);
+  assert.equal(out.notes.length, 1);
+  assert.throws(() => renderUi({ capabilities, args: { components: [{ id: "root", component: "Nope" }] } }), UiError);
+  assert.throws(() => renderUi({ capabilities: {}, args: {} }), UiError);
 });

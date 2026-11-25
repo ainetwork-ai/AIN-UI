@@ -12,6 +12,7 @@ import { catalogsFor, createUiAuthor, exportSkills, toExpress, UiError } from "a
 import { AINUI_MACROS } from "ain-ui/macros";
 import { runTurn } from "./agent.mjs";
 import { createBudget } from "./limits.mjs";
+import { describeUi, renderUi } from "./uidoor.mjs";
 import { zip } from "./zip.mjs";
 
 const here = fileURLToPath(new URL(".", import.meta.url));
@@ -121,6 +122,28 @@ async function run(req, res) {
   res.end();
 }
 
+/** `/api/ui/author` and `/api/ui/render`: the catalog and the checker for other agent hosts (uidoor.mjs). */
+const doorBudget = createBudget({ perHour: Number(env.AINUI_DOOR_PER_HOUR ?? 6000), perDay: Number(env.AINUI_DOOR_PER_DAY ?? 60000) });
+async function uiDoor(req, res, what) {
+  const taken = doorBudget.take(caller(req));
+  if (!taken.ok) return fail(res, 429, "rate_limited", "too many requests; try again later", { "retry-after": String(taken.retryAfterSeconds) });
+  const body = await readJson(req, 2 * 1024 * 1024);
+  if (!body.capabilities || typeof body.capabilities !== "object") return fail(res, 400, "invalid_request", "capabilities (the renderer's a2uiRendererCapabilities) is required");
+  const format = body.format === "express" ? "express" : "json";
+  try {
+    if (what === "author") {
+      const described = describeUi({ capabilities: body.capabilities, format });
+      return described ? send(res, 200, described) : fail(res, 422, "no_catalog", "none of the renderer's catalogs can be written for: it must list the AINUI catalog id or send its catalogs inline");
+    }
+    return send(res, 200, renderUi({ capabilities: body.capabilities, format, args: body.args }));
+  } catch (e) {
+    if (e instanceof UiError) return fail(res, 422, "ui_invalid", e.message);
+    // A catalog the SDK cannot load is the sender's to fix, not a server fault.
+    if (what === "author") return fail(res, 422, "catalog_invalid", String(e?.message ?? e).slice(0, 300));
+    throw e;
+  }
+}
+
 async function compileExpress(req, res) {
   const body = await readJson(req, 256 * 1024);
   if (typeof body.express !== "string" || !body.express.trim()) return fail(res, 400, "invalid_request", "express (string) is required");
@@ -169,6 +192,8 @@ const server = createServer(async (req, res) => {
     if (req.method === "POST" && path === "/api/run") return await run(req, res);
     if (req.method === "POST" && path === "/api/express") return await compileExpress(req, res);
     if (req.method === "POST" && path === "/api/decompile") return await decompile(req, res);
+    if (req.method === "POST" && path === "/api/ui/author") return await uiDoor(req, res, "author");
+    if (req.method === "POST" && path === "/api/ui/render") return await uiDoor(req, res, "render");
     if (path.startsWith("/api/")) return fail(res, 404, "not_found", "no such endpoint");
     if (req.method !== "GET" && req.method !== "HEAD") return fail(res, 405, "method_not_allowed", "GET only");
     return serveStatic(req, res, path);
