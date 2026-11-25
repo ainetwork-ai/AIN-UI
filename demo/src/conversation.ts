@@ -28,7 +28,7 @@ type Step = { kind: "user"; text: string; action?: Turn["action"] } | { kind: "e
 
 let seq = 0;
 const id = () => `t${++seq}`;
-const surfaceIdOf = (ops: any[]) => ops.map((m) => m.createSurface?.surfaceId ?? m.updateComponents?.surfaceId ?? m.updateDataModel?.surfaceId).find(Boolean) as string | undefined;
+const surfaceIdOf = (ops: any[]) => ops.map((m) => m.deleteSurface?.surfaceId ?? m.createSurface?.surfaceId ?? m.updateComponents?.surfaceId ?? m.updateDataModel?.surfaceId).find(Boolean) as string | undefined;
 
 function reduce(state: Conversation, step: Step): Conversation {
   if (step.kind === "reset") return { turns: [] };
@@ -47,7 +47,8 @@ function reduce(state: Conversation, step: Step): Conversation {
   else if (e.type === "ACTIVITY_SNAPSHOT") {
     const ops = e.content?.a2ui_operations ?? [];
     const target = surfaceIdOf(ops);
-    const creates = ops.some((m: any) => m.createSurface);
+    // A surface replaced in answer to a click starts with deleteSurface: it belongs where that surface is shown.
+    const creates = ops.some((m: any) => m.createSurface) && !ops.some((m: any) => m.deleteSurface);
     // An update goes to the surface it names, wherever in the conversation that surface was shown.
     const owner = creates ? -1 : turns.findIndex((t) => t.surfaces.some((s) => s.surfaceId === target));
     if (owner >= 0) {

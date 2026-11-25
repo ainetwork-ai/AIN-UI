@@ -15,16 +15,17 @@ export const PERSONA = `You are the AIN-UI playground assistant. People ask for 
 
 const count = (messages) => messages.reduce((n, m) => n + (m.createSurface?.components?.length ?? m.updateComponents?.components?.length ?? 0), 0);
 
-/** A new surface written in answer to an action becomes an update of the surface the action came from. */
+/**
+ * A new surface written in answer to an action replaces the surface the action came from: deleted and created
+ * again under its id. Patching it instead would leave what the new root no longer uses as orphans, which the
+ * renderer refuses. Updates the model addressed to that surface itself pass through.
+ */
 export function inPlace(messages, surfaceId) {
   if (!surfaceId) return messages;
   return messages.flatMap((m) => {
     if (!m.createSurface) return [m];
-    const { components, dataModel } = m.createSurface;
-    return [
-      ...(components ? [{ version: m.version, updateComponents: { surfaceId, components } }] : []),
-      { version: m.version, updateDataModel: { surfaceId, path: "/", value: dataModel ?? {} } },
-    ];
+    if (m.createSurface.surfaceId === surfaceId) return [m];
+    return [{ version: m.version, deleteSurface: { surfaceId } }, { ...m, createSurface: { ...m.createSurface, surfaceId } }];
   });
 }
 

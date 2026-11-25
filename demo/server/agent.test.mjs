@@ -52,8 +52,8 @@ test("an action updates the surface it came from instead of opening a new one", 
   const m = scripted(call({ express: `root = Text("Count: 2")` }));
   const events = await collect(runTurn({ chat: m.chat, model: "GLM-5.3-Flash", format: "express", history: [...history, { role: "assistant", content: "[You showed surface \"s1\"]" }], action: { name: "more", surfaceId: "s1", context: { n: 1 } } }));
   const surface = events.find((e) => e.type === "surface");
-  assert.deepEqual(surface.messages.map((x) => Object.keys(x)[1]), ["updateComponents", "updateDataModel"]);
-  assert.ok(surface.messages.every((x) => (x.updateComponents ?? x.updateDataModel).surfaceId === "s1"));
+  assert.deepEqual(surface.messages.map((x) => Object.keys(x)[1]), ["deleteSurface", "createSurface"]);
+  assert.ok(surface.messages.every((x) => (x.deleteSurface ?? x.createSurface).surfaceId === "s1"));
   assert.match(m.seen[0].messages.at(-1).content, /event "more" with context \{"n":1\}/);
   assert.deepEqual(inPlace([{ version: "1.0", updateDataModel: { surfaceId: "s1", path: "/n", value: 2 } }], "s1").length, 1);
 });
