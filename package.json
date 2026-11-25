@@ -52,7 +52,8 @@
     "build": "node scripts/standard.mjs && tsc && node scripts/styles.mjs && node scripts/catalog.mjs",
     "test": "node scripts/standard.mjs && tsx --test test/*.test.ts test/*.test.tsx",
     "prepublishOnly": "npm run build && npm test",
-    "generate": "node scripts/standard.mjs"
+    "generate": "node scripts/standard.mjs",
+    "test:built": "tsx --test test/*.test.ts test/*.test.tsx"
   },
   "dependencies": {
     "@a2ui/agent": "^0.2.1",

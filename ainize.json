@@ -44,10 +44,13 @@
     {
       "name": "library tests",
       "command": [
+        "env",
+        "NODE_ENV=test",
         "npm",
         "--prefix",
         "/app",
-        "test"
+        "run",
+        "test:built"
       ],
       "timeoutSeconds": 900
     },
