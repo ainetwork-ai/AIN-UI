@@ -1,6 +1,6 @@
 {
   "name": "ain-ui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "AIN-UI: A2UI 1.0 components, renderers and agent tools \u2014 standard catalog, files, uploads and x402 payments",
   "type": "module",
   "license": "MIT",
