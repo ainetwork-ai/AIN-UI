@@ -1,0 +1,59 @@
+/* AIN-UI design tokens. A design system is a set of these values: set them on .ain-ui (or pick a theme with
+   data-ainui-theme) and every component follows. */
+.ain-ui {
+  --ainui-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+  --ainui-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --ainui-fg: #101828; --ainui-muted: #667085;
+  --ainui-surface: #ffffff; --ainui-surface-2: #f5f6f8;
+  --ainui-border: #e4e7ec; --ainui-border-strong: #c4c9d4;
+  --ainui-primary: #2456d9; --ainui-primary-fg: #ffffff; --ainui-hover: #f5f6f8;
+  --ainui-radius: 10px; --ainui-shadow: 0 1px 2px #1018280f, 0 4px 12px #10182814;
+  --ainui-info: #1c6fd1; --ainui-info-soft: #e8f1fd;
+  --ainui-success: #16803c; --ainui-success-soft: #e6f6ec;
+  --ainui-warning: #b45309; --ainui-warning-soft: #fdf1dc;
+  --ainui-caution: #a16207; --ainui-caution-soft: #fdf6d8;
+  --ainui-danger: #c13535; --ainui-danger-soft: #fdeaea;
+  --ainui-discovery: #6d3fd1; --ainui-discovery-soft: #f0eafd;
+  --ainui-secondary: #475467; --ainui-secondary-soft: #eef0f3;
+  /* names AINUI v1 styles used */
+  --ainui-line: var(--ainui-border); --ainui-active: var(--ainui-surface); --ainui-accent: var(--ainui-primary);
+}
+/* Without a theme the surface takes the host page's text colour and font, as AINUI v1 did. Naming a theme
+   (data-ainui-theme, "ain" included) makes the surface carry its own. */
+.ain-ui[data-ainui-theme] { color: var(--ainui-fg); font-family: var(--ainui-font); font-size: 14px; line-height: 1.5; }
+@media (prefers-color-scheme: dark) {
+  .ain-ui:not([data-ainui-scheme=light]) {
+    --ainui-fg: #f2f4f7; --ainui-muted: #98a2b3; --ainui-surface: #15171c; --ainui-surface-2: #1e2128;
+    --ainui-border: #2c313a; --ainui-border-strong: #454c59; --ainui-primary: #6f95ff; --ainui-primary-fg: #0b1020; --ainui-hover: #232730;
+    --ainui-shadow: 0 1px 2px #0006, 0 6px 16px #0006;
+    --ainui-info: #6fb0ff; --ainui-info-soft: #132a45; --ainui-success: #5fd08a; --ainui-success-soft: #11301e;
+    --ainui-warning: #f0a54a; --ainui-warning-soft: #3a2710; --ainui-caution: #e6c04f; --ainui-caution-soft: #37300f;
+    --ainui-danger: #ff8080; --ainui-danger-soft: #401a1a; --ainui-discovery: #b497ff; --ainui-discovery-soft: #2a1f4a;
+    --ainui-secondary: #b3bccb; --ainui-secondary-soft: #262b34;
+  }
+}
+.ain-ui[data-ainui-scheme=dark] {
+  --ainui-fg: #f2f4f7; --ainui-muted: #98a2b3; --ainui-surface: #15171c; --ainui-surface-2: #1e2128;
+  --ainui-border: #2c313a; --ainui-border-strong: #454c59; --ainui-primary: #6f95ff; --ainui-primary-fg: #0b1020; --ainui-hover: #232730;
+  --ainui-shadow: 0 1px 2px #0006, 0 6px 16px #0006;
+  --ainui-info: #6fb0ff; --ainui-info-soft: #132a45; --ainui-success: #5fd08a; --ainui-success-soft: #11301e;
+  --ainui-warning: #f0a54a; --ainui-warning-soft: #3a2710; --ainui-caution: #e6c04f; --ainui-caution-soft: #37300f;
+  --ainui-danger: #ff8080; --ainui-danger-soft: #401a1a; --ainui-discovery: #b497ff; --ainui-discovery-soft: #2a1f4a;
+  --ainui-secondary: #b3bccb; --ainui-secondary-soft: #262b34;
+}
+
+/* Design systems. "ain" is the default above. */
+.ain-ui[data-ainui-theme=plain] {
+  --ainui-font: Georgia, "Times New Roman", serif; --ainui-primary: #111111; --ainui-primary-fg: #ffffff;
+  --ainui-radius: 2px; --ainui-shadow: none; --ainui-border: #d0d0d0; --ainui-border-strong: #8a8a8a; --ainui-surface-2: #f4f4f4; --ainui-hover: #efefef;
+}
+.ain-ui[data-ainui-theme=material] {
+  --ainui-font: Roboto, "Noto Sans KR", system-ui, sans-serif; --ainui-primary: #6750a4; --ainui-primary-fg: #ffffff;
+  --ainui-radius: 16px; --ainui-surface-2: #f3edf7; --ainui-hover: #ece6f0; --ainui-border: #cac4d0; --ainui-border-strong: #79747e;
+  --ainui-shadow: 0 1px 3px #0000004d, 0 4px 8px 3px #00000026;
+}
+.ain-ui[data-ainui-theme=terminal] {
+  --ainui-font: var(--ainui-mono); --ainui-fg: #d6f5d6; --ainui-muted: #7fae7f; --ainui-surface: #0b0f0b; --ainui-surface-2: #111811;
+  --ainui-border: #244024; --ainui-border-strong: #3c6b3c; --ainui-primary: #5cff8f; --ainui-primary-fg: #04120a; --ainui-hover: #152215;
+  --ainui-radius: 0px; --ainui-shadow: none; background: var(--ainui-surface);
+}

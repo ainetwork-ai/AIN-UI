@@ -1,0 +1,38 @@
+/* "Files & payments" page. Page chrome only: the surfaces are styled by ain-ui/styles.css. */
+.ain-page h3 { font-size: 15px; margin: 24px 0 6px; }
+.ain-page h4 { font-size: 12px; margin: 10px 0 4px; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.ain-page section { min-width: 0; }
+.ain-page .example-stage { min-width: 0; }
+/* The terminal design system paints its own background: let it fill the stage. */
+.ain-page .example-stage > .ain-ui[data-ainui-theme=terminal] { margin: -20px; padding: 20px; }
+.ain-page .example-stage > .ain-ui[data-ainui-theme=terminal]:not(:first-child) { margin-top: 12px; }
+.ain-page .example-stage > .ain-ui[data-ainui-theme=terminal]:not(:last-child) { margin-bottom: 12px; }
+
+.ain-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin: 12px 0 0; }
+.ain-row .pg-button:disabled { opacity: .5; cursor: default; }
+.ain-demo-note { margin: 0 0 12px; }
+.ain-demo-note .pg-chip { margin-inline-start: 0; }
+
+.ain-page .ain-log-title { margin: 0; padding: 10px 14px 0; border-top: 1px solid var(--line); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+.ain-log { border-top: 0; min-height: 42px; max-height: 190px; overflow: auto; overflow-wrap: anywhere; }
+.ain-log code { color: var(--fg); font-weight: 600; }
+.ain-log-empty { list-style: none; margin-left: -16px; }
+.ain-log-outcome { color: var(--accent); }
+
+.ain-status { display: flex; align-items: center; gap: 6px; margin: 0 0 4px; font-weight: 600; }
+.ain-chip-locked { background: color-mix(in srgb, var(--danger) 14%, var(--soft)); color: var(--danger); }
+.ain-chip-open { background: color-mix(in srgb, #1f9d55 18%, var(--soft)); color: color-mix(in srgb, #1f9d55 70%, var(--fg)); }
+.ain-receipt { margin: 14px 0 0; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 10px; background: var(--soft); font-size: 13px; overflow-wrap: anywhere; }
+
+.ain-picked { padding: 10px 14px 14px; border-top: 1px solid var(--line); }
+.ain-picked .pg-note { overflow-wrap: anywhere; }
+.ain-page .ain-json { margin: 0; max-height: 240px; background: var(--bg); }
+
+.ain-preview { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.ain-preview-image { display: block; max-width: 100%; max-height: 60vh; margin: 0 auto; object-fit: contain; border-radius: 10px; }
+.ain-preview-frame { width: 100%; height: 60vh; min-height: 320px; border: 1px solid var(--ainui-border, var(--line)); border-radius: 10px; background: #fff; }
+.ain-preview-text { margin: 0; padding: 14px; max-height: 50vh; overflow: auto; border: 1px solid var(--ainui-border, var(--line)); border-radius: 10px; background: var(--ainui-surface-2, var(--bg)); color: inherit; font: 12.5px/1.55 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ain-preview-meta { margin: 0; font-size: 13px; color: var(--ainui-muted, var(--muted)); overflow-wrap: anywhere; }
+.ain-preview-meta strong { color: inherit; }
+
+@media (max-width: 600px) { .ain-page .example-stage { padding: 14px; } .ain-page .example-stage > .ain-ui[data-ainui-theme=terminal] { margin: -14px; padding: 14px; } }

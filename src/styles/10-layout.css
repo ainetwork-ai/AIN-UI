@@ -1,0 +1,31 @@
+/* Standard catalog — layout */
+.ain-ui .ainui-box, .ain-ui .ainui-column, .ain-ui .ainui-row, .ain-ui .ainui-grid, .ain-ui .ainui-flow { gap: 12px; min-width: 0; box-sizing: border-box; }
+.ain-ui .ainui-row { flex-wrap: wrap; }
+.ain-ui .ainui-row > *, .ain-ui .ainui-column > * { min-width: 0; }
+.ain-ui .ainui-grid, .ain-ui .ainui-flow { width: 100%; }
+.ain-ui .ainui-flush { margin: 0; }
+.ain-ui .ainui-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; box-sizing: border-box; min-width: 0;
+  background: var(--ainui-surface); border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); }
+.ain-ui .ainui-card-outline { background: transparent; }
+.ain-ui .ainui-card-section { border: 0; padding: 0; background: transparent; }
+.ain-ui .ainui-card-soft { background: var(--ainui-surface-2); border-color: transparent; }
+.ain-ui .ainui-card-elevated { border-color: transparent; box-shadow: var(--ainui-shadow); }
+.ain-ui .ainui-card-transparent { background: transparent; border-color: transparent; padding: 0; }
+.ain-ui .ainui-card-sm { padding: 10px; gap: 8px; } .ain-ui .ainui-card-lg { padding: 24px; gap: 16px; }
+.ain-ui .ainui-shadow-sm { box-shadow: 0 1px 2px #1018280f; } .ain-ui .ainui-shadow-md { box-shadow: var(--ainui-shadow); }
+.ain-ui .ainui-divider { flex: none; }
+.ain-ui .ainui-carousel { position: relative; display: flex; align-items: center; gap: 6px; min-width: 0; }
+.ain-ui .ainui-carousel-track { display: flex; overflow-x: auto; scroll-behavior: smooth; flex: 1 1 0%; min-width: 0; scrollbar-width: thin; padding-block: 2px; }
+.ain-ui .ainui-carousel-item { flex: none; scroll-snap-align: var(--ainui-carousel-align, start); width: var(--ainui-carousel-item, auto); max-width: 100%; margin: 0; }
+.ain-ui .ainui-carousel-arrow { flex: none; width: 32px; height: 32px; border-radius: 9999px; border: 1px solid var(--ainui-border); background: var(--ainui-surface); color: inherit; font-size: 18px; line-height: 1; }
+.ain-ui .ainui-carousel-arrow:hover:not(:disabled) { background: var(--ainui-hover); }
+.ain-ui .ainui-carousel-media img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--ainui-radius); }
+.ain-ui .ainui-carousel-media figcaption { margin-top: 6px; }
+.ain-ui .ainui-media-button { display: block; width: 100%; padding: 0; border: 0; background: transparent; }
+.ain-ui .ainui-lightbox { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; background: #000c; padding: 24px; }
+.ain-ui .ainui-lightbox img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.ain-ui .ainui-lightbox-close { position: absolute; top: 12px; right: 12px; width: 36px; height: 36px; border-radius: 9999px; border: 0; background: #fff2; color: #fff; font-size: 20px; }
+.ain-ui .ainui-tabs { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ain-ui .ainui-tablist { display: flex; gap: 4px; border-bottom: 1px solid var(--ainui-border); overflow-x: auto; }
+.ain-ui .ainui-tab { padding: 8px 12px; border: 0; border-bottom: 2px solid transparent; margin-bottom: -1px; background: transparent; color: var(--ainui-muted); font-weight: 500; white-space: nowrap; }
+.ain-ui .ainui-tab[aria-selected=true] { color: var(--ainui-fg); border-bottom-color: var(--ainui-primary); }

@@ -1,0 +1,175 @@
+{
+ "ranAt": "2026-11-25T02:48:54.538Z",
+ "cases": [
+  {
+   "id": "kpi-dashboard",
+   "prompt": "A dashboard for a small online shop: four KPIs, a revenue chart for the last six months and the top five products.",
+   "expects": [
+    "Chart"
+   ]
+  },
+  {
+   "id": "compare-table",
+   "prompt": "Compare three laptops for a developer in a table, with a recommendation.",
+   "expects": [
+    "Table"
+   ]
+  },
+  {
+   "id": "signup-form",
+   "prompt": "A sign-up form for a workshop: name, email, a session choice and a consent checkbox, with validation and a submit button.",
+   "expects": [
+    "TextField",
+    "Button"
+   ]
+  },
+  {
+   "id": "trip-map",
+   "prompt": "A weekend plan for Seoul: a map with five places and the order to visit them.",
+   "expects": [
+    "Map"
+   ]
+  },
+  {
+   "id": "pricing",
+   "prompt": "A pricing page with three plans. Mark the recommended one.",
+   "expects": [
+    "Card",
+    "Button"
+   ]
+  },
+  {
+   "id": "recipe",
+   "prompt": "A recipe for kimchi fried rice: ingredients as a list, steps in order, and the cooking time.",
+   "expects": [
+    "List"
+   ]
+  },
+  {
+   "id": "settings-tabs",
+   "prompt": "Account settings split into Profile, Notifications and Security tabs, each with two or three controls.",
+   "expects": [
+    "Tabs"
+   ]
+  },
+  {
+   "id": "survey",
+   "prompt": "A five-question customer satisfaction survey with a slider, radio choices and a comment box.",
+   "expects": [
+    "Slider",
+    "RadioGroup"
+   ]
+  },
+  {
+   "id": "article-sources",
+   "prompt": "Summarise why the sky is blue in three short paragraphs with two cited sources and follow-up questions.",
+   "expects": [
+    "Citation",
+    "FollowUp"
+   ]
+  },
+  {
+   "id": "gallery",
+   "prompt": "A photo gallery of six landscape photos with captions, as a carousel.",
+   "expects": [
+    "Carousel"
+   ]
+  },
+  {
+   "id": "order-status",
+   "prompt": "An order status card: order number, a status badge, the items in a table and a button to contact support.",
+   "expects": [
+    "Badge",
+    "Table",
+    "Button"
+   ]
+  },
+  {
+   "id": "files",
+   "prompt": "Show a folder of eight files as a grid of tiles, with a breadcrumb path and an upload button.",
+   "expects": [
+    "Tile",
+    "Breadcrumbs",
+    "FileUpload"
+   ]
+  }
+ ],
+ "runs": [
+  {
+   "model": "Qwen3.8-Flash-Next",
+   "format": "json",
+   "cases": 12,
+   "scored": 12,
+   "valid": 11,
+   "firstTry": 8,
+   "componentChoice": 10,
+   "medianMs": 9202,
+   "failures": [
+    {
+     "id": "kpi-dashboard",
+     "reason": "The UI was not valid for the catalog: Component 'productRow' references non-existent component 'cName' in field 'children[0]' (Dangling reference 'cName' in component 'productRow'). Fix it and call render_ui again."
+    },
+    {
+     "id": "pricing",
+     "reason": "valid, but without Card, Button"
+    }
+   ]
+  },
+  {
+   "model": "Qwen3.8-Flash-Next",
+   "format": "express",
+   "cases": 12,
+   "scored": 12,
+   "valid": 10,
+   "firstTry": 7,
+   "componentChoice": 10,
+   "medianMs": 7484,
+   "failures": [
+    {
+     "id": "pricing",
+     "reason": "The UI was not valid for the catalog: Validation failed for component 'EntityCard' (plan2): actions.0: Either '@path' or 'path' must be provided.. Fix it and call render_ui again."
+    },
+    {
+     "id": "files",
+     "reason": "The UI was not valid for the catalog: Validation failed for component 'Breadcrumbs' (path): items.0.path: Expected string, received undefined; items.1.path: Expected string, received undefined; items.2.path: Expected string, received undefi"
+    }
+   ]
+  },
+  {
+   "model": "GLM-5.3-Flash",
+   "format": "json",
+   "cases": 12,
+   "scored": 11,
+   "valid": 11,
+   "firstTry": 9,
+   "componentChoice": 11,
+   "medianMs": 67663,
+   "failures": [
+    {
+     "id": "kpi-dashboard",
+     "reason": "not scored: The model did not answer (Error)."
+    }
+   ]
+  },
+  {
+   "model": "GLM-5.3-Flash",
+   "format": "express",
+   "cases": 12,
+   "scored": 12,
+   "valid": 10,
+   "firstTry": 10,
+   "componentChoice": 10,
+   "medianMs": 35592,
+   "failures": [
+    {
+     "id": "signup-form",
+     "reason": "The A2UI Express did not compile: Component 'TextField' does not accept checks. - Help: Remove the check expressions, or use a component whose schema declares a list of CheckRule.. Correct the syntax and call render_ui again."
+    },
+    {
+     "id": "settings-tabs",
+     "reason": "The UI was not valid for the catalog: Validation failed for component 'TextField' (securityPanel_children_1): checks.1: Expected object, received string; checks.1: Expected object, received string; checks.1: Expected object, received string"
+    }
+   ]
+  }
+ ]
+}

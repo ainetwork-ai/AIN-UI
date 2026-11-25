@@ -1,0 +1,66 @@
+/* Standard catalog — composites: LinkCard, Citation, FollowUp, EntityCard, ImageGrid. */
+.ain-ui .ainui-link-card { display: flex; align-items: stretch; gap: 12px; width: 100%; min-width: 0; padding: 12px; box-sizing: border-box; border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); background: var(--ainui-surface); color: var(--ainui-fg); font: inherit; text-align: start; text-decoration: none; transition: background .15s, border-color .15s; }
+.ain-ui a.ainui-link-card:hover, .ain-ui button.ainui-link-card:hover:not(:disabled) { background: var(--ainui-hover); border-color: var(--ainui-border-strong); }
+.ain-ui button.ainui-link-card:disabled { opacity: 1; }
+.ain-ui .ainui-link-card-body { display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0; }
+.ain-ui .ainui-link-card-source { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ainui-muted); }
+.ain-ui .ainui-link-card-domain { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ain-ui .ainui-link-card-title { font-weight: 600; line-height: 1.35; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+.ain-ui .ainui-link-card-description { font-size: 13px; color: var(--ainui-muted); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; overflow-wrap: anywhere; }
+.ain-ui .ainui-link-card-image { flex: 0 0 auto; width: 96px; height: 72px; align-self: center; object-fit: cover; border-radius: 6px; background: var(--ainui-surface-2); }
+
+.ain-ui .ainui-citation { position: relative; display: inline-block; vertical-align: baseline; line-height: 1; }
+.ain-ui .ainui-citation-marker { display: inline; padding: 0 3px; margin: 0 1px; border: 0; border-radius: 4px; background: var(--ainui-surface-2); color: var(--ainui-primary); font-size: .8em; font-weight: 600; line-height: 1.4; vertical-align: .15em; }
+.ain-ui .ainui-citation-marker:hover, .ain-ui .ainui-citation-marker[aria-expanded=true] { background: var(--ainui-primary); color: var(--ainui-primary-fg); }
+.ain-ui .ainui-citation-popover { position: absolute; z-index: 20; top: 100%; left: 0; display: flex; flex-direction: column; gap: 4px; width: max-content; max-width: min(320px, 80vw); margin-top: 4px; padding: 10px 12px; border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); background: var(--ainui-surface); color: var(--ainui-fg); box-shadow: var(--ainui-shadow); font-size: 13px; font-weight: 400; line-height: 1.45; text-align: start; white-space: normal; }
+.ain-ui .ainui-citation-source { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ainui-muted); }
+.ain-ui .ainui-citation-title { font-weight: 600; overflow-wrap: anywhere; }
+.ain-ui .ainui-citation-snippet { color: var(--ainui-muted); padding-left: 8px; border-left: 2px solid var(--ainui-border-strong); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; }
+.ain-ui .ainui-citation-link { color: var(--ainui-primary); font-size: 12px; text-decoration: none; }
+.ain-ui .ainui-citation-link:hover { text-decoration: underline; }
+
+.ain-ui .ainui-follow-up { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.ain-ui .ainui-follow-up-title { font-size: 12px; color: var(--ainui-muted); }
+.ain-ui .ainui-follow-up-items { display: flex; flex-wrap: wrap; gap: 8px; }
+.ain-ui .ainui-follow-up-item { max-width: 100%; padding: 6px 12px; border: 1px solid var(--ainui-border); border-radius: 9999px; background: var(--ainui-surface); color: var(--ainui-fg); font-size: 13px; line-height: 1.4; text-align: start; transition: background .15s, border-color .15s; }
+.ain-ui .ainui-follow-up-item:hover { background: var(--ainui-hover); border-color: var(--ainui-border-strong); }
+
+.ain-ui .ainui-entity-card { position: relative; display: flex; flex-direction: column; min-width: 0; max-width: 100%; box-sizing: border-box; overflow: hidden; border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); background: var(--ainui-surface); color: var(--ainui-fg); }
+.ain-ui .ainui-entity-card-horizontal { flex-direction: row; }
+.ain-ui .ainui-entity-card-clickable:hover { border-color: var(--ainui-border-strong); box-shadow: var(--ainui-shadow); }
+.ain-ui .ainui-entity-card-media { display: block; flex: none; width: 100%; overflow: hidden; background: var(--ainui-surface-2); }
+.ain-ui .ainui-entity-card-horizontal .ainui-entity-card-media { width: 36%; max-width: 200px; aspect-ratio: auto !important; align-self: stretch; }
+.ain-ui .ainui-entity-card-media img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.ain-ui .ainui-entity-card-body { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; flex: 1 1 auto; min-width: 0; padding: 12px; }
+.ain-ui .ainui-entity-card-title { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; font-weight: 600; font-size: 15px; line-height: 1.35; text-align: start; text-decoration: none; overflow-wrap: anywhere; }
+.ain-ui .ainui-entity-card-hit::after { content: ""; position: absolute; inset: 0; }
+.ain-ui .ainui-entity-card-subtitle { font-size: 13px; color: var(--ainui-muted); }
+.ain-ui .ainui-entity-card-description { margin: 0; font-size: 13px; color: var(--ainui-muted); display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+.ain-ui .ainui-entity-card-meta { font-size: 13px; font-weight: 600; }
+.ain-ui .ainui-entity-card-badge { padding: 1px 8px; border-radius: 9999px; font-size: 11px; font-weight: 600; line-height: 1.6; background: var(--ainui-secondary-soft); color: var(--ainui-secondary); }
+.ain-ui .ainui-entity-card-badge-success { background: var(--ainui-success-soft); color: var(--ainui-success); }
+.ain-ui .ainui-entity-card-badge-danger { background: var(--ainui-danger-soft); color: var(--ainui-danger); }
+.ain-ui .ainui-entity-card-badge-warning { background: var(--ainui-warning-soft); color: var(--ainui-warning); }
+.ain-ui .ainui-entity-card-badge-info { background: var(--ainui-info-soft); color: var(--ainui-info); }
+.ain-ui .ainui-entity-card-badge-discovery { background: var(--ainui-discovery-soft); color: var(--ainui-discovery); }
+.ain-ui .ainui-entity-card-rating { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; color: var(--ainui-muted); }
+.ain-ui .ainui-entity-card-stars { position: relative; display: inline-block; color: var(--ainui-border-strong); font-size: 13px; line-height: 1; letter-spacing: 1px; white-space: nowrap; }
+.ain-ui .ainui-entity-card-stars-on { position: absolute; top: 0; left: 0; overflow: hidden; color: var(--ainui-warning); }
+.ain-ui .ainui-entity-card-rating-value { font-weight: 600; color: var(--ainui-fg); }
+.ain-ui .ainui-entity-card-actions { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.ain-ui .ainui-entity-card-action { display: inline-flex; align-items: center; justify-content: center; min-height: 32px; padding: 4px 12px; box-sizing: border-box; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--ainui-fg); font-size: 13px; font-weight: 500; line-height: 1.4; text-decoration: none; }
+.ain-ui .ainui-entity-card-action-solid { background: var(--ainui-primary); color: var(--ainui-primary-fg); }
+.ain-ui .ainui-entity-card-action-soft { background: var(--ainui-surface-2); }
+.ain-ui .ainui-entity-card-action-outline { border-color: var(--ainui-border-strong); }
+.ain-ui .ainui-entity-card-action-outline:hover, .ain-ui .ainui-entity-card-action-ghost:hover, .ain-ui .ainui-entity-card-action-soft:hover { background: var(--ainui-hover); }
+.ain-ui .ainui-entity-card-action-solid:hover { opacity: .9; }
+
+.ain-ui .ainui-image-grid { display: grid; min-width: 0; }
+.ain-ui .ainui-image-grid-item { display: flex; flex-direction: column; gap: 4px; margin: 0; min-width: 0; }
+.ain-ui .ainui-image-grid-open { display: block; flex: 1 1 auto; width: 100%; min-height: 0; padding: 0; border: 0; overflow: hidden; border-radius: 8px; background: var(--ainui-surface-2); cursor: zoom-in; }
+.ain-ui .ainui-image-grid-open img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .25s ease; }
+.ain-ui .ainui-image-grid-open:hover img { transform: scale(1.03); }
+.ain-ui .ainui-image-grid-caption { font-size: 12px; color: var(--ainui-muted); overflow-wrap: anywhere; }
+.ain-ui .ainui-image-grid-caption a { color: inherit; }
+@media (max-width: 480px) { .ain-ui .ainui-entity-card-horizontal { flex-direction: column; } .ain-ui .ainui-entity-card-horizontal .ainui-entity-card-media { width: 100%; max-width: none; } }
+@media (prefers-reduced-motion: reduce) { .ain-ui .ainui-image-grid-open img, .ain-ui .ainui-link-card, .ain-ui .ainui-follow-up-item { transition: none; } }

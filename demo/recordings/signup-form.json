@@ -1,0 +1,291 @@
+{
+ "title": "A sign-up form for a workshop",
+ "prompt": "A sign-up form for a workshop: name, email, a session choice and a consent checkbox, with validation and a submit button.",
+ "model": "Qwen3.8-Flash-Next",
+ "format": "json",
+ "recordedAt": "2026-11-25T02:35:16.676Z",
+ "events": [
+  {
+   "at": 0,
+   "event": {
+    "type": "RUN_STARTED",
+    "runId": "signup-form",
+    "model": "Qwen3.8-Flash-Next",
+    "format": "json"
+   }
+  },
+  {
+   "at": 7964,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.source",
+    "value": {
+     "format": "json",
+     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"gap\": 4,\n   \"children\": [\n    \"title\",\n    \"caption\",\n    \"form\"\n   ]\n  },\n  {\n   \"id\": \"title\",\n   \"component\": \"Title\",\n   \"text\": \"Sign up for the workshop\",\n   \"size\": \"lg\"\n  },\n  {\n   \"id\": \"caption\",\n   \"component\": \"Caption\",\n   \"text\": \"Fill in your details and pick a session. All fields except the notes are required.\",\n   \"color\": \"secondary\"\n  },\n  {\n   \"id\": \"form\",\n   \"component\": \"Card\",\n   \"variant\": \"outline\",\n   \"children\": [\n    \"formBody\"\n   ]\n  },\n  {\n   \"id\": \"formBody\",\n   \"component\": \"Column\",\n   \"gap\": 3,\n   \"children\": [\n    \"name\",\n    \"email\",\n    \"session\",\n    \"consent\",\n    \"submitRow\"\n   ]\n  },\n  {\n   \"id\": \"name\",\n   \"component\": \"TextField\",\n   \"label\": \"Full name\",\n   \"placeholder\": \"e.g. Ada Lovelace\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/name\"\n   },\n   \"checks\": [\n    {\n     \"@call\": \"required\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/name\"\n      }\n     },\n     \"message\": \"Please enter your name\"\n    },\n    {\n     \"@call\": \"length\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/name\"\n      },\n      \"min\": 2,\n      \"max\": 60\n     },\n     \"message\": \"Name must be between 2 and 60 characters\"\n    }\n   ]\n  },\n  {\n   \"id\": \"email\",\n   \"component\": \"TextField\",\n   \"label\": \"Email\",\n   \"variant\": \"email\",\n   \"placeholder\": \"you@example.com\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/email\"\n   },\n   \"checks\": [\n    {\n     \"@call\": \"email\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/email\"\n      }\n     },\n     \"message\": \"Please enter a valid email address\"\n    }\n   ]\n  },\n  {\n   \"id\": \"session\",\n   \"component\": \"Select\",\n   \"label\": \"Session\",\n   \"placeholder\": \"Choose a session\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/session\"\n   },\n   \"options\": [\n    {\n     \"value\": \"sat-morning\",\n     \"label\": \"Saturday morning — 09:30\",\n     \"description\": \"Foundations, 3 hours, 6 seats left\"\n    },\n    {\n     \"value\": \"sat-afternoon\",\n     \"label\": \"Saturday afternoon — 13:30\",\n     \"description\": \"Hands-on practice, 3 hours, 12 seats left\"\n    },\n    {\n     \"value\": \"sun-morning\",\n     \"label\": \"Sunday morning — 09:30\",\n     \"description\": \"Advanced topics, 3 hours, 4 seats left\"\n    }\n   ],\n   \"checks\": [\n    {\n     \"@call\": \"required\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/session\"\n      }\n     },\n     \"message\": \"Please choose a session\"\n    }\n   ]\n  },\n  {\n   \"id\": \"consent\",\n   \"component\": \"CheckBox\",\n   \"label\": \"I agree to the workshop terms and to being contacted about this event.\",\n   \"value\": {\n    \"@path\": \"/signup/consent\"\n   },\n   \"checks\": [\n    {\n     \"@call\": \"required\",\n     \"args\": {\n      \"value\": {\n       \"@path\": \"/signup/consent\"\n      }\n     },\n     \"message\": \"Please accept the terms to continue\"\n    }\n   ]\n  },\n  {\n   \"id\": \"submitRow\",\n   \"component\": \"Row\",\n   \"justify\": \"end\",\n   \"children\": [\n    \"submit\"\n   ]\n  },\n  {\n   \"id\": \"submit\",\n   \"component\": \"Button\",\n   \"label\": \"Sign up\",\n   \"variant\": \"primary\",\n   \"submit\": true,\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"workshop.signup.submit\",\n     \"context\": {\n      \"name\": {\n       \"@path\": \"/signup/name\"\n      },\n      \"email\": {\n       \"@path\": \"/signup/email\"\n      },\n      \"session\": {\n       \"@path\": \"/signup/session\"\n      },\n      \"consent\": {\n       \"@path\": \"/signup/consent\"\n      }\n     }\n    }\n   }\n  }\n ],\n \"data\": {\n  \"signup\": {\n   \"name\": \"\",\n   \"email\": \"\",\n   \"session\": \"\",\n   \"consent\": false\n  }\n }\n}",
+     "ms": 7922,
+     "attempt": 1
+    }
+   }
+  },
+  {
+   "at": 8131,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.rejected",
+    "value": {
+     "format": "json",
+     "message": "The UI was not valid for the catalog: Validation failed for component 'TextField' (name): checks.0: Unrecognized key(s) in object: '@call', 'args', checks.1: Unrecognized key(s) in object: '@call', 'args'. Fix it and call render_ui again."
+    }
+   }
+  },
+  {
+   "at": 15237,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.source",
+    "value": {
+     "format": "json",
+     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"gap\": 4,\n   \"children\": [\n    \"title\",\n    \"caption\",\n    \"form\"\n   ]\n  },\n  {\n   \"id\": \"title\",\n   \"component\": \"Title\",\n   \"text\": \"Sign up for the workshop\",\n   \"size\": \"lg\"\n  },\n  {\n   \"id\": \"caption\",\n   \"component\": \"Caption\",\n   \"text\": \"Fill in your details and pick a session. All fields are required.\",\n   \"color\": \"secondary\"\n  },\n  {\n   \"id\": \"form\",\n   \"component\": \"Card\",\n   \"variant\": \"outline\",\n   \"children\": [\n    \"formBody\"\n   ]\n  },\n  {\n   \"id\": \"formBody\",\n   \"component\": \"Column\",\n   \"gap\": 3,\n   \"children\": [\n    \"name\",\n    \"email\",\n    \"session\",\n    \"consent\",\n    \"submitRow\"\n   ]\n  },\n  {\n   \"id\": \"name\",\n   \"component\": \"TextField\",\n   \"label\": \"Full name\",\n   \"placeholder\": \"e.g. Ada Lovelace\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/name\"\n   },\n   \"checks\": [\n    {\n     \"condition\": {\n      \"@call\": \"required\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/name\"\n       }\n      }\n     },\n     \"message\": \"Please enter your name\"\n    },\n    {\n     \"condition\": {\n      \"@call\": \"length\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/name\"\n       },\n       \"min\": 2,\n       \"max\": 60\n      }\n     },\n     \"message\": \"Name must be between 2 and 60 characters\"\n    }\n   ]\n  },\n  {\n   \"id\": \"email\",\n   \"component\": \"TextField\",\n   \"label\": \"Email\",\n   \"variant\": \"email\",\n   \"placeholder\": \"you@example.com\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/email\"\n   },\n   \"checks\": [\n    {\n     \"condition\": {\n      \"@call\": \"email\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/email\"\n       }\n      }\n     },\n     \"message\": \"Please enter a valid email address\"\n    }\n   ]\n  },\n  {\n   \"id\": \"session\",\n   \"component\": \"Select\",\n   \"label\": \"Session\",\n   \"placeholder\": \"Choose a session\",\n   \"required\": true,\n   \"value\": {\n    \"@path\": \"/signup/session\"\n   },\n   \"options\": [\n    {\n     \"value\": \"sat-morning\",\n     \"label\": \"Saturday morning — 09:30\",\n     \"description\": \"Foundations, 3 hours, 6 seats left\"\n    },\n    {\n     \"value\": \"sat-afternoon\",\n     \"label\": \"Saturday afternoon — 13:30\",\n     \"description\": \"Hands-on practice, 3 hours, 12 seats left\"\n    },\n    {\n     \"value\": \"sun-morning\",\n     \"label\": \"Sunday morning — 09:30\",\n     \"description\": \"Advanced topics, 3 hours, 4 seats left\"\n    }\n   ],\n   \"checks\": [\n    {\n     \"condition\": {\n      \"@call\": \"required\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/session\"\n       }\n      }\n     },\n     \"message\": \"Please choose a session\"\n    }\n   ]\n  },\n  {\n   \"id\": \"consent\",\n   \"component\": \"CheckBox\",\n   \"label\": \"I agree to the workshop terms and to being contacted about this event.\",\n   \"value\": {\n    \"@path\": \"/signup/consent\"\n   },\n   \"checks\": [\n    {\n     \"condition\": {\n      \"@call\": \"required\",\n      \"args\": {\n       \"value\": {\n        \"@path\": \"/signup/consent\"\n       }\n      }\n     },\n     \"message\": \"Please accept the terms to continue\"\n    }\n   ]\n  },\n  {\n   \"id\": \"submitRow\",\n   \"component\": \"Row\",\n   \"justify\": \"end\",\n   \"children\": [\n    \"submit\"\n   ]\n  },\n  {\n   \"id\": \"submit\",\n   \"component\": \"Button\",\n   \"label\": \"Sign up\",\n   \"variant\": \"primary\",\n   \"submit\": true,\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"workshop.signup.submit\",\n     \"context\": {\n      \"name\": {\n       \"@path\": \"/signup/name\"\n      },\n      \"email\": {\n       \"@path\": \"/signup/email\"\n      },\n      \"session\": {\n       \"@path\": \"/signup/session\"\n      },\n      \"consent\": {\n       \"@path\": \"/signup/consent\"\n      }\n     }\n    }\n   }\n  }\n ],\n \"data\": {\n  \"signup\": {\n   \"name\": \"\",\n   \"email\": \"\",\n   \"session\": \"\",\n   \"consent\": false\n  }\n }\n}",
+     "ms": 7106,
+     "attempt": 2
+    }
+   }
+  },
+  {
+   "at": 15266,
+   "event": {
+    "type": "ACTIVITY_SNAPSHOT",
+    "activityType": "a2ui-surface",
+    "content": {
+     "a2ui_operations": [
+      {
+       "version": "1.0",
+       "createSurface": {
+        "surfaceId": "ui-mwvifxyy-lc77pp",
+        "catalogId": "https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json",
+        "components": [
+         {
+          "id": "root",
+          "component": "Column",
+          "gap": 4,
+          "children": [
+           "title",
+           "caption",
+           "form"
+          ]
+         },
+         {
+          "id": "title",
+          "component": "Title",
+          "text": "Sign up for the workshop",
+          "size": "lg"
+         },
+         {
+          "id": "caption",
+          "component": "Caption",
+          "text": "Fill in your details and pick a session. All fields are required.",
+          "color": "secondary"
+         },
+         {
+          "id": "form",
+          "component": "Card",
+          "variant": "outline",
+          "children": [
+           "formBody"
+          ]
+         },
+         {
+          "id": "formBody",
+          "component": "Column",
+          "gap": 3,
+          "children": [
+           "name",
+           "email",
+           "session",
+           "consent",
+           "submitRow"
+          ]
+         },
+         {
+          "id": "name",
+          "component": "TextField",
+          "label": "Full name",
+          "placeholder": "e.g. Ada Lovelace",
+          "required": true,
+          "value": {
+           "@path": "/signup/name"
+          },
+          "checks": [
+           {
+            "condition": {
+             "@call": "required",
+             "args": {
+              "value": {
+               "@path": "/signup/name"
+              }
+             }
+            },
+            "message": "Please enter your name"
+           },
+           {
+            "condition": {
+             "@call": "length",
+             "args": {
+              "value": {
+               "@path": "/signup/name"
+              },
+              "min": 2,
+              "max": 60
+             }
+            },
+            "message": "Name must be between 2 and 60 characters"
+           }
+          ]
+         },
+         {
+          "id": "email",
+          "component": "TextField",
+          "label": "Email",
+          "variant": "email",
+          "placeholder": "you@example.com",
+          "required": true,
+          "value": {
+           "@path": "/signup/email"
+          },
+          "checks": [
+           {
+            "condition": {
+             "@call": "email",
+             "args": {
+              "value": {
+               "@path": "/signup/email"
+              }
+             }
+            },
+            "message": "Please enter a valid email address"
+           }
+          ]
+         },
+         {
+          "id": "session",
+          "component": "Select",
+          "label": "Session",
+          "placeholder": "Choose a session",
+          "required": true,
+          "value": {
+           "@path": "/signup/session"
+          },
+          "options": [
+           {
+            "value": "sat-morning",
+            "label": "Saturday morning — 09:30",
+            "description": "Foundations, 3 hours, 6 seats left"
+           },
+           {
+            "value": "sat-afternoon",
+            "label": "Saturday afternoon — 13:30",
+            "description": "Hands-on practice, 3 hours, 12 seats left"
+           },
+           {
+            "value": "sun-morning",
+            "label": "Sunday morning — 09:30",
+            "description": "Advanced topics, 3 hours, 4 seats left"
+           }
+          ],
+          "checks": [
+           {
+            "condition": {
+             "@call": "required",
+             "args": {
+              "value": {
+               "@path": "/signup/session"
+              }
+             }
+            },
+            "message": "Please choose a session"
+           }
+          ]
+         },
+         {
+          "id": "consent",
+          "component": "CheckBox",
+          "label": "I agree to the workshop terms and to being contacted about this event.",
+          "value": {
+           "@path": "/signup/consent"
+          },
+          "checks": [
+           {
+            "condition": {
+             "@call": "required",
+             "args": {
+              "value": {
+               "@path": "/signup/consent"
+              }
+             }
+            },
+            "message": "Please accept the terms to continue"
+           }
+          ]
+         },
+         {
+          "id": "submitRow",
+          "component": "Row",
+          "justify": "end",
+          "children": [
+           "submit"
+          ]
+         },
+         {
+          "id": "submit",
+          "component": "Button",
+          "label": "Sign up",
+          "variant": "primary",
+          "submit": true,
+          "onClick": {
+           "event": {
+            "name": "workshop.signup.submit",
+            "context": {
+             "name": {
+              "@path": "/signup/name"
+             },
+             "email": {
+              "@path": "/signup/email"
+             },
+             "session": {
+              "@path": "/signup/session"
+             },
+             "consent": {
+              "@path": "/signup/consent"
+             }
+            }
+           }
+          }
+         }
+        ],
+        "dataModel": {
+         "signup": {
+          "name": "",
+          "email": "",
+          "session": "",
+          "consent": false
+         }
+        }
+       }
+      }
+     ]
+    },
+    "format": "json",
+    "ms": 7106
+   }
+  },
+  {
+   "at": 15266,
+   "event": {
+    "type": "RUN_FINISHED",
+    "calls": 2,
+    "shown": 1,
+    "ms": 15266
+   }
+  }
+ ]
+}

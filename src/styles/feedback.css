@@ -1,0 +1,58 @@
+/* Standard catalog — feedback */
+.ain-ui .ainui-pulse-indicator { position: relative; display: inline-block; flex: none; vertical-align: middle; width: var(--ainui-pulse-size, 12px); height: var(--ainui-pulse-size, 12px); }
+.ain-ui .ainui-pulse-indicator-dot, .ain-ui .ainui-pulse-indicator-ring { position: absolute; inset: 0; border-radius: 9999px; }
+.ain-ui .ainui-pulse-indicator-dot { background: var(--ainui-pulse-color, var(--ainui-success)); }
+.ain-ui .ainui-pulse-indicator-ring { background: var(--ainui-pulse-ring, var(--ainui-success)); opacity: 0; animation: ainui-pulse-indicator var(--ainui-pulse-duration, 1500ms) ease-out infinite; }
+@keyframes ainui-pulse-indicator {
+  from { transform: scale(1); opacity: var(--ainui-pulse-opacity, 0.6); }
+  to { transform: scale(var(--ainui-pulse-scale, 2.4)); opacity: 0; }
+}
+
+.ain-ui .ainui-flashcard-flip { display: flex; align-items: center; justify-content: center; box-sizing: border-box; width: 100%; min-height: 140px; padding: 20px;
+  background: var(--ainui-surface); color: var(--ainui-fg); border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); box-shadow: var(--ainui-shadow);
+  font: inherit; font-family: var(--ainui-font); text-align: center; cursor: pointer; perspective: 800px; }
+.ain-ui .ainui-flashcard-flip:hover { border-color: var(--ainui-border-strong); }
+.ain-ui .ainui-flashcard-flip-flipped { background: var(--ainui-surface-2); }
+.ain-ui .ainui-flashcard-flip-face { display: flex; flex-direction: column; align-items: center; gap: 8px; animation: ainui-flashcard-flip 0.3s ease-out; }
+.ain-ui .ainui-flashcard-flip-text { font-size: 16px; font-weight: 500; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
+.ain-ui .ainui-flashcard-flip-hint { font-size: 12px; color: var(--ainui-muted); }
+@keyframes ainui-flashcard-flip { from { transform: rotateX(-90deg); opacity: 0; } to { transform: rotateX(0); opacity: 1; } }
+
+.ain-ui .ainui-popover { position: relative; display: inline-flex; max-width: 100%; }
+.ain-ui .ainui-popover:has(> .ainui-popover-trigger-block) { display: flex; }
+.ain-ui .ainui-popover-trigger { display: inline-flex; align-items: center; gap: 6px; box-sizing: border-box; max-width: 100%; padding: 6px 10px;
+  background: var(--ainui-surface); color: var(--ainui-fg); border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); font: inherit; font-family: var(--ainui-font); cursor: pointer; }
+.ain-ui .ainui-popover-trigger:hover, .ain-ui .ainui-popover-trigger[aria-expanded="true"] { background: var(--ainui-hover); }
+.ain-ui .ainui-popover-trigger-block { display: flex; width: 100%; justify-content: space-between; }
+.ain-ui .ainui-popover-content { --ainui-popover-offset: 6px; position: absolute; z-index: 40; box-sizing: border-box; min-width: 160px; max-width: min(90vw, 480px); padding: 12px;
+  background: var(--ainui-surface); color: var(--ainui-fg); border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); box-shadow: var(--ainui-shadow);
+  display: flex; flex-direction: column; gap: 8px; }
+.ain-ui .ainui-popover-content-bottom { top: calc(100% + var(--ainui-popover-offset)); }
+.ain-ui .ainui-popover-content-top { bottom: calc(100% + var(--ainui-popover-offset)); }
+.ain-ui .ainui-popover-content-left { right: calc(100% + var(--ainui-popover-offset)); }
+.ain-ui .ainui-popover-content-right { left: calc(100% + var(--ainui-popover-offset)); }
+.ain-ui .ainui-popover-content-bottom.ainui-popover-content-align-start, .ain-ui .ainui-popover-content-top.ainui-popover-content-align-start { left: 0; }
+.ain-ui .ainui-popover-content-bottom.ainui-popover-content-align-center, .ain-ui .ainui-popover-content-top.ainui-popover-content-align-center { left: 50%; transform: translateX(-50%); }
+.ain-ui .ainui-popover-content-bottom.ainui-popover-content-align-end, .ain-ui .ainui-popover-content-top.ainui-popover-content-align-end { right: 0; }
+.ain-ui .ainui-popover-content-left.ainui-popover-content-align-start, .ain-ui .ainui-popover-content-right.ainui-popover-content-align-start { top: 0; }
+.ain-ui .ainui-popover-content-left.ainui-popover-content-align-center, .ain-ui .ainui-popover-content-right.ainui-popover-content-align-center { top: 50%; transform: translateY(-50%); }
+.ain-ui .ainui-popover-content-left.ainui-popover-content-align-end, .ain-ui .ainui-popover-content-right.ainui-popover-content-align-end { bottom: 0; }
+
+.ain-ui .ainui-modal { display: inline-flex; max-width: 100%; }
+.ain-ui .ainui-modal-trigger { display: inline-flex; max-width: 100%; }
+.ain-ui .ainui-modal-trigger[role="button"] { cursor: pointer; border-radius: 4px; }
+.ain-ui .ainui-modal-backdrop { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: color-mix(in srgb, var(--ainui-fg) 45%, transparent); animation: ainui-modal-fade 0.15s ease-out; }
+.ain-ui .ainui-modal-dialog { display: flex; flex-direction: column; box-sizing: border-box; width: 100%; max-height: calc(100vh - 32px); outline: none;
+  background: var(--ainui-surface); color: var(--ainui-fg); border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); box-shadow: var(--ainui-shadow); font-family: var(--ainui-font); }
+.ain-ui .ainui-modal-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 12px 12px 16px; border-bottom: 1px solid var(--ainui-border); }
+.ain-ui .ainui-modal-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.ain-ui .ainui-modal-close { flex: none; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--ainui-muted); border: 0; border-radius: 6px; font-size: 20px; line-height: 1; cursor: pointer; }
+.ain-ui .ainui-modal-close:hover { background: var(--ainui-hover); color: var(--ainui-fg); }
+.ain-ui .ainui-modal-body { padding: 16px; overflow: auto; min-height: 0; }
+@keyframes ainui-modal-fade { from { opacity: 0; } to { opacity: 1; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .ain-ui .ainui-pulse-indicator-ring, .ain-ui .ainui-flashcard-flip-face, .ain-ui .ainui-modal-backdrop { animation: none; }
+}

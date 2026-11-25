@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Pine forest">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#bfe8c9"/><stop offset="1" stop-color="#f1fbee"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#s)"/>
+<circle cx="320" cy="80" r="38" fill="#fffbe0"/>
+<path d="M0 270 L60 170 L120 270 L180 150 L240 270 L300 180 L360 270 L420 140 L480 270 L540 175 L600 270 L640 220 V400 H0Z" fill="#3f8f5b"/>
+<path d="M0 320 L50 240 L100 320 L170 230 L240 320 L310 245 L380 320 L450 225 L520 320 L590 250 L640 320 V400 H0Z" fill="#24613f"/>
+<path d="M0 370 H640 V400 H0Z" fill="#143a27"/>
+</svg>

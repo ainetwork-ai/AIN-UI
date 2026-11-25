@@ -16,8 +16,8 @@
  * The contract shapes are re-declared here minimally (no dependency on the
  * contracts package); a consumer validates with the real zod schemas.
  */
-import { A2UI_VERSION, type A2uiComponent, type A2uiMessage } from "./basic.js";
-import { AINUI_CATALOG, PICKER_ACTIONS } from "./ainui.js";
+import { A2UI_V09, AINUI_CATALOG_V1, upgradeMessages, type A2uiComponent, type A2uiMessage } from "./basic.js";
+import { PICKER_ACTIONS } from "./ainui.js";
 
 export { PICKER_ACTIONS };
 
@@ -143,11 +143,11 @@ export type FilePickerOpts = PickerOpts & { scope: FileListScope; selection?: "s
 export type AgentPickerOpts = PickerOpts & { scope: AgentListScope; selected?: string; renders?: UiCapability[] };
 
 function pickerSurface(surfaceId: string, component: A2uiComponent, data: Record<string, unknown>): A2uiMessage[] {
-  return [
-    { version: A2UI_VERSION, createSurface: { surfaceId, catalogId: AINUI_CATALOG } },
-    { version: A2UI_VERSION, updateComponents: { surfaceId, components: [component] } },
-    { version: A2UI_VERSION, updateDataModel: { surfaceId, path: "/", value: data } },
-  ];
+  return upgradeMessages([
+    { version: A2UI_V09, createSurface: { surfaceId, catalogId: AINUI_CATALOG_V1 } },
+    { version: A2UI_V09, updateComponents: { surfaceId, components: [component] } },
+    { version: A2UI_V09, updateDataModel: { surfaceId, path: "/", value: data } },
+  ]);
 }
 const bind = (name: string) => ({ path: `/${name}` });
 

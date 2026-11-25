@@ -1,0 +1,264 @@
+{
+ "title": "Compare three laptops for a developer in a table, with a recommendation",
+ "prompt": "Compare three laptops for a developer in a table, with a recommendation.",
+ "model": "Qwen3.8-Flash-Next",
+ "format": "json",
+ "recordedAt": "2026-11-25T02:35:16.675Z",
+ "events": [
+  {
+   "at": 0,
+   "event": {
+    "type": "RUN_STARTED",
+    "runId": "compare-table",
+    "model": "Qwen3.8-Flash-Next",
+    "format": "json"
+   }
+  },
+  {
+   "at": 12399,
+   "event": {
+    "type": "TEXT_MESSAGE_CONTENT",
+    "delta": "I'll show a comparison of three developer laptops with a recommendation."
+   }
+  },
+  {
+   "at": 12400,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.source",
+    "value": {
+     "format": "json",
+     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"gap\": \"md\",\n   \"children\": [\n    \"title\",\n    \"subtitle\",\n    \"tbl\",\n    \"rec\",\n    \"follow\"\n   ]\n  },\n  {\n   \"id\": \"title\",\n   \"component\": \"Title\",\n   \"text\": \"Laptops for a developer\",\n   \"size\": \"lg\"\n  },\n  {\n   \"id\": \"subtitle\",\n   \"component\": \"Caption\",\n   \"text\": \"Three current models compared for software development work\"\n  },\n  {\n   \"id\": \"tbl\",\n   \"component\": \"Table\",\n   \"columns\": [\n    {\n     \"label\": \"\",\n     \"align\": \"start\"\n    },\n    {\n     \"label\": \"MacBook Pro 14 (M4 Pro)\",\n     \"align\": \"start\"\n    },\n    {\n     \"label\": \"ThinkPad X1 Carbon Gen 12\",\n     \"align\": \"start\"\n    },\n    {\n     \"label\": \"Dell XPS 14 (9440)\",\n     \"align\": \"start\"\n    }\n   ],\n   \"rows\": [\n    [\n     \"Price\",\n     \"$1,999\",\n     \"$1,789\",\n     \"$1,649\"\n    ],\n    [\n     \"CPU\",\n     \"Apple M4 Pro (12-core)\",\n     \"Intel Core Ultra 7 155H\",\n     \"Intel Core Ultra 7 155H\"\n    ],\n    [\n     \"RAM\",\n     \"24 GB unified\",\n     \"32 GB DDR5\",\n     \"16 GB DDR5\"\n    ],\n    [\n     \"Storage\",\n     \"512 GB SSD\",\n     \"1 TB SSD\",\n     \"512 GB SSD\"\n    ],\n    [\n     \"Display\",\n     \"14.2\\\" 3024×1964, 120 Hz\",\n     \"14\\\" 1920×1200, matte\",\n     \"14.5\\\" 3200×2000, OLED\"\n    ],\n    [\n     \"Weight\",\n     \"1.55 kg\",\n     \"1.09 kg\",\n     \"1.68 kg\"\n    ],\n    [\n     \"Battery (mixed use)\",\n     \"~14 h\",\n     \"~10 h\",\n     \"~9 h\"\n    ],\n    [\n     \"Keyboard / trackpad\",\n     \"Excellent\",\n     \"Best-in-class keyboard\",\n     \"Good, zero-lattice pad\"\n    ],\n    [\n     \"Linux support\",\n     \"Limited (Asahi)\",\n     \"Excellent\",\n     \"Good\"\n    ],\n    [\n     \"Ports\",\n     \"3× TB4, HDMI, SD, MagSafe\",\n     \"2× TB4, USB-A, HDMI\",\n     \"3× TB4, microSD\"\n    ],\n    [\n     \"Best for\",\n     \"iOS/macOS, mobile, general dev\",\n     \"Terminal-first, travel, Linux\",\n     \"Media, design-adjacent dev\"\n    ]\n   ]\n  },\n  {\n   \"id\": \"rec\",\n   \"component\": \"Card\",\n   \"variant\": \"outline\",\n   \"children\": [\n    \"rec-title\",\n    \"rec-body\",\n    \"rec-row\"\n   ]\n  },\n  {\n   \"id\": \"rec-title\",\n   \"component\": \"Title\",\n   \"text\": \"Recommendation\",\n   \"size\": \"md\"\n  },\n  {\n   \"id\": \"rec-body\",\n   \"component\": \"Markdown\",\n   \"text\": \"**Go with the MacBook Pro 14 (M4 Pro)** if your stack is macOS, iOS or cross-platform: it has the best performance-per-watt, the longest battery life and a very high-resolution display.\\n\\nChoose the **ThinkPad X1 Carbon** instead if you live in a terminal on Linux or travel light — it is the lightest here and has the best keyboard, at the cost of a dimmer, lower-resolution screen.\\n\\nThe **Dell XPS 14** is the value pick: the OLED panel is the nicest of the three, but 16 GB of RAM is the weak spot for heavy builds and containers.\"\n  },\n  {\n   \"id\": \"rec-row\",\n   \"component\": \"Row\",\n   \"justify\": \"start\",\n   \"children\": [\n    \"btn-mac\",\n    \"btn-think\"\n   ]\n  },\n  {\n   \"id\": \"btn-mac\",\n   \"component\": \"Button\",\n   \"label\": \"Configure MacBook Pro\",\n   \"variant\": \"primary\",\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"configure_laptop\",\n     \"context\": {\n      \"model\": \"MacBook Pro 14 (M4 Pro)\"\n     }\n    }\n   }\n  },\n  {\n   \"id\": \"btn-think\",\n   \"component\": \"Button\",\n   \"label\": \"See ThinkPad option\",\n   \"variant\": \"borderless\",\n   \"onClick\": {\n    \"event\": {\n     \"name\": \"configure_laptop\",\n     \"context\": {\n      \"model\": \"ThinkPad X1 Carbon Gen 12\"\n     }\n    }\n   }\n  },\n  {\n   \"id\": \"follow\",\n   \"component\": \"FollowUp\",\n   \"items\": [\n    \"Compare battery life in a chart\",\n    \"Show only Linux-friendly laptops\",\n    \"What about a developer monitor?\"\n   ]\n  }\n ],\n \"data\": {\n  \"selected\": \"MacBook Pro 14 (M4 Pro)\"\n }\n}",
+     "ms": 12358,
+     "attempt": 1
+    }
+   }
+  },
+  {
+   "at": 12541,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.forgiven",
+    "value": {
+     "notes": [
+      "ids renamed to identifiers: rec-title → rec_title, rec-body → rec_body, rec-row → rec_row, btn-mac → btn_mac, …"
+     ]
+    }
+   }
+  },
+  {
+   "at": 12541,
+   "event": {
+    "type": "ACTIVITY_SNAPSHOT",
+    "activityType": "a2ui-surface",
+    "content": {
+     "a2ui_operations": [
+      {
+       "version": "1.0",
+       "createSurface": {
+        "surfaceId": "ui-mwvifvr0-ylfhuq",
+        "catalogId": "https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json",
+        "components": [
+         {
+          "id": "root",
+          "component": "Column",
+          "gap": "md",
+          "children": [
+           "title",
+           "subtitle",
+           "tbl",
+           "rec",
+           "follow"
+          ]
+         },
+         {
+          "id": "title",
+          "component": "Title",
+          "text": "Laptops for a developer",
+          "size": "lg"
+         },
+         {
+          "id": "subtitle",
+          "component": "Caption",
+          "text": "Three current models compared for software development work"
+         },
+         {
+          "id": "tbl",
+          "component": "Table",
+          "columns": [
+           {
+            "label": "",
+            "align": "start"
+           },
+           {
+            "label": "MacBook Pro 14 (M4 Pro)",
+            "align": "start"
+           },
+           {
+            "label": "ThinkPad X1 Carbon Gen 12",
+            "align": "start"
+           },
+           {
+            "label": "Dell XPS 14 (9440)",
+            "align": "start"
+           }
+          ],
+          "rows": [
+           [
+            "Price",
+            "$1,999",
+            "$1,789",
+            "$1,649"
+           ],
+           [
+            "CPU",
+            "Apple M4 Pro (12-core)",
+            "Intel Core Ultra 7 155H",
+            "Intel Core Ultra 7 155H"
+           ],
+           [
+            "RAM",
+            "24 GB unified",
+            "32 GB DDR5",
+            "16 GB DDR5"
+           ],
+           [
+            "Storage",
+            "512 GB SSD",
+            "1 TB SSD",
+            "512 GB SSD"
+           ],
+           [
+            "Display",
+            "14.2\" 3024×1964, 120 Hz",
+            "14\" 1920×1200, matte",
+            "14.5\" 3200×2000, OLED"
+           ],
+           [
+            "Weight",
+            "1.55 kg",
+            "1.09 kg",
+            "1.68 kg"
+           ],
+           [
+            "Battery (mixed use)",
+            "~14 h",
+            "~10 h",
+            "~9 h"
+           ],
+           [
+            "Keyboard / trackpad",
+            "Excellent",
+            "Best-in-class keyboard",
+            "Good, zero-lattice pad"
+           ],
+           [
+            "Linux support",
+            "Limited (Asahi)",
+            "Excellent",
+            "Good"
+           ],
+           [
+            "Ports",
+            "3× TB4, HDMI, SD, MagSafe",
+            "2× TB4, USB-A, HDMI",
+            "3× TB4, microSD"
+           ],
+           [
+            "Best for",
+            "iOS/macOS, mobile, general dev",
+            "Terminal-first, travel, Linux",
+            "Media, design-adjacent dev"
+           ]
+          ]
+         },
+         {
+          "id": "rec",
+          "component": "Card",
+          "variant": "outline",
+          "children": [
+           "rec_title",
+           "rec_body",
+           "rec_row"
+          ]
+         },
+         {
+          "id": "rec_title",
+          "component": "Title",
+          "text": "Recommendation",
+          "size": "md"
+         },
+         {
+          "id": "rec_body",
+          "component": "Markdown",
+          "text": "**Go with the MacBook Pro 14 (M4 Pro)** if your stack is macOS, iOS or cross-platform: it has the best performance-per-watt, the longest battery life and a very high-resolution display.\n\nChoose the **ThinkPad X1 Carbon** instead if you live in a terminal on Linux or travel light — it is the lightest here and has the best keyboard, at the cost of a dimmer, lower-resolution screen.\n\nThe **Dell XPS 14** is the value pick: the OLED panel is the nicest of the three, but 16 GB of RAM is the weak spot for heavy builds and containers."
+         },
+         {
+          "id": "rec_row",
+          "component": "Row",
+          "justify": "start",
+          "children": [
+           "btn_mac",
+           "btn_think"
+          ]
+         },
+         {
+          "id": "btn_mac",
+          "component": "Button",
+          "label": "Configure MacBook Pro",
+          "variant": "primary",
+          "onClick": {
+           "event": {
+            "name": "configure_laptop",
+            "context": {
+             "model": "MacBook Pro 14 (M4 Pro)"
+            }
+           }
+          }
+         },
+         {
+          "id": "btn_think",
+          "component": "Button",
+          "label": "See ThinkPad option",
+          "variant": "borderless",
+          "onClick": {
+           "event": {
+            "name": "configure_laptop",
+            "context": {
+             "model": "ThinkPad X1 Carbon Gen 12"
+            }
+           }
+          }
+         },
+         {
+          "id": "follow",
+          "component": "FollowUp",
+          "items": [
+           "Compare battery life in a chart",
+           "Show only Linux-friendly laptops",
+           "What about a developer monitor?"
+          ]
+         }
+        ],
+        "dataModel": {
+         "selected": "MacBook Pro 14 (M4 Pro)"
+        }
+       }
+      }
+     ]
+    },
+    "format": "json",
+    "ms": 12358
+   }
+  },
+  {
+   "at": 12541,
+   "event": {
+    "type": "RUN_FINISHED",
+    "calls": 1,
+    "shown": 1,
+    "ms": 12541
+   }
+  }
+ ]
+}

@@ -2,13 +2,12 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import React, { act } from "react";
 import { createRoot } from "react-dom/client";
-import { JSDOM } from "jsdom";
+import { installDom } from "./support/dom.js";
 import { ainuiPayment, ainuiFolder, ainuiFile, ainuiEditor, toItem, ainuiActivity, messagesFromActivity, dispatchAinuiAction, AINUI_CATALOG, type AinuiDeps } from "../src/index.js";
 import { AinuiSurface } from "../src/react.js";
 
 test("official React renderer draws AIN-UI payment terms and grid", async () => {
-  const dom = new JSDOM("<!doctype html><div id='root'></div>", { url: "https://example.test" });
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
+  const dom = installDom("<!doctype html><div id='root'></div>");
   const container = document.getElementById("root")!;
   const root = createRoot(container);
   const actions: unknown[] = [];
@@ -86,8 +85,7 @@ test("upload checks capabilities, names, encoding and size before writing", asyn
 
 test("FolderChat renders progressive messages and sends a scoped stop action", async () => {
   const { ainuiFolderChat } = await import("../src/chat.js");
-  const dom = new JSDOM("<!doctype html><div id='chat'></div>", { url: "https://example.test" });
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
+  const dom = installDom("<!doctype html><div id='chat'></div>");
   const container = document.getElementById("chat")!;
   const root = createRoot(container);
   const actions: any[] = [];
@@ -102,8 +100,7 @@ test("FolderChat renders progressive messages and sends a scoped stop action", a
 });
 
 test("gallery keeps every listed file, distinct scoped paths and stable fallback tiles", async () => {
-  const dom = new JSDOM("<!doctype html><div id='gallery'></div>", { url: "https://example.test" });
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
+  const dom = installDom("<!doctype html><div id='gallery'></div>");
   const container = document.getElementById("gallery")!;
   const root = createRoot(container);
   const items = Array.from({ length: 237 }, (_, i) => toItem("drive", `Sky Photos/${i}.jpg`, { name: `${i}.jpg`, isDir: false, size: i }, {}));

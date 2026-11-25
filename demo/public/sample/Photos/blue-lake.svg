@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Lake under blue hills">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8ecbff"/><stop offset="1" stop-color="#e3f4ff"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#s)"/>
+<circle cx="150" cy="90" r="38" fill="#ffffff"/>
+<path d="M0 220 L140 120 L260 210 L400 110 L540 200 L640 150 V260 H0Z" fill="#4c7fc0"/>
+<path d="M0 250 H640 V400 H0Z" fill="#2f5fa3"/>
+<path d="M0 250 Q320 235 640 250 V262 Q320 250 0 262Z" fill="#b9dcff"/>
+</svg>

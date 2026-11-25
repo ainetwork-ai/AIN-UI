@@ -1,0 +1,89 @@
+/* Standard catalog — data: Table, List, Chart, Map. */
+.ain-ui .ainui-table-wrap { width: 100%; overflow-x: auto; }
+.ain-ui .ainui-table-wrap-sticky { max-height: 420px; overflow-y: auto; }
+.ain-ui .ainui-table { width: 100%; border-collapse: collapse; font-size: 13px; line-height: 1.45; color: var(--ainui-fg); }
+.ain-ui .ainui-table-equal { table-layout: fixed; }
+.ain-ui .ainui-table-caption { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; }
+.ain-ui .ainui-table-cell { padding: 8px 12px; text-align: start; vertical-align: top; overflow-wrap: anywhere; }
+.ain-ui .ainui-table th.ainui-table-cell, .ain-ui .ainui-table-th { font-weight: 600; }
+.ain-ui .ainui-table-grid { display: table; }
+.ain-ui .ainui-table-grid .ainui-table-body { display: table-row-group; }
+.ain-ui .ainui-table-grid .ainui-table-head { display: table-header-group; }
+.ain-ui .ainui-table-grid .ainui-table-row { display: table-row; }
+.ain-ui .ainui-table-grid .ainui-table-cell { display: table-cell; }
+.ain-ui .ainui-table-head .ainui-table-cell { color: var(--ainui-muted); font-size: 12px; font-weight: 600; white-space: nowrap; background: var(--ainui-surface); border-bottom: 1px solid var(--ainui-border-strong); }
+.ain-ui .ainui-table-sticky .ainui-table-head .ainui-table-cell { position: sticky; top: 0; z-index: 1; }
+.ain-ui .ainui-table-dividers .ainui-table-body .ainui-table-cell,
+.ain-ui .ainui-table-section-divided .ainui-table-cell { border-top: 1px solid var(--ainui-border); }
+.ain-ui .ainui-table .ainui-table-section-plain .ainui-table-row .ainui-table-cell { border-top: 0; }
+.ain-ui .ainui-table .ainui-table-body .ainui-table-row:hover { background: var(--ainui-hover); }
+.ain-ui .ainui-table-empty { text-align: center; color: var(--ainui-muted); padding: 20px 12px; }
+.ain-ui .ainui-table-cell p { margin: 0; }
+
+.ain-ui .ainui-list { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; min-width: 0; }
+.ain-ui .ainui-list-horizontal { flex-direction: row; gap: 12px; overflow-x: auto; padding-bottom: 4px; }
+.ain-ui .ainui-list-horizontal .ainui-list-item { flex: 0 0 auto; max-width: 280px; }
+.ain-ui .ainui-list-item { position: relative; display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+.ain-ui .ainui-list-item-disabled { opacity: .5; }
+.ain-ui .ainui-list-marker { flex: 0 0 auto; min-width: 1.25em; color: var(--ainui-muted); text-align: center; font-variant-numeric: tabular-nums; }
+.ain-ui .ainui-list-number .ainui-list-item > .ainui-list-marker { text-align: end; }
+.ain-ui .ainui-list-marker-rich { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: 9999px; background: var(--ainui-surface-2); color: var(--ainui-fg); font-size: 12px; font-weight: 600; }
+.ain-ui .ainui-list-connector .ainui-list-item:not(.ainui-list-item-last)::before { content: ""; position: absolute; top: 28px; bottom: -8px; left: 13px; border-left: 1px solid var(--ainui-border-strong); }
+.ain-ui .ainui-list-connector:not(.ainui-list-rich) .ainui-list-item:not(.ainui-list-item-last)::before { top: 22px; left: calc(.625em - .5px); }
+.ain-ui .ainui-list-connector.ainui-list-horizontal .ainui-list-item::before { display: none; }
+.ain-ui .ainui-list-item-body { display: flex; flex-direction: column; gap: 4px; flex: 1 1 auto; min-width: 0; }
+.ain-ui .ainui-list-item-text { display: flex; flex-direction: column; min-width: 0; }
+.ain-ui .ainui-list-item-line { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.ain-ui .ainui-list-item-icon { align-self: center; color: var(--ainui-muted); }
+.ain-ui .ainui-list-item-label { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.ain-ui .ainui-list-item-fact .ainui-list-item-label { color: var(--ainui-muted); }
+.ain-ui .ainui-list-item-value { flex: 0 1 auto; text-align: end; font-weight: 500; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ain-ui .ainui-list-item-description { font-size: 12px; color: var(--ainui-muted); }
+.ain-ui .ainui-list-item-button { display: block; width: 100%; padding: 6px 8px; margin: -6px -8px; box-sizing: content-box; border: 0; border-radius: 8px; background: transparent; color: inherit; text-align: start; }
+.ain-ui .ainui-list-item-button:hover:not(:disabled) { background: var(--ainui-hover); }
+.ain-ui .ainui-list-item-children { display: flex; flex-direction: column; gap: 4px; }
+
+.ain-ui .ainui-chart { display: flex; flex-direction: column; gap: 8px; margin: 0; min-width: 0; width: 100%; position: relative; }
+.ain-ui .ainui-chart-title { font-size: 13px; font-weight: 600; color: var(--ainui-fg); }
+.ain-ui .ainui-chart-svg { display: block; max-width: 100%; overflow: visible; font-family: var(--ainui-font); }
+.ain-ui .ainui-chart-grid { stroke: var(--ainui-border); stroke-width: 1; shape-rendering: crispEdges; }
+.ain-ui .ainui-chart-axis { stroke: var(--ainui-border-strong); stroke-width: 1; shape-rendering: crispEdges; }
+.ain-ui .ainui-chart-tick, .ain-ui .ainui-chart-axis-label { fill: var(--ainui-muted); font-size: 11px; }
+.ain-ui .ainui-chart-value { fill: var(--ainui-fg); font-size: 11px; font-variant-numeric: tabular-nums; }
+.ain-ui .ainui-chart-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.ain-ui .ainui-chart-area { opacity: .18; }
+.ain-ui .ainui-chart-dot { stroke: var(--ainui-surface); stroke-width: 1.5; }
+.ain-ui .ainui-chart-scatter .ainui-chart-dot { fill-opacity: .8; }
+.ain-ui .ainui-chart-dot-hidden { fill: transparent; stroke: none; }
+.ain-ui .ainui-chart-slice { stroke: var(--ainui-surface); stroke-width: 1; }
+.ain-ui .ainui-chart-label-line { stroke: var(--ainui-border-strong); stroke-width: 1; }
+.ain-ui .ainui-chart-bar:hover, .ain-ui .ainui-chart-slice:hover { opacity: .85; }
+.ain-ui .ainui-chart-legend { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 14px; margin: 0; padding: 0; list-style: none; font-size: 12px; color: var(--ainui-muted); }
+.ain-ui .ainui-chart-legend li { display: inline-flex; align-items: center; gap: 6px; }
+.ain-ui .ainui-chart-swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+.ain-ui .ainui-chart-table { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+.ain-ui .ainui-chart-message { display: flex; align-items: center; justify-content: center; margin: 0; color: var(--ainui-muted); font-size: 13px; border: 1px dashed var(--ainui-border); border-radius: var(--ainui-radius); }
+
+.ain-ui .ainui-map { display: flex; flex-direction: column; gap: 8px; min-width: 0; width: 100%; }
+.ain-ui .ainui-map-view { position: relative; overflow: hidden; border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); background: var(--ainui-surface-2); }
+.ain-ui .ainui-map-tiles { position: absolute; inset: 0; }
+.ain-ui .ainui-map-tiles img { position: absolute; width: 256px; height: 256px; max-width: none; user-select: none; }
+.ain-ui .ainui-map-route { position: absolute; inset: 0; pointer-events: none; }
+.ain-ui .ainui-map-route polyline { fill: none; stroke: var(--ainui-primary); stroke-width: 3; stroke-linejoin: round; stroke-linecap: round; opacity: .8; }
+.ain-ui .ainui-map-marker { position: absolute; display: inline-flex; align-items: center; justify-content: center; min-width: 24px; height: 24px; padding: 0 4px; transform: translate(-50%, -50%); border: 2px solid var(--ainui-surface); border-radius: 9999px; background: var(--ainui-primary); color: var(--ainui-primary-fg); font-size: 11px; font-weight: 600; line-height: 1; box-shadow: var(--ainui-shadow); }
+.ain-ui .ainui-map-marker:hover { z-index: 2; }
+.ain-ui .ainui-map-marker-selected { z-index: 3; transform: translate(-50%, -50%) scale(1.25); border-color: var(--ainui-fg); }
+.ain-ui .ainui-map-zoom { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; border: 1px solid var(--ainui-border); border-radius: 8px; overflow: hidden; background: var(--ainui-surface); box-shadow: var(--ainui-shadow); }
+.ain-ui .ainui-map-zoom button { width: 28px; height: 28px; padding: 0; border: 0; background: transparent; color: var(--ainui-fg); font-size: 16px; line-height: 1; }
+.ain-ui .ainui-map-zoom button + button { border-top: 1px solid var(--ainui-border); }
+.ain-ui .ainui-map-zoom button:hover:not(:disabled) { background: var(--ainui-hover); }
+.ain-ui .ainui-map-attribution { position: absolute; right: 0; bottom: 0; padding: 1px 6px; border-top-left-radius: 6px; background: var(--ainui-surface); color: var(--ainui-muted); font-size: 10px; opacity: .85; }
+.ain-ui .ainui-map-places { display: flex; flex-direction: column; gap: 2px; margin: 0; padding: 0; list-style: none; }
+.ain-ui .ainui-map-place { display: flex; align-items: flex-start; gap: 8px; width: 100%; padding: 6px 8px; border: 0; border-radius: 8px; background: transparent; color: inherit; text-align: start; }
+.ain-ui .ainui-map-place:hover { background: var(--ainui-hover); }
+.ain-ui .ainui-map-place-selected { background: var(--ainui-surface-2); }
+.ain-ui .ainui-map-place-index { flex: none; display: inline-flex; align-items: center; justify-content: center; min-width: 20px; height: 20px; border-radius: 9999px; background: var(--ainui-primary); color: var(--ainui-primary-fg); font-size: 11px; font-weight: 600; }
+.ain-ui .ainui-map-place-text { display: flex; flex-direction: column; min-width: 0; }
+.ain-ui .ainui-map-place-label { font-weight: 500; overflow-wrap: anywhere; }
+.ain-ui .ainui-map-place-description { font-size: 12px; color: var(--ainui-muted); }
+.ain-ui .ainui-map-empty { margin: 0; padding: 16px; text-align: center; color: var(--ainui-muted); font-size: 13px; border: 1px dashed var(--ainui-border); border-radius: var(--ainui-radius); }

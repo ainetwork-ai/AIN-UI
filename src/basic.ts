@@ -20,11 +20,12 @@
  */
 import type { SkillResult } from "./types.js";
 
-export const A2UI_VERSION = "v0.9" as const;
-export const A2UI_MIME = "application/a2ui+json";
-export const A2UI_BASIC_CATALOG = "https://a2ui.org/specification/v0_9/catalogs/basic/catalog.json";
+import { A2UI_BASIC_CATALOG_V09, A2UI_V09, upgradeMessages, type A2uiAction, type A2uiComponent, type A2uiMessage } from "./protocol.js";
+export * from "./protocol.js";
 /** A2A extension URI (A2UI over A2A), advertised in the agent card. */
-export const A2UI_A2A_EXTENSION = "https://a2ui.org/a2a-extension/a2ui/v0.9";
+export const A2UI_A2A_EXTENSION = "https://a2ui.org/a2a-extension/a2ui/v1.0";
+/** The v0.9 extension URI, still listed so older clients keep negotiating. */
+export const A2UI_A2A_EXTENSION_V09 = "https://a2ui.org/a2a-extension/a2ui/v0.9";
 /** AG-UI activity type used by @ag-ui/a2ui-middleware / CopilotKit. */
 export const AGUI_A2UI_ACTIVITY = "a2ui-surface";
 export const AGUI_A2UI_OPERATIONS_KEY = "a2ui_operations";
@@ -32,21 +33,6 @@ export const AGUI_A2UI_OPERATIONS_KEY = "a2ui_operations";
 export const A2UI_META_KEY = "ai.aindrive/a2ui";
 
 type Dyn = string | number | boolean | { path: string };
-export type A2uiComponent = { id: string; component: string } & Record<string, unknown>;
-export type A2uiMessage =
-  | { version: typeof A2UI_VERSION; createSurface: { surfaceId: string; catalogId: string } }
-  | { version: typeof A2UI_VERSION; updateComponents: { surfaceId: string; components: A2uiComponent[] } }
-  | { version: typeof A2UI_VERSION; updateDataModel: { surfaceId: string; path?: string; value?: unknown } }
-  | { version: typeof A2UI_VERSION; deleteSurface: { surfaceId: string } };
-
-/** Client→server A2UI user action (v0.9 `action` object). */
-export type A2uiAction = {
-  name: string;
-  surfaceId?: string;
-  sourceComponentId?: string;
-  timestamp?: string;
-  context?: Record<string, unknown>;
-};
 
 // ── component helpers ──────────────────────────────────────────────────────
 
@@ -60,11 +46,12 @@ const column = (id: string, children: string[]): A2uiComponent => ({ id, compone
 
 function surface(prefix: string, components: A2uiComponent[], data: Record<string, unknown>): A2uiMessage[] {
   const surfaceId = `aindrive-${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-  return [
-    { version: A2UI_VERSION, createSurface: { surfaceId, catalogId: A2UI_BASIC_CATALOG } },
-    { version: A2UI_VERSION, updateComponents: { surfaceId, components } },
-    { version: A2UI_VERSION, updateDataModel: { surfaceId, path: "/", value: data } },
-  ];
+  // Written in the v0.9 layout the builders below use, sent as 1.0.
+  return upgradeMessages([
+    { version: A2UI_V09, createSurface: { surfaceId, catalogId: A2UI_BASIC_CATALOG_V09 } },
+    { version: A2UI_V09, updateComponents: { surfaceId, components } },
+    { version: A2UI_V09, updateDataModel: { surfaceId, path: "/", value: data } },
+  ]);
 }
 
 export function humanSize(n: unknown): string {
@@ -255,19 +242,6 @@ export function a2uiForSkill(
 
 // ── actions (renderer → agent) ─────────────────────────────────────────────
 
-/**
- * Accept the shapes renderers actually send: a v0.9 client event
- * `{version, action}`, a bare `action` object, `{action}`, or AG-UI/CopilotKit's
- * `{userAction}` (forwardedProps.a2uiAction).
- */
-export function parseA2uiAction(input: unknown): A2uiAction | null {
-  if (!input || typeof input !== "object") return null;
-  const o = input as Record<string, unknown>;
-  const candidate = (o.action ?? o.userAction ?? o) as Record<string, unknown>;
-  if (typeof candidate?.name !== "string") return null;
-  const context = candidate.context && typeof candidate.context === "object" ? candidate.context as Record<string, unknown> : {};
-  return { ...candidate, name: candidate.name, context } as A2uiAction;
-}
 
 export type SkillCall = { skill: string; args: Record<string, unknown> };
 

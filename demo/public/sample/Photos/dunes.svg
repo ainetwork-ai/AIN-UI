@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Sand dunes">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd98a"/><stop offset="1" stop-color="#fff4d1"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#s)"/>
+<circle cx="520" cy="100" r="38" fill="#ff8a3d"/>
+<path d="M0 250 Q160 170 320 240 T640 210 V400 H0Z" fill="#e6a94e"/>
+<path d="M0 310 Q200 230 380 300 T640 280 V400 H0Z" fill="#c98532"/>
+<path d="M0 360 Q260 300 640 350 V400 H0Z" fill="#96581f"/>
+</svg>

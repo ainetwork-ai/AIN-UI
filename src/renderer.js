@@ -19,10 +19,38 @@
  * `opts.resolveAsset({...asset, variant: "original"}, { download: true })`
  * (default: `fs/download`). Unknown components draw their children, else nothing.
  *
- * Plain ES module, browser-only APIs, no imports. Everything user-supplied is
+ * Plain ES module, browser-only APIs, no imports. Reads A2UI 1.0 and v0.9 messages. Everything user-supplied is
  * written via textContent / escaped HTML; media URLs are limited to data:,
  * https:, blob: and same-origin paths.
  */
+
+/**
+ * A2UI 1.0 → the layout this renderer works in (one operation per message, bindings as `{path}`). v0.9
+ * messages pass through. The same conversion as `flattenMessages` in ./protocol.ts, repeated here because
+ * this file must stay importable on its own.
+ */
+function normalize(messages) {
+  const value = (v) => {
+    if (Array.isArray(v)) return v.map(value);
+    if (!v || typeof v !== "object") return v;
+    const keys = Object.keys(v);
+    if (typeof v["@path"] === "string" && keys.length === 1) return { path: v["@path"] };
+    if (typeof v["@call"] === "string") return { call: v["@call"], ...(v.args === undefined ? {} : { args: value(v.args) }) };
+    return Object.fromEntries(keys.map((k) => [k === "@checks" ? "checks" : k === "@accessibility" ? "accessibility" : k, value(v[k])]));
+  };
+  const out = [];
+  for (const m of messages) {
+    if (m && m.createSurface) {
+      const { components, dataModel, ...rest } = m.createSurface;
+      out.push({ ...m, createSurface: rest });
+      if (components) out.push({ version: m.version, updateComponents: { surfaceId: rest.surfaceId, components: components.map(value) } });
+      if (dataModel !== undefined) out.push({ version: m.version, updateDataModel: { surfaceId: rest.surfaceId, path: "/", value: dataModel } });
+    } else if (m && m.updateComponents) {
+      out.push({ ...m, updateComponents: { ...m.updateComponents, components: (m.updateComponents.components || []).map(value) } });
+    } else out.push(m);
+  }
+  return out;
+}
 
 const KIND_EMOJI = { folder: "📁", image: "🖼", video: "🎬", audio: "🎵", pdf: "📕", file: "📄" };
 
@@ -176,7 +204,13 @@ export function createA2uiRenderer(container, { onAction, resolveAsset, assetBas
     if (v && typeof v === "object" && typeof v.path === "string") {
       return v.path.startsWith("/") ? pointerGet(surf.data, v.path) : pointerGet(scope ?? {}, "/" + v.path);
     }
-    if (v && typeof v === "object" && typeof v.call === "string") return "";
+    if (v && typeof v === "object" && typeof v.call === "string") {
+      // The one function a heading needs: "${/path}" pieces of a formatString template.
+      if (v.call === "formatString" && v.args && typeof v.args.value === "string") {
+        return v.args.value.replace(/\$\{([^}]+)\}/g, (_, path) => String(resolve({ path: path.trim() }, surf, scope) ?? ""));
+      }
+      return "";
+    }
     return v;
   }
 
@@ -216,6 +250,14 @@ export function createA2uiRenderer(container, { onAction, resolveAsset, assetBas
         el.className = "a2ui-card";
         el.appendChild(renderNode(surfaceId, c.child, scope));
         break;
+      case "Title":
+      case "Caption": {
+        // The AINUI 1.0 catalog's heading and caption; drawn with the classes the Text variants always had.
+        const level = { "5xl": 1, "4xl": 1, "3xl": 1, "2xl": 1, xl: 2, lg: 3, md: 4, sm: 5 }[c.size] || 3;
+        el.className = c.component === "Title" ? `a2ui-text a2ui-text-h${level}` : "a2ui-text a2ui-text-caption";
+        el.textContent = String(resolve(c.text, surf, scope) ?? "");
+        break;
+      }
       case "Text": {
         const v = c.variant || "body";
         const t = resolve(c.text, surf, scope) ?? "";
@@ -654,7 +696,7 @@ export function createA2uiRenderer(container, { onAction, resolveAsset, assetBas
 
   /** Apply a batch of server→client messages, then re-render. */
   function process(messages) {
-    for (const m of messages || []) {
+    for (const m of normalize(messages || [])) {
       if (m.createSurface) surfaces.set(m.createSurface.surfaceId, { components: new Map(), data: {} });
       else if (m.updateComponents) {
         const s = surfaces.get(m.updateComponents.surfaceId);
