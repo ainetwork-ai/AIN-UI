@@ -190,6 +190,17 @@ export function leadingJson(text: string): { value: unknown; trailing: number } 
   return undefined;
 }
 
+/**
+ * Messages that replace a surface the renderer already shows with a whole new one under the same id: delete it,
+ * then create it again (1.0 allows the id again once it was deleted).
+ */
+export function replaceSurface(surfaceId: string, catalogId: string, components: A2uiComponent[], dataModel?: Record<string, unknown>): A2uiMessage[] {
+  return [
+    { version: A2UI_VERSION, deleteSurface: { surfaceId } },
+    { version: A2UI_VERSION, createSurface: { surfaceId, catalogId, components, ...(dataModel ? { dataModel } : {}) } },
+  ];
+}
+
 /** Where one component names another. */
 const REF_KEYS = new Set(["children", "child", "trigger", "content", "componentId", "cellComponents"]);
 const IDENT = /^[\p{ID_Start}_][\p{ID_Continue}]*$/u;
@@ -234,9 +245,28 @@ function tidyTree(list: A2uiComponent[], notes: string[], whole: boolean): A2uiC
   return orphans.length ? out.filter((c) => reached.has(c.id)) : out;
 }
 
+/**
+ * Buttons inside a list prop (an EntityCard's `actions`) have no event of their own: the component sends one
+ * `onAction` with the item that was pressed. Models write `onClick` on each item anyway; dropped, the buttons
+ * would do nothing when clicked. So the first such event becomes the component's `onAction`.
+ */
+function hoistItemEvents(c: A2uiComponent, schema: Doc, notes: string[]): A2uiComponent {
+  if (!("onAction" in (schema.properties ?? {})) || c.onAction) return c;
+  for (const [key, value] of Object.entries(c)) {
+    if (!Array.isArray(value)) continue;
+    const item = value.find((v) => isObj(v) && ["onClick", "action", "onAction"].some((k) => isObj(v[k]) && isObj((v[k] as Doc).event)));
+    if (!item) continue;
+    const event = (["onClick", "action", "onAction"].map((k) => (item as Doc)[k]).find((v) => isObj(v) && isObj((v as Doc).event))) as Doc;
+    notes.push(`${c.component} "${c.id}": the ${key} buttons' event became its onAction (the pressed one is in the context)`);
+    return { ...c, onAction: { event: { name: event.event.name, ...(isObj(event.event.context) ? { context: event.event.context } : {}) } } };
+  }
+  return c;
+}
+
 function tidyComponent(c: A2uiComponent, docs: Doc[], notes: string[]): A2uiComponent {
   const schema = docs.map((d) => d.components?.[c.component]).find(Boolean) as Doc | undefined;
   if (!schema?.properties) return c;
+  c = hoistItemEvents(c, schema, notes);
   const out: Doc = {};
   for (const [k, v] of Object.entries(c)) {
     if (k === "id" || k === "component" || k.startsWith("@")) { out[k] = v; continue; }
@@ -423,6 +453,9 @@ export function createUiAuthor(options: UiAuthorOptions = {}): UiAuthor {
     const list = (components as Doc[] | undefined)?.map((c) => (isObj(c) ? c : {})) as A2uiComponent[] | undefined;
     if (typeof args.surfaceId === "string" && args.surfaceId) {
       const surfaceId = args.surfaceId;
+      // A whole new screen for that surface (it has a root): the old one is replaced, not patched — what the
+      // new root no longer reaches would be left behind as orphans, which a renderer refuses.
+      if (list?.some((c) => c.id === "root")) return replaceSurface(surfaceId, catalogs[0].id, list, data as Doc | undefined);
       return [
         ...(list?.length ? [{ version: A2UI_VERSION, updateComponents: { surfaceId, components: list } }] : []),
         ...(data ? [{ version: A2UI_VERSION, updateDataModel: { surfaceId, path: "/", value: data } }] : []),
