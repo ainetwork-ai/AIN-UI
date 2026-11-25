@@ -15,10 +15,11 @@ import { data } from "./standard/data.js";
 import { media } from "./standard/media.js";
 import { feedback } from "./standard/feedback.js";
 import { composites } from "./standard/composites.js";
+import { rich } from "./standard/rich.js";
 
 export const AINUI_INSTRUCTIONS: string = STANDARD.instructions ?? "";
 
-const views = [...layout, ...text, ...inputs, ...data, ...media, ...feedback, ...composites, ...ain];
+const views = [...layout, ...text, ...inputs, ...data, ...media, ...feedback, ...composites, ...rich, ...ain];
 const byName = new Map(views.map((v) => [v.name, v]));
 
 /** A component whose view is not written yet still shows its text and children instead of nothing. */

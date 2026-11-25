@@ -163,31 +163,45 @@ function tidy(value: unknown, schema: Doc | undefined, notes: string[], where: s
 }
 
 /**
- * The JSON value a string starts with, and how much is left after it. Models that pass an array as a string
- * often close it one bracket too many (`…}]}]`); what came before is still exactly what they meant, so it is
- * read when only closing brackets, commas or whitespace follow. Anything else after it is not guessed at.
+ * Reads JSON a model wrote as a string, repairing the one mistake it makes most: a closing bracket that does
+ * not match (`…"/x"}}}}, {"id": …` inside an array, or `…}]}]` at the end). Such a closer is dropped and
+ * counted; closers missing at the end are added. Strings are never touched, and anything else that does not
+ * parse still fails.
  */
 export function leadingJson(text: string): { value: unknown; trailing: number } | undefined {
   const src = text.trim();
-  try { return { value: JSON.parse(src), trailing: 0 }; } catch { /* look for the end of the first value */ }
-  const open = src[0];
-  if (open !== "[" && open !== "{") return undefined;
-  let depth = 0, inString = false;
+  try { return { value: JSON.parse(src), trailing: 0 }; } catch { /* repair below */ }
+  if (src[0] !== "[" && src[0] !== "{") return undefined;
+  const stack: string[] = [];
+  let out = "", dropped = 0, inString = false;
   for (let i = 0; i < src.length; i++) {
     const ch = src[i];
-    if (inString) { if (ch === "\\") i++; else if (ch === '"') inString = false; continue; }
-    if (ch === '"') inString = true;
-    else if (ch === "[" || ch === "{") depth++;
-    else if (ch === "]" || ch === "}") {
-      depth--;
-      if (depth === 0) {
-        const rest = src.slice(i + 1);
-        if (!/^[\s\]},]*$/.test(rest)) return undefined;
-        try { return { value: JSON.parse(src.slice(0, i + 1)), trailing: rest.trim().length }; } catch { return undefined; }
-      }
+    if (inString) {
+      out += ch;
+      if (ch === "\\" && i + 1 < src.length) out += src[++i];
+      else if (ch === '"') inString = false;
+      continue;
     }
+    if (ch === '"') { inString = true; out += ch; continue; }
+    if (ch === "[" || ch === "{") {
+      if (!stack.length && out.trim()) { dropped += src.length - i; break; }
+      // `{` where an object expects a key (`…}}}, {"id": …`): the object before it was never closed. Close
+      // objects up to the array the new item belongs in.
+      if (ch === "{" && stack[stack.length - 1] === "}" && /,\s*$/.test(out) && stack.includes("]")) {
+        while (stack[stack.length - 1] === "}") { out = out.replace(/,\s*$/, "") + stack.pop()!; dropped++; }
+        out += ",";
+      }
+      stack.push(ch === "[" ? "]" : "}"); out += ch; continue;
+    }
+    if (ch === "]" || ch === "}") {
+      if (stack[stack.length - 1] === ch) { stack.pop(); out += ch; } else dropped++;
+      continue;
+    }
+    if (!stack.length && out.trim() && ch.trim()) { if (/^[\s,]*$/.test(src.slice(i))) break; return undefined; }
+    out += ch;
   }
-  return undefined;
+  while (stack.length) out += stack.pop();
+  try { return { value: JSON.parse(out.replace(/,(\s*[\]}])/g, "$1")), trailing: dropped || 1 }; } catch { return undefined; }
 }
 
 /**
@@ -231,6 +245,12 @@ function tidyTree(list: A2uiComponent[], notes: string[], whole: boolean): A2uiC
     out = list.map((c) => ({ ...(mapRefs(c, undefined, (id) => renamed.get(id) ?? id) as A2uiComponent), id: renamed.get(c.id) ?? c.id }));
   }
   if (!whole || !out.some((c) => c.id === "root")) return out;
+  // A child named in a list that was never written is left out of the list, not fatal.
+  const ids = new Set(out.map((c) => c.id));
+  const missing = new Set<string>();
+  out = out.map((c) => Array.isArray(c.children) && c.children.some((x) => typeof x === "string" && !ids.has(x))
+    ? { ...c, children: (c.children as unknown[]).filter((x) => typeof x !== "string" || ids.has(x) || (missing.add(x), false)) } : c);
+  if (missing.size) notes.push(`children never written, left out: ${[...missing].slice(0, 6).join(", ")}`);
   const byId = new Map(out.map((c) => [c.id, c]));
   const reached = new Set<string>();
   const visit = (id: string) => {
@@ -263,6 +283,8 @@ function hoistItemEvents(c: A2uiComponent, schema: Doc, notes: string[]): A2uiCo
   return c;
 }
 
+const CHECK_MESSAGES: Record<string, string> = { required: "Required", email: "Enter a valid email address", regex: "Check the format", length: "Check the length", numeric: "Enter a number in range" };
+
 function tidyComponent(c: A2uiComponent, docs: Doc[], notes: string[]): A2uiComponent {
   const schema = docs.map((d) => d.components?.[c.component]).find(Boolean) as Doc | undefined;
   if (!schema?.properties) return c;
@@ -271,7 +293,20 @@ function tidyComponent(c: A2uiComponent, docs: Doc[], notes: string[]): A2uiComp
   for (const [k, v] of Object.entries(c)) {
     if (k === "id" || k === "component" || k.startsWith("@")) { out[k] = v; continue; }
     if (!(k in schema.properties)) { notes.push(`${c.component} "${c.id}": ${k} is not a property; ignored`); continue; }
-    out[k] = tidy(v, schema.properties[k], notes, `${c.component} "${c.id}".${k}`);
+    const prop = schema.properties[k] as Doc;
+    // null for a prop that is optional and cannot be null means "not set"
+    if (v === null && !(schema.required ?? []).includes(k) && !alternatives(prop).some((a) => typesOf(a).includes("null"))) { notes.push(`${c.component} "${c.id}": ${k} was null; left unset`); continue; }
+    // children named as {componentId: "x"} or {id: "x"} instead of "x"
+    if (Array.isArray(v) && /ChildList$/.test(String(prop.$ref ?? ""))) {
+      out[k] = v.map((x) => (isObj(x) && typeof (x.componentId ?? x.id) === "string" && Object.keys(x).length === 1 ? (x.componentId ?? x.id) : x));
+      continue;
+    }
+    // a validation check written as the bare function call: it is the condition
+    if (k === "checks" && Array.isArray(v)) {
+      out[k] = v.map((x) => (isObj(x) && typeof x["@call"] === "string" ? { condition: x, message: CHECK_MESSAGES[x["@call"] as string] ?? "Check this value" } : x));
+      continue;
+    }
+    out[k] = tidy(v, prop, notes, `${c.component} "${c.id}".${k}`);
   }
   return out as A2uiComponent;
 }
@@ -444,7 +479,7 @@ export function createUiAuthor(options: UiAuthorOptions = {}): UiAuthor {
     const parse = (v: unknown, what: string) => {
       if (typeof v !== "string") return v;
       const lenient = leadingJson(v);
-      if (lenient !== undefined) { if (lenient.trailing) notes.push(`${what} was sent as text with ${lenient.trailing} extra character(s) after it; read the JSON before them`); return lenient.value; }
+      if (lenient !== undefined) { if (lenient.trailing) notes.push(`${what} was sent as text with ${lenient.trailing} unmatched bracket(s); repaired`); return lenient.value; }
       try { return JSON.parse(v); } catch (e) { throw new UiError(`${what} was a string that is not valid JSON (${describe(e)}). Pass ${what} as a JSON ${what === "data" ? "object" : "array"}, not as text.`, e); }
     };
     const components = parse(args.components, "components"), data = parse(args.data, "data");

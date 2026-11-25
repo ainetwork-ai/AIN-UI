@@ -10,6 +10,9 @@ Object.assign(doc.components.Button.properties, {
   tone: dyn({ type: "string", enum: ["default", "danger"] }, "\"danger\" for a destructive action."),
 });
 doc.components.Grid.properties.minItemWidth = dyn({ type: ["number", "string"] }, "Same as minChildWidth.");
+// Components the playground catalog has beyond the standard ones, which make dashboards and summaries read well.
+const rich = JSON.parse(readFileSync(new URL("../src/catalog/rich.json", import.meta.url), "utf8"));
+Object.assign(doc.components, rich.components);
 // The AIN components and the catalog's own identity.
 const ain = JSON.parse(readFileSync(new URL("../src/catalog/ain.json", import.meta.url), "utf8"));
 Object.assign(doc.components, ain.components);
@@ -23,4 +26,5 @@ writeFileSync(new URL("../src/catalog/standard.gen.ts", import.meta.url),
   `/** The AINUI catalog document (A2UI 1.0): ${Object.keys(doc.components).length} components, ${Object.keys(doc.functions).length} functions. */\n` +
   `export const AINUI_CATALOG_DOCUMENT: Record<string, any> = JSON.parse(${JSON.stringify(JSON.stringify(doc))});\n` +
   `/** Names of the standard components (the rest are AIN's own). */\n` +
-  `export const STANDARD_COMPONENT_NAMES: readonly string[] = ${JSON.stringify(Object.keys(doc.components).filter((n) => !(n in ain.components)))};\n`);
+  `export const RICH_COMPONENT_NAMES: readonly string[] = ${JSON.stringify(Object.keys(rich.components))};\n` +
+  `export const STANDARD_COMPONENT_NAMES: readonly string[] = ${JSON.stringify(Object.keys(doc.components).filter((n) => !(n in ain.components) && !(n in rich.components)))};\n`);

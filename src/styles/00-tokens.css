@@ -15,6 +15,8 @@
   --ainui-danger: #c13535; --ainui-danger-soft: #fdeaea;
   --ainui-discovery: #6d3fd1; --ainui-discovery-soft: #f0eafd;
   --ainui-secondary: #475467; --ainui-secondary-soft: #eef0f3;
+  /* chart series: distinct hues that stay apart in every theme */
+  --ainui-chart-1: var(--ainui-primary); --ainui-chart-2: #14b8a6; --ainui-chart-3: #f59e0b; --ainui-chart-4: #8b5cf6; --ainui-chart-5: #ec4899; --ainui-chart-6: #64748b;
   /* names AINUI v1 styles used */
   --ainui-line: var(--ainui-border); --ainui-active: var(--ainui-surface); --ainui-accent: var(--ainui-primary);
 }

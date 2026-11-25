@@ -30,7 +30,7 @@ export function Stage({ turns, theme, onAction, onSend, showSource }: {
             resolveAsset={(asset) => `/sample/${asset.path}`} />
         </div>)}
         {t.notes.map((n, i) => <p key={i} className="pg-note">{n}</p>)}
-        {showSource && t.sources.map((s, i) => <details key={i} className={`pg-source${s.rejected ? " pg-rejected" : ""}`} open={i === t.sources.length - 1}>
+        {showSource && t.sources.map((s, i) => <details key={i} className={`pg-source pg-source-inline${s.rejected ? " pg-rejected" : ""}`} open={i === t.sources.length - 1}>
           <summary><span className="pg-chip">{s.format}</span> {s.rejected ? "rejected" : "accepted"} · {(s.ms / 1000).toFixed(1)} s · {s.source.length.toLocaleString()} chars</summary>
           {s.rejected && <p className="pg-reason">{s.rejected}</p>}
           <pre><code>{s.source}</code></pre>
@@ -42,6 +42,30 @@ export function Stage({ turns, theme, onAction, onSend, showSource }: {
       </div>)}
     <div ref={end} />
   </div>;
+}
+
+/** What the model wrote for the latest answer, beside the conversation: every attempt, the rejected ones with why. */
+function SourcePane({ turn }: { turn?: Turn }) {
+  const [pick, setPick] = useState<number | null>(null);
+  const sources = turn?.sources ?? [];
+  useEffect(() => setPick(null), [turn?.id, sources.length]);
+  const at = pick ?? sources.length - 1;
+  const shown = sources[at];
+  const lines = shown ? shown.source.split("\n") : [];
+  return <aside className="pg-pane" aria-label="What the model wrote">
+    <header className="pg-pane-head">
+      <strong>{turn?.stats?.model ?? "The model"} wrote</strong>
+      {shown && <span className="pg-pane-meta">{shown.format === "express" ? "A2UI Express" : "A2UI JSON"} · {lines.length} lines · {(shown.ms / 1000).toFixed(1)} s</span>}
+    </header>
+    {sources.length > 1 && <div className="pg-pane-tabs" role="tablist">{sources.map((s, i) =>
+      <button key={i} type="button" role="tab" aria-selected={i === at} className={s.rejected ? "pg-pane-tab-rejected" : ""} onClick={() => setPick(i)}>
+        Try {i + 1}{s.rejected ? " ✕" : " ✓"}</button>)}</div>}
+    {turn?.writing && !shown && <p className="pg-note pg-pane-note">Writing… {turn.writing.chars.toLocaleString()} characters</p>}
+    {shown?.rejected && <p className="pg-pane-reason">{shown.rejected}</p>}
+    {shown ? <pre className="pg-pane-code"><code>{lines.map((l, i) => <span key={i} className="pg-pane-line"><span className="pg-pane-no">{i + 1}</span>{l}{"\n"}</span>)}</code></pre>
+      : !turn?.writing && <p className="pg-note pg-pane-note">Nothing yet. Ask for a UI and the source appears here.</p>}
+    {turn?.notes.length ? <ul className="pg-pane-notes">{turn.notes.map((n, i) => <li key={i}>{n}</li>)}</ul> : null}
+  </aside>;
 }
 
 export function Playground({ embed }: { embed: boolean }) {
@@ -69,7 +93,10 @@ export function Playground({ embed }: { embed: boolean }) {
   };
   const send = (text: string) => { const t = text.trim(); if (t) { setDraft(""); void start({ text: t }); } };
 
-  return <div className={`pg${embed ? " pg-embed" : ""}`}>
+  const latest = [...turns].reverse().find((t) => t.role === "assistant" && (t.sources.length || t.writing));
+  const pane = settings.source && turns.length > 0;
+  return <div className={`pg${embed ? " pg-embed" : ""}${pane ? " pg-with-pane" : ""}`}>
+    <div className="pg-column">
     <div className="pg-main">
       {turns.length === 0 ? <div className="pg-empty">
         <h1>Ask for a UI.</h1>
@@ -93,5 +120,7 @@ export function Playground({ embed }: { embed: boolean }) {
           : <button type="submit" className="pg-button pg-primary" disabled={!draft.trim() || !model}>Send</button>}
       </div>
     </form>
+    </div>
+    {pane && <SourcePane turn={latest} />}
   </div>;
 }

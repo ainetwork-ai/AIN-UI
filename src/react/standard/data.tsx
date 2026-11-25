@@ -1,7 +1,7 @@
 "use client";
 
 /** Standard catalog — data: tables, lists, charts and maps. Charts and maps are drawn here, without a library. */
-import React, { createContext, useContext, useEffect, useRef, useState } from "react";
+import React, { createContext, useContext, useEffect, useId, useRef, useState } from "react";
 import { Kids, color, cx, fire, kid, px, safeUrl, space, standard, useHost, type BuildChild, type ChildRef } from "../core.js";
 import { IconGlyph } from "./media.js";
 
@@ -197,7 +197,7 @@ const ListItem = standard("ListItem", ({ props, buildChild }) => {
 
 /* ---------- Chart ---------- */
 
-const TONES = ["primary", "info", "success", "warning", "discovery", "danger"];
+const TONES = ["chart-1", "chart-2", "chart-3", "chart-4", "chart-5", "chart-6"];
 const tone = (i: number) => `var(--ainui-${TONES[i % TONES.length]})`;
 const CHART_TYPES = ["bar", "line", "area", "scatter", "pie", "donut"];
 type Series = { key: string; label: string; color: string };
@@ -258,6 +258,7 @@ const radiusOf = (v: unknown, max: number, fallback: number) => {
 };
 
 const Chart = standard("Chart", ({ props }) => {
+  const gradientId = `ainui-chart-${useId().replace(/[^a-zA-Z0-9_-]/g, "")}`;
   const [ref, width] = useWidth(640);
   const height = Math.max(120, num(props.height) ?? 240);
   const type = CHART_TYPES.includes(props.chartType) ? (props.chartType as string) : "bar";
@@ -383,7 +384,7 @@ const Chart = standard("Chart", ({ props }) => {
     if (type === "bar") {
       const group = band * 0.72;
       const each = stacked ? group : group / series.length;
-      const r = Math.max(0, num(props.barRadius) ?? 2);
+      const r = Math.max(0, num(props.barRadius) ?? 5);
       rows.forEach((row, i) => {
         let pos = 0, neg = 0;
         series.forEach((s, j) => {
@@ -397,7 +398,7 @@ const Chart = standard("Chart", ({ props }) => {
           const gap = stacked ? 0 : Math.min(1, each * 0.1);
           const rect = horizontal ? { x: lo, y: top + offset + gap, width: size, height: Math.max(1, each - gap * 2) } : { x: left + offset + gap, y: lo, width: Math.max(1, each - gap * 2), height: size };
           marks.push(<rect key={`b${i}:${j}`} className="ainui-chart-bar" x={f(rect.x)} y={f(rect.y)} width={f(rect.width)} height={f(rect.height)}
-            rx={Math.min(r, rect.width / 2, rect.height / 2)} style={{ fill: s.color }}>{tip(text(s, i, v))}</rect>);
+            rx={Math.min(r, rect.width / 2, rect.height / 2)} style={{ fill: stacked ? s.color : `url(#${gradientId}-${j})` }}>{tip(text(s, i, v))}</rect>);
           if (labels) {
             marks.push(horizontal
               ? <text key={`v${i}:${j}`} className="ainui-chart-value" x={f(v >= 0 ? rect.x + rect.width + 4 : rect.x - 4)} y={f(rect.y + rect.height / 2)} textAnchor={v >= 0 ? "start" : "end"} dominantBaseline="middle">{fmt.tick(v)}</text>
@@ -438,7 +439,12 @@ const Chart = standard("Chart", ({ props }) => {
   const summary = `${title ? `${title}. ` : ""}${type[0].toUpperCase()}${type.slice(1)} chart of ${shownSeries.map((s) => s.label).join(", ")}${xKey ? ` by ${xKey}` : ""}, ${rows.length} ${rows.length === 1 ? "point" : "points"}.`;
   return <figure className={cx("ainui-chart", `ainui-chart-${type}`)} ref={ref as never}>
     {title && <figcaption className="ainui-chart-title">{title}</figcaption>}
-    <svg className="ainui-chart-svg" role="img" aria-label={summary} viewBox={`0 0 ${width} ${height}`} width="100%" height={height} preserveAspectRatio="xMidYMid meet">{marks}</svg>
+    <svg className="ainui-chart-svg" role="img" aria-label={summary} viewBox={`0 0 ${width} ${height}`} width="100%" height={height} preserveAspectRatio="xMidYMid meet">
+      <defs>{series.map((sr, j) => <linearGradient key={j} id={`${gradientId}-${j}`} x1="0" y1="0" x2={props.layout === "horizontal" && type === "bar" ? "1" : "0"} y2={props.layout === "horizontal" && type === "bar" ? "0" : "1"}>
+        <stop offset="0%" stopColor={sr.color} stopOpacity={1} /><stop offset="100%" stopColor={sr.color} stopOpacity={0.55} />
+      </linearGradient>)}</defs>
+      {marks}
+    </svg>
     {showLegend && <ul className="ainui-chart-legend" aria-hidden="true">
       {legend.map((l, i) => <li key={i}><span className="ainui-chart-swatch" style={{ background: l.color }} />{l.label}</li>)}
     </ul>}

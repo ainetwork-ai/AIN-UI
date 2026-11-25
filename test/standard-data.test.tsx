@@ -129,7 +129,9 @@ test("data: a bar Chart draws grouped, stacked and horizontal bars with axes, le
   assert.equal(grouped.querySelector(".ainui-chart-title")!.textContent, "Sales");
   const bars = Array.from(grouped.querySelectorAll<SVGRectElement>("rect.ainui-chart-bar"));
   assert.equal(bars.length, 6);
-  assert.equal(bars[0].style.fill, "var(--ainui-primary)"); assert.equal(bars[1].style.fill, "var(--ainui-danger)");
+  // bars fill with their series' gradient; the gradient's stops carry the series colour (a given colour, else the palette)
+  const stop = (bar: SVGRectElement) => grouped.querySelector(`${/url\(#([^)]+)\)/.exec(bar.style.fill)![1].replace(/[^\w-]/g, (c) => `\\${c}`)} stop`)?.getAttribute("stop-color") ?? grouped.querySelector(`[id="${/url\(#([^)]+)\)/.exec(bar.style.fill)![1]}"] stop`)!.getAttribute("stop-color");
+  assert.equal(stop(bars[0]), "var(--ainui-chart-1)"); assert.equal(stop(bars[1]), "var(--ainui-danger)");
   assert.match(bars[1].querySelector("title")!.textContent!, /Jan · Cost: \$800/);
   assert.ok(Number(bars[2].getAttribute("height")) > Number(bars[0].getAttribute("height")), "Feb revenue is taller than Jan");
   assert.ok(grouped.querySelectorAll(".ainui-chart-grid").length >= 3);
@@ -185,7 +187,7 @@ test("data: line, area, scatter, pie and donut Charts, percent format, and the e
   assert.equal(slices.length, 3);
   assert.match(slices[0].getAttribute("d")!, /^M[\d.]+,[\d.]+L/, "a pie slice starts at the centre");
   assert.match(slices[0].querySelector("title")!.textContent!, /A: 50 \(50%\)/);
-  assert.deepEqual(slices.map((s) => s.style.fill), ["var(--ainui-primary)", "var(--ainui-info)", "var(--ainui-success)"]);
+  assert.deepEqual(slices.map((s) => s.style.fill), ["var(--ainui-chart-1)", "var(--ainui-chart-2)", "var(--ainui-chart-3)"]);
   assert.equal(pie.querySelectorAll(".ainui-chart-value").length, 3);
   assert.equal(pie.querySelectorAll(".ainui-chart-label-line").length, 3);
   assert.deepEqual(Array.from(pie.querySelectorAll(".ainui-chart-legend li")).map((l) => l.textContent), ["A", "B", "C"]);

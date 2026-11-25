@@ -51,7 +51,8 @@
 .ain-ui .ainui-chart-tick, .ain-ui .ainui-chart-axis-label { fill: var(--ainui-muted); font-size: 11px; }
 .ain-ui .ainui-chart-value { fill: var(--ainui-fg); font-size: 11px; font-variant-numeric: tabular-nums; }
 .ain-ui .ainui-chart-line { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-.ain-ui .ainui-chart-area { opacity: .18; }
+.ain-ui .ainui-chart-area { opacity: .16; }
+.ain-ui .ainui-chart-svg text { font-variant-numeric: tabular-nums; }
 .ain-ui .ainui-chart-dot { stroke: var(--ainui-surface); stroke-width: 1.5; }
 .ain-ui .ainui-chart-scatter .ainui-chart-dot { fill-opacity: .8; }
 .ain-ui .ainui-chart-dot-hidden { fill: transparent; stroke: none; }

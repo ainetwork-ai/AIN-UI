@@ -1066,6 +1066,112 @@ export const EXAMPLES: Record<string, ExampleSpec> = {
       selected: "https://ainize.ai#gallery-guide", renders: ["streaming", "cancel", "ainui"], context: { requestId: "example" },
     },
   },
+  // ── Rich ──────────────────────────────────────────────────────────────────
+  Heading: {
+    components: [
+      { id: "root", component: "Heading", eyebrow: "Growth · Week 47", text: "Weekly Signups & Onboarding", subtitle: "Total volume increased 18.4% over last week with strong referral conversion" },
+    ],
+  },
+  Section: {
+    components: [
+      { id: "root", component: "Section", eyebrow: "Trends", title: "Daily signups volume", description: "New account creations from Monday through Sunday", children: ["grid"] },
+      { id: "grid", component: "Grid", columns: 2, gap: 3, children: ["web", "mobile"] },
+      { id: "web", component: "Sparkline", label: "Web", values: [420, 460, 510, 590, 640, 560, 610], value: "3,750", delta: "+9.6%", tone: "positive" },
+      { id: "mobile", component: "Sparkline", label: "Mobile", values: [130, 120, 145, 160, 150, 170, 185], value: "1,060", delta: "+14.1%", tone: "positive" },
+    ],
+  },
+  Stat: {
+    components: [
+      { id: "root", component: "Grid", minChildWidth: 220, gap: 3, children: ["signups", "conversion", "churn"] },
+      { id: "signups", component: "Stat", label: "Total signups", value: 3842, delta: "+18.4%", trend: "up", caption: "vs. 3,245 prior week", tone: "positive" },
+      { id: "conversion", component: "Stat", label: "Visitor conversion", value: "4.8%", delta: "+0.6%", trend: "up", caption: "Landing page to signup" },
+      { id: "churn", component: "Stat", label: "Trial churn", value: "2.1%", delta: "-0.4%", trend: "down", caption: "7-day dropout rate", tone: "positive" },
+    ],
+  },
+  StatGroup: {
+    components: [
+      { id: "root", component: "StatGroup", items: [
+        { label: "MRR", value: "$84.2k", delta: "+4.2%", trend: "up" },
+        { label: "Active customers", value: 1284, delta: "+38", trend: "up" },
+        { label: "Net churn", value: "1.9%", delta: "+0.3%", trend: "down" },
+        { label: "NPS", value: 61, delta: "0", trend: "flat" },
+      ] },
+    ],
+  },
+  Sparkline: {
+    components: [
+      { id: "root", component: "Grid", minChildWidth: 220, gap: 3, children: ["users", "latency", "errors"] },
+      { id: "users", component: "Sparkline", label: "Active users", values: [812, 860, 845, 910, 980, 1040, 1122, 1180], value: "1,180", delta: "+12.4%", tone: "positive" },
+      { id: "latency", component: "Sparkline", label: "p95 latency", values: [210, 198, 230, 260, 245, 290, 310, 305], value: "305 ms", delta: "+45 ms", tone: "negative" },
+      { id: "errors", component: "Sparkline", label: "Error rate", values: [0.8, 0.7, 0.9, 0.6, 0.5, 0.55, 0.4, 0.38], value: "0.38%", delta: "-0.42pt", tone: "positive" },
+    ],
+  },
+  Progress: {
+    components: [
+      { id: "root", component: "Column", gap: 4, children: ["goal", "budget", "coverage"] },
+      { id: "goal", component: "Progress", label: "Q4 signup goal", value: 76, caption: "15,200 of 20,000 accounts", tone: "positive" },
+      { id: "budget", component: "Progress", label: "Ad budget used", value: 92, caption: "$9,200 of $10,000 — 6 days left", tone: "warning" },
+      { id: "coverage", component: "Progress", label: "Test coverage", value: at("/coverage"), caption: "Line coverage on main" },
+    ],
+    data: { coverage: 64.5 },
+  },
+  Callout: {
+    components: [
+      { id: "root", component: "Callout", icon: "lightbulb", title: "Referral links convert 3× better", text: "Visitors who arrive from a shared referral link finish signup at 14%, against 4.8% overall. Put the invite link on the onboarding checklist.", actionLabel: "Add to checklist", onAction: event("callout.add_referral_step") },
+    ],
+  },
+  Alert: {
+    components: [
+      { id: "root", component: "Column", gap: 3, children: ["info", "success", "warning", "error"] },
+      { id: "info", component: "Alert", tone: "info", title: "Maintenance window", message: "The dashboard is read-only on Sunday from 02:00 to 03:00 UTC." },
+      { id: "success", component: "Alert", tone: "success", title: "Export finished", message: "signups-week-47.csv is ready in your Downloads folder." },
+      { id: "warning", component: "Alert", tone: "warning", title: "Ad budget almost spent", message: "92% of this month's budget is used with 6 days to go." },
+      { id: "error", component: "Alert", tone: "error", title: "Payment failed", message: "The card ending in 4242 was declined. Update it to keep the Team plan." },
+    ],
+  },
+  Avatar: {
+    components: [
+      { id: "root", component: "Column", gap: 4, children: ["lead", "row"] },
+      { id: "lead", component: "Avatar", name: "Maya Okafor", subtitle: "Product lead · Seoul", size: "lg", status: "online" },
+      { id: "row", component: "Row", gap: 5, wrap: "wrap", children: ["dan", "ines", "kenji"] },
+      { id: "dan", component: "Avatar", name: "Daniel Reyes", subtitle: "Reviewer", image: photo("daniel-avatar", 96, 96), status: "away" },
+      { id: "ines", component: "Avatar", name: "Inês Costa", subtitle: "Design", status: "offline" },
+      { id: "kenji", component: "Avatar", name: "Kenji Watanabe", size: "sm" },
+    ],
+  },
+  KeyValueList: {
+    components: [
+      { id: "root", component: "KeyValueList", title: "Order #10482", columns: 2, items: [
+        { label: "Placed", value: "24 Nov 2026, 09:12" }, { label: "Status", value: "Packed" },
+        { label: "Items", value: 3 }, { label: "Shipping", value: "Express (1–2 days)" },
+        { label: "Subtotal", value: "$128.00" }, { label: "Total", value: "$141.50", hint: "incl. VAT and shipping" },
+      ] },
+    ],
+  },
+  Timeline: {
+    components: [
+      { id: "root", component: "Timeline", items: [
+        { title: "Order placed", time: "Nov 24, 09:12", description: "Paid with the card ending in 4242.", status: "done" },
+        { title: "Packed", time: "Nov 24, 11:40", description: "Two boxes, 3.4 kg.", status: "done" },
+        { title: "In transit", time: "Nov 25, 08:05", description: "Left the Incheon hub; next stop Seoul Gangnam.", status: "current", icon: "truck" },
+        { title: "Out for delivery", time: "Expected Nov 26", status: "upcoming" },
+        { title: "Delivered", status: "upcoming" },
+      ] },
+    ],
+  },
+  TagList: {
+    components: [
+      { id: "root", component: "Column", gap: 3, children: ["stack", "good", "risks"] },
+      { id: "stack", component: "TagList", tags: ["React 19", "TypeScript", "A2UI 1.0", "Vite", "Postgres"] },
+      { id: "good", component: "TagList", tags: ["Fast onboarding", "Clear pricing", "Great docs"], tone: "positive" },
+      { id: "risks", component: "TagList", tags: ["Slow exports", "No SSO on Starter"], tone: "warning" },
+    ],
+  },
+  EmptyState: {
+    components: [
+      { id: "root", component: "EmptyState", icon: "search-x", title: "No signups match these filters", description: "Try a wider date range or remove the \"Referral\" source filter.", actionLabel: "Clear filters", onAction: event("filters.clear") },
+    ],
+  },
 };
 
 /** The three macros of `ain-ui/macros`: the call a model writes, and the standard components the server sends for it. */
