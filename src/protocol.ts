@@ -80,12 +80,15 @@ function upgradeText(c: A2uiComponent, toAinui: boolean): A2uiComponent {
 function upgradeComponent(c: A2uiComponent, toAinui: boolean): A2uiComponent {
   const out: Record<string, unknown> = {};
   for (const [k, v] of Object.entries(c)) {
+    // v0.9 producers (AINUI v1 included) wrote null for "not set"; in 1.0 an optional prop is left out instead
+    if (v === null && k !== "id" && k !== "component") continue;
     if (k === "id" || k === "component") out[k] = v;
     else if (k === "checks") out["@checks"] = upgradeValue(v);
     else if (k === "accessibility") out["@accessibility"] = upgradeValue(v);
     else out[k] = upgradeValue(v);
   }
   let next = out as A2uiComponent;
+  if (next.component === "List" && "listStyle" in next) { const { listStyle: _gone, ...rest } = next; next = rest as A2uiComponent; }
   if (next.component === "Text") next = upgradeText(next, toAinui);
   if (next.component === "TextField") {
     if (typeof next.validationRegexp === "string") {
@@ -95,6 +98,39 @@ function upgradeComponent(c: A2uiComponent, toAinui: boolean): A2uiComponent {
     if (next.value === undefined) next = { ...next, value: "" };
   }
   return next;
+}
+
+/**
+ * v0.9 took any string as a component id; 1.0 takes identifiers (`tile-0` is not one). Ids are renamed per surface
+ * (`tile-0` → `tile_0`) the same way in every message, and so are the places that name them.
+ */
+const IDENT = /^[\p{ID_Start}_][\p{ID_Continue}]*$/u;
+class IdNames {
+  private readonly bySurface = new Map<string, Map<string, string>>();
+  name(surfaceId: string, id: unknown): unknown {
+    if (typeof id !== "string" || IDENT.test(id)) return id;
+    let names = this.bySurface.get(surfaceId);
+    if (!names) this.bySurface.set(surfaceId, (names = new Map()));
+    let next = names.get(id);
+    if (!next) {
+      const taken = new Set(names.values());
+      next = id.replace(/[^\p{ID_Continue}]/gu, "_").replace(/^(?![\p{ID_Start}_])/u, "_") || "_";
+      while (taken.has(next)) next += "_";
+      names.set(id, next);
+    }
+    return next;
+  }
+  /** A component with its id and every reference it makes renamed. */
+  component(surfaceId: string, c: A2uiComponent): A2uiComponent {
+    const ref = (v: unknown) => this.name(surfaceId, v);
+    const out: Record<string, unknown> = { ...c, id: ref(c.id) };
+    for (const key of ["child", "trigger", "content"]) if (key in out) out[key] = ref(out[key]);
+    if (Array.isArray(out.children)) out.children = out.children.map(ref);
+    else if (isObject(out.children) && typeof out.children.componentId === "string") out.children = { ...out.children, componentId: ref(out.children.componentId) };
+    if (Array.isArray(out.tabs)) out.tabs = out.tabs.map((t) => (isObject(t) && "child" in t ? { ...t, child: ref(t.child) } : t));
+    if (Array.isArray(out.cellComponents)) out.cellComponents = out.cellComponents.map(ref);
+    return out as A2uiComponent;
+  }
 }
 
 const catalogFor = (id: string | undefined) => (id === A2UI_BASIC_CATALOG_V09 ? A2UI_BASIC_CATALOG : id === AINUI_CATALOG_V1 ? AINUI_CATALOG : id);
@@ -126,6 +162,7 @@ export const isLegacyMessage = (m: unknown) => isObject(m) && typeof m.version =
  */
 export function upgradeMessages(messages: readonly unknown[]): A2uiMessage[] {
   const ainui = new Map<string, boolean>();
+  const ids = new IdNames();
   return messages.map((raw) => {
     if (!isLegacyMessage(raw)) return raw as A2uiMessage;
     const m = raw as Record<string, any>;
@@ -134,11 +171,12 @@ export function upgradeMessages(messages: readonly unknown[]): A2uiMessage[] {
       const catalogId = catalogFor(rest.catalogId);
       ainui.set(rest.surfaceId, catalogId === AINUI_CATALOG);
       return { version: A2UI_VERSION, createSurface: { ...rest, ...(catalogId ? { catalogId } : {}),
-        ...(rest.components ? { components: rest.components.map((c: A2uiComponent) => upgradeComponent(c, catalogId === AINUI_CATALOG)) } : {}) } };
+        ...(rest.components ? { components: rest.components.map((c: A2uiComponent) => ids.component(rest.surfaceId, upgradeComponent(c, catalogId === AINUI_CATALOG))) } : {}) } };
     }
     if (m.updateComponents) {
       const toAinui = ainui.get(m.updateComponents.surfaceId) ?? false;
-      return { version: A2UI_VERSION, updateComponents: { ...m.updateComponents, components: (m.updateComponents.components ?? []).map((c: A2uiComponent) => upgradeComponent(c, toAinui)) } };
+      const surfaceId = m.updateComponents.surfaceId;
+      return { version: A2UI_VERSION, updateComponents: { ...m.updateComponents, components: (m.updateComponents.components ?? []).map((c: A2uiComponent) => ids.component(surfaceId, upgradeComponent(c, toAinui))) } };
     }
     if (m.updateDataModel) {
       // 1.0 requires `value`; null deletes the key, which is what an absent value meant in v0.9.
