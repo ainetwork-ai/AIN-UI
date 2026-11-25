@@ -1,6 +1,6 @@
 {
   "name": "ain-ui",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "AIN-UI: A2UI 1.0 components, renderers and agent tools \u2014 standard catalog, files, uploads and x402 payments",
   "type": "module",
   "license": "MIT",
@@ -46,7 +46,8 @@
       "types": "./dist/macros.d.ts",
       "import": "./dist/macros.js",
       "default": "./dist/macros.js"
-    }
+    },
+    "./catalog-v1.json": "./dist/catalog-v1.json"
   },
   "scripts": {
     "build": "node scripts/standard.mjs && tsc && node scripts/styles.mjs && node scripts/catalog.mjs",
