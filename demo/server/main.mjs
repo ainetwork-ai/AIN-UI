@@ -32,7 +32,9 @@ const total = createBudget({ perHour: Number(env.AINUI_TOTAL_RUNS_PER_HOUR ?? 60
 
 // Inside an ainize project the node hands the service its model gateway; the project's own key signs the calls.
 const baseURL = env.AINUI_MODEL_BASE_URL ?? (env.AINIZE_URL ? `${env.AINIZE_URL.replace(/\/+$/, "")}/v1` : "https://ainize.ai/v1");
-const client = env.AINIZE_API_KEY ? new OpenAI({ apiKey: env.AINIZE_API_KEY, baseURL, timeout: 90_000, maxRetries: 1 }) : null;
+// The playground's own key (a project secret). `AINIZE_API_KEY` is the node's to set and may be empty or someone else's.
+const apiKey = env.AINUI_AINIZE_KEY || env.AINIZE_API_KEY;
+const client = apiKey ? new OpenAI({ apiKey, baseURL, timeout: 90_000, maxRetries: 1 }) : null;
 const chat = (body) => client.chat.completions.create(body);
 
 const TYPES = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8", ".json": "application/json; charset=utf-8",
@@ -76,7 +78,7 @@ function recordings() {
 }
 
 async function run(req, res) {
-  if (!client) return fail(res, 503, "model_not_configured", "This playground has no model key (AINIZE_API_KEY). The recorded runs under /watch still play.");
+  if (!client) return fail(res, 503, "model_not_configured", "This playground has no model key. The recorded runs under /watch still play.");
   const body = await readJson(req);
   const history = Array.isArray(body.messages) ? body.messages.filter((m) => m && (m.role === "user" || m.role === "assistant") && typeof m.content === "string").slice(-12)
     .map((m) => ({ role: m.role, content: m.content.slice(0, 12_000) })) : [];
@@ -178,5 +180,5 @@ const server = createServer(async (req, res) => {
   }
 });
 
-server.listen(PORT, "0.0.0.0", () => console.log(`AIN-UI playground on :${PORT} — models ${client ? MODELS.join(", ") : "(none: AINIZE_API_KEY not set)"} via ${baseURL}`));
+server.listen(PORT, "0.0.0.0", () => console.log(`AIN-UI playground on :${PORT} — models ${client ? MODELS.join(", ") : "(none: AINUI_AINIZE_KEY not set)"} via ${baseURL}`));
 for (const signal of ["SIGTERM", "SIGINT"]) process.on(signal, () => server.close(() => process.exit(0)));
