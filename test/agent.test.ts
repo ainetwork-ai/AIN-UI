@@ -183,3 +183,13 @@ test("Express: names and values the compiler refuses, and components used as lis
   assert.equal(card.onAction.event.name, "select_plan");
   assert.ok(notes.length >= 5, notes.join(" | "));
 });
+
+test("a Table's cell components are listed in cellComponents when a model forgot (evaluation 11-25)", () => {
+  const notes: string[] = [];
+  const out = createUiAuthor({ format: "json" }).fromToolCall({ components: [
+    { id: "root", component: "Table", columns: ["Model", "Pick"], rows: [[{ componentId: "cell_model" }, "yes"]] },
+    { id: "cell_model", component: "Badge", label: "MacBook Pro" },
+  ] }, notes) as any[];
+  assert.deepEqual(out[0].createSurface.components[0].cellComponents, ["cell_model"]);
+  assert.equal(out[0].createSurface.components.length, 2);
+});
