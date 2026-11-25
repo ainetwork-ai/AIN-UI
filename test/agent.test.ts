@@ -161,3 +161,25 @@ test("small schema slips a model makes are repaired, not refused (seen 11-25 fro
   assert.deepEqual(byId.root.children, ["card", "tbl", "f"]);
   assert.ok(notes.some((n) => /ghost/.test(n)));
 });
+
+test("Express: names and values the compiler refuses, and components used as list items, are repaired (evaluation 11-25)", () => {
+  const author = createUiAuthor({ format: "express" });
+  const notes: string[] = [];
+  const out = author.fromToolCall({ express: [
+    `h = Heading(eyebrow="Growth", title="Weekly, \\"quoted\\" (yes)")`,
+    `bar = Toolbar([Text("a")], justify="end")`,
+    `kpis = StatGroup([Stat("Signups", "1,284", delta="+12%"), Stat("Churn", "2.1%")])`,
+    `plan = EntityCard(title="Starter", badge="Popular", actions=[Button("Choose", onClick=Event("select_plan", {plan: "starter"}))])`,
+    `root = Column([h, bar, kpis, plan, Text("small", size="2xl")])`,
+  ].join("\n") }, notes) as any[];
+  const byComponent = (name: string) => out[0].createSurface.components.find((c: any) => c.component === name);
+  assert.equal(byComponent("Heading").text, 'Weekly, "quoted" (yes)');
+  assert.equal("justify" in byComponent("Toolbar"), false);
+  assert.deepEqual(byComponent("StatGroup").items, [{ label: "Signups", value: "1,284", delta: "+12%" }, { label: "Churn", value: "2.1%" }]);
+  assert.equal(out[0].createSurface.components.filter((c: any) => c.component === "Stat").length, 0, "the inlined Stats are not left as components");
+  const card = byComponent("EntityCard");
+  assert.deepEqual(card.badge, { label: "Popular" });
+  assert.deepEqual(card.actions, [{ label: "Choose" }]);
+  assert.equal(card.onAction.event.name, "select_plan");
+  assert.ok(notes.length >= 5, notes.join(" | "));
+});

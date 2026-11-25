@@ -144,6 +144,11 @@ function tidy(value: unknown, schema: Doc | undefined, notes: string[], where: s
     const list = alts.find((a) => typesOf(a).includes("array") && a.items);
     return list ? value.map((item, i) => tidy(item, list.items, notes, `${where}[${i}]`)) : value;
   }
+  if (typeof value === "string" && !alts.some((a) => typesOf(a).includes("string") || "const" in a || a.enum)) {
+    const shape = alts.find((a) => typesOf(a).includes("object") && a.properties && (a.required ?? []).length === 1);
+    const only = shape?.required?.[0] as string | undefined;
+    if (shape && only && alternatives(shape.properties[only]).some((a) => typesOf(a).includes("string"))) { notes.push(`${where} was text; read as {${only}}`); return { [only]: value }; }
+  }
   if (isObj(value)) {
     const shapes = alts.filter((a) => typesOf(a).includes("object") && a.properties);
     const shape = shapes.find((a) => (a.required ?? []).every((k: string) => k in value)) ?? shapes[0];
@@ -213,6 +218,110 @@ export function replaceSurface(surfaceId: string, catalogId: string, components:
     { version: A2UI_VERSION, deleteSurface: { surfaceId } },
     { version: A2UI_VERSION, createSurface: { surfaceId, catalogId, components, ...(dataModel ? { dataModel } : {}) } },
   ];
+}
+
+/** Names models use for a prop the catalog calls something else. Only applied when the component has the target. */
+const PROP_ALIASES: Record<string, string[]> = { title: ["text", "label"], text: ["label", "title"], label: ["text", "title"], content: ["text"], name: ["label", "title"] };
+
+/**
+ * One keyword argument `name=` in the call of component `component`, removed or renamed. Calls are found by
+ * `Component(`; arguments are split at top-level commas, so nested lists, maps and calls are skipped whole.
+ */
+function editExpressArgument(source: string, component: string, name: string, rename?: string): string | null {
+  const edits: Array<{ from: number; to: number; text: string }> = [];
+  const call = new RegExp(`\\b${component}\\(`, "g");
+  const key = new RegExp(`^(\\s*)${name}(\\s*=)`);
+  let match: RegExpExecArray | null;
+  while ((match = call.exec(source))) {
+    const args: Array<[number, number]> = [];
+    let depth = 0, quote: string | null = null, from = match.index + match[0].length;
+    for (let i = from; i < source.length; i++) {
+      const ch = source[i];
+      if (quote) { if (ch === "\\") i++; else if (ch === quote) quote = null; continue; }
+      if (ch === '"' || ch === "'") { quote = ch; continue; }
+      if (ch === "(" || ch === "[" || ch === "{") { depth++; continue; }
+      if ((ch === ")" || ch === "]" || ch === "}") && depth > 0) { depth--; continue; }
+      if (depth === 0 && (ch === "," || ch === ")")) { args.push([from, i]); from = i + 1; if (ch === ")") break; }
+    }
+    args.forEach(([a, b], n) => {
+      const arg = source.slice(a, b);
+      if (!key.test(arg)) return;
+      if (rename) edits.push({ from: a, to: b, text: arg.replace(key, `$1${rename}$2`) });
+      // drop the argument with the comma before it, or after it when it is the first one
+      else if (n > 0) edits.push({ from: args[n - 1][1], to: b, text: "" });
+      else edits.push({ from: a, to: args.length > 1 ? args[1][0] : b, text: "" });
+    });
+  }
+  if (!edits.length) return null;
+  let out = source;
+  for (const e of edits.sort((x, y) => y.from - x.from)) out = out.slice(0, e.from) + e.text + out.slice(e.to);
+  return out;
+}
+
+/** A compiler complaint the source can be edited past, and the edited source. */
+function repairExpress(source: string, error: string, docs: Doc[]): { source: string; note: string } | null {
+  const props = (component: string) => Object.keys(docs.map((d) => d.components?.[component]).find(Boolean)?.properties ?? {});
+  let m = /Property '(\w+)' is not a valid property of component '(\w+)'/.exec(error);
+  if (m) {
+    const [, prop, component] = m;
+    const known = props(component);
+    const target = (PROP_ALIASES[prop] ?? []).find((t) => known.includes(t));
+    const next = editExpressArgument(source, component, prop, target);
+    return next ? { source: next, note: target ? `${component}: ${prop}= read as ${target}=` : `${component}: ${prop}= is not a property; left out` } : null;
+  }
+  m = /Value '[^']*' is not a valid enum choice for property '(\w+)' of component '(\w+)'/.exec(error);
+  if (m) {
+    const next = editExpressArgument(source, m[2], m[1]);
+    return next ? { source: next, note: `${m[2]}: ${m[1]}= had a value it does not take; left unset` } : null;
+  }
+  m = /Component '(\w+)' does not accept checks/.exec(error);
+  if (m) {
+    const next = editExpressArgument(source, m[1], "checks");
+    return next ? { source: next, note: `${m[1]}: checks are not taken there; left out` } : null;
+  }
+  return null;
+}
+
+/**
+ * A component written where the schema wants a list of plain objects: `actions=[Button("Buy", onClick=…)]`,
+ * `StatGroup([Stat(…), Stat(…)])`. Express makes each a component of its own and leaves its id in the list,
+ * which the renderer refuses. The component's own props become the list item, and the component goes.
+ */
+function inlineItemComponents(list: A2uiComponent[], docs: Doc[], notes: string[]): A2uiComponent[] {
+  const byId = new Map(list.map((c) => [c.id, c]));
+  const inlined = new Set<string>();
+  const next = list.map((c) => {
+    const schema = docs.map((d) => d.components?.[c.component]).find(Boolean) as Doc | undefined;
+    if (!schema?.properties) return c;
+    let changed: A2uiComponent | null = null;
+    for (const [key, value] of Object.entries(c)) {
+      if (!Array.isArray(value) || !value.some((v) => typeof v === "string" && byId.has(v))) continue;
+      const prop = schema.properties[key] as Doc | undefined;
+      if (!prop || /ChildList$|ComponentId$/.test(String(prop.$ref ?? ""))) continue;
+      const list = alternatives(prop).find((a) => typesOf(a).includes("array") && a.items);
+      const wantsObjects = list && alternatives(list.items).some((a) => typesOf(a).includes("object") && a.properties);
+      if (!wantsObjects) continue;
+      const item = alternatives(list.items).find((a) => typesOf(a).includes("object") && a.properties)!;
+      changed ??= { ...c };
+      (changed as Doc)[key] = value.map((v) => {
+        const ref = typeof v === "string" ? byId.get(v) : undefined;
+        if (!ref) return v;
+        inlined.add(ref.id);
+        const { id: _id, component: _component, ...props } = ref;
+        // what the component called its words, the item may call label/title/text
+        const own = Object.keys(item.properties);
+        const out: Doc = {};
+        for (const [k, x] of Object.entries(props)) {
+          const target = own.includes(k) ? k : (PROP_ALIASES[k] ?? []).find((t) => own.includes(t));
+          if (target && !(target in out)) out[target] = x; else if (k === "onClick" || k === "action") out[k] = x;
+        }
+        return out;
+      });
+    }
+    return changed ?? c;
+  });
+  if (inlined.size) notes.push(`components used as list items became the items: ${[...inlined].slice(0, 6).join(", ")}`);
+  return next.filter((c) => !inlined.has(c.id));
 }
 
 /** Where one component names another. */
@@ -440,7 +549,7 @@ export function createUiAuthor(options: UiAuthorOptions = {}): UiAuthor {
   const examples = Object.entries({ "a small surface": format === "express" ? EXPRESS_EXAMPLE : JSON_EXAMPLE, ...options.examples }).map(([name, body]) => `### Example: ${name}\n${body}`).join("\n\n");
 
   const finish = (messages: A2uiMessage[], notes: string[] = []): A2uiMessage[] => {
-    const settle = (list: A2uiComponent[], whole: boolean) => expandMacros(tidyTree(list.map((c) => tidyComponent(c, lenient, notes)), notes, whole), macros);
+    const settle = (list: A2uiComponent[], whole: boolean) => expandMacros(tidyTree(inlineItemComponents(list, lenient, notes).map((c) => tidyComponent(c, lenient, notes)), notes, whole), macros);
     const expanded = messages.map((m) => {
       const anyM = m as Doc;
       if (anyM.createSurface?.components) return { ...anyM, createSurface: { ...anyM.createSurface, components: settle(anyM.createSurface.components, true) } };
@@ -452,10 +561,20 @@ export function createUiAuthor(options: UiAuthorOptions = {}): UiAuthor {
     return expanded;
   };
 
-  const compileExpress = (source: string): A2uiMessage[] => {
-    const body = source.replace(/^\s*<a2ui>\s*/, "").replace(/\s*<\/a2ui>\s*$/, "").replace(/^```[a-z0-9]*\n?/i, "").replace(/\n?```\s*$/, "");
-    try { return express.parser.compile(body, true) as unknown as A2uiMessage[]; }
-    catch (e) { throw new UiError(`The A2UI Express did not compile: ${describe(e)}. Correct the syntax and call ${RENDER_UI_TOOL} again.`, e); }
+  const compileExpress = (source: string, notes: string[] = []): A2uiMessage[] => {
+    let body = source.replace(/^\s*<a2ui>\s*/, "").replace(/\s*<\/a2ui>\s*$/, "").replace(/^```[a-z0-9]*\n?/i, "").replace(/\n?```\s*$/, "");
+    // The compiler is stricter than the renderer: an unknown or wrongly valued keyword argument stops the whole
+    // surface. Such an argument is renamed when the meaning is plain (Heading title= → text=) or left out, and
+    // the source compiled again; anything else is the model's to fix.
+    for (let round = 0; ; round++) {
+      try { return express.parser.compile(body, true) as unknown as A2uiMessage[]; }
+      catch (e) {
+        const fixed = round < 12 ? repairExpress(body, describe(e), docs) : null;
+        if (!fixed) throw new UiError(`The A2UI Express did not compile: ${describe(e)}. Correct the syntax and call ${RENDER_UI_TOOL} again.`, e);
+        notes.push(fixed.note);
+        body = fixed.source;
+      }
+    }
   };
   const readJson = (value: unknown): A2uiMessage[] => {
     let parsed = value;
@@ -542,7 +661,7 @@ export function createUiAuthor(options: UiAuthorOptions = {}): UiAuthor {
       if (typeof raw === "string") { try { args = JSON.parse(raw); } catch { args = format === "express" ? { express: raw } : { messages: raw }; } }
       else args = raw ?? {};
       const source = args.express ?? args.ui;
-      if (typeof source === "string" && source.trim() && !/^\s*[[{]/.test(source)) return finish(unique(compileExpress(source)), notes);
+      if (typeof source === "string" && source.trim() && !/^\s*[[{]/.test(source)) return finish(unique(compileExpress(source, notes)), notes);
       if (args.components !== undefined || args.data !== undefined) return finish(fromParts(args, notes), notes);
       const payload = args.messages ?? args.ui ?? args.express;
       if (payload === undefined || payload === null || payload === "") throw new UiError(`${RENDER_UI_TOOL} needs ${format === "express" ? "`express`" : "`components`"}.`);
@@ -555,7 +674,7 @@ export function createUiAuthor(options: UiAuthorOptions = {}): UiAuthor {
       while ((m = pattern.exec(text))) {
         const before = text.slice(last, m.index).trim();
         if (before) parts.push({ type: "text", text: before });
-        parts.push({ type: "a2ui", messages: m[1] !== undefined ? finish(unique(compileExpress(m[1]))) : finish(readJson(m[2])) });
+        parts.push({ type: "a2ui", messages: m[1] !== undefined ? finish(unique(compileExpress(m[1], []))) : finish(readJson(m[2])) });
         last = m.index + m[0].length;
       }
       const rest = text.slice(last).trim();
