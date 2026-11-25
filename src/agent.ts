@@ -394,9 +394,29 @@ function hoistItemEvents(c: A2uiComponent, schema: Doc, notes: string[]): A2uiCo
 
 const CHECK_MESSAGES: Record<string, string> = { required: "Required", email: "Enter a valid email address", regex: "Check the format", length: "Check the length", numeric: "Enter a number in range" };
 
+/**
+ * A Table's cells may hold components (`{"componentId": "b"}` in rows or columns), and the renderer counts them as
+ * the table's only when they are also listed in `cellComponents`. Models list them in the rows and forget the list.
+ */
+function listTableCells(c: A2uiComponent, notes: string[]): A2uiComponent {
+  if (c.component !== "Table") return c;
+  const used: string[] = [];
+  const walk = (v: unknown) => {
+    if (Array.isArray(v)) v.forEach(walk);
+    else if (isObj(v)) { if (typeof v.componentId === "string" && Object.keys(v).length <= 2) used.push(v.componentId); else Object.values(v).forEach(walk); }
+  };
+  walk(c.rows); walk(c.columns);
+  const listed = Array.isArray(c.cellComponents) ? (c.cellComponents as unknown[]).filter((x): x is string => typeof x === "string") : [];
+  const missing = [...new Set(used)].filter((id) => !listed.includes(id));
+  if (!missing.length) return c;
+  notes.push(`Table "${c.id}": cell components added to cellComponents: ${missing.slice(0, 6).join(", ")}`);
+  return { ...c, cellComponents: [...listed, ...missing] };
+}
+
 function tidyComponent(c: A2uiComponent, docs: Doc[], notes: string[]): A2uiComponent {
   const schema = docs.map((d) => d.components?.[c.component]).find(Boolean) as Doc | undefined;
   if (!schema?.properties) return c;
+  c = listTableCells(c, notes);
   c = hoistItemEvents(c, schema, notes);
   const out: Doc = {};
   for (const [k, v] of Object.entries(c)) {
