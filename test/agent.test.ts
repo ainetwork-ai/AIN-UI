@@ -129,3 +129,14 @@ test("capabilities choose the catalog, and skills are exported for both formats"
     assert.ok(Object.values(files).join("\n").includes("FileCard"));
   }
 });
+
+test("components passed as text, closed one bracket too many, are still read (seen 11-25 from Qwen)", () => {
+  const author = createUiAuthor({ format: "json" });
+  const list = [{ id: "root", component: "Column", children: ["t"] }, { id: "t", component: "Title", text: "Shop Dashboard" }];
+  const notes: string[] = [];
+  const out = author.fromToolCall({ components: JSON.stringify(list) + "}]" }, notes) as any[];
+  assert.equal(out[0].createSurface.components.length, 2);
+  assert.match(notes[0], /extra character/);
+  assert.equal((author.fromToolCall({ components: JSON.stringify(list) }) as any[]).length, 1, "a string with nothing after it is read as before");
+  assert.throws(() => author.fromToolCall({ components: JSON.stringify(list) + " and then some words" }), /not valid JSON/, "anything else after it is not guessed at");
+});

@@ -162,6 +162,34 @@ function tidy(value: unknown, schema: Doc | undefined, notes: string[], where: s
   return value;
 }
 
+/**
+ * The JSON value a string starts with, and how much is left after it. Models that pass an array as a string
+ * often close it one bracket too many (`…}]}]`); what came before is still exactly what they meant, so it is
+ * read when only closing brackets, commas or whitespace follow. Anything else after it is not guessed at.
+ */
+export function leadingJson(text: string): { value: unknown; trailing: number } | undefined {
+  const src = text.trim();
+  try { return { value: JSON.parse(src), trailing: 0 }; } catch { /* look for the end of the first value */ }
+  const open = src[0];
+  if (open !== "[" && open !== "{") return undefined;
+  let depth = 0, inString = false;
+  for (let i = 0; i < src.length; i++) {
+    const ch = src[i];
+    if (inString) { if (ch === "\\") i++; else if (ch === '"') inString = false; continue; }
+    if (ch === '"') inString = true;
+    else if (ch === "[" || ch === "{") depth++;
+    else if (ch === "]" || ch === "}") {
+      depth--;
+      if (depth === 0) {
+        const rest = src.slice(i + 1);
+        if (!/^[\s\]},]*$/.test(rest)) return undefined;
+        try { return { value: JSON.parse(src.slice(0, i + 1)), trailing: rest.trim().length }; } catch { return undefined; }
+      }
+    }
+  }
+  return undefined;
+}
+
 /** Where one component names another. */
 const REF_KEYS = new Set(["children", "child", "trigger", "content", "componentId", "cellComponents"]);
 const IDENT = /^[\p{ID_Start}_][\p{ID_Continue}]*$/u;
@@ -382,9 +410,11 @@ export function createUiAuthor(options: UiAuthorOptions = {}): UiAuthor {
   };
 
   /** `{components, data, surfaceId?}` → one new surface, or an update of the surface named. */
-  const fromParts = (args: RenderUiCall): A2uiMessage[] => {
+  const fromParts = (args: RenderUiCall, notes: string[] = []): A2uiMessage[] => {
     const parse = (v: unknown, what: string) => {
       if (typeof v !== "string") return v;
+      const lenient = leadingJson(v);
+      if (lenient !== undefined) { if (lenient.trailing) notes.push(`${what} was sent as text with ${lenient.trailing} extra character(s) after it; read the JSON before them`); return lenient.value; }
       try { return JSON.parse(v); } catch (e) { throw new UiError(`${what} was a string that is not valid JSON (${describe(e)}). Pass ${what} as a JSON ${what === "data" ? "object" : "array"}, not as text.`, e); }
     };
     const components = parse(args.components, "components"), data = parse(args.data, "data");
@@ -445,7 +475,7 @@ export function createUiAuthor(options: UiAuthorOptions = {}): UiAuthor {
       else args = raw ?? {};
       const source = args.express ?? args.ui;
       if (typeof source === "string" && source.trim() && !/^\s*[[{]/.test(source)) return finish(unique(compileExpress(source)), notes);
-      if (args.components !== undefined || args.data !== undefined) return finish(fromParts(args), notes);
+      if (args.components !== undefined || args.data !== undefined) return finish(fromParts(args, notes), notes);
       const payload = args.messages ?? args.ui ?? args.express;
       if (payload === undefined || payload === null || payload === "") throw new UiError(`${RENDER_UI_TOOL} needs ${format === "express" ? "`express`" : "`components`"}.`);
       return finish(readJson(payload), notes);
