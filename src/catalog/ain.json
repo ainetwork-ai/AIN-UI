@@ -1,0 +1,803 @@
+{
+ "components": {
+  "Toolbar": {
+   "type": "object",
+   "description": "A wrapping row of file controls (search, view switch, upload) above a file list. The first child grows.",
+   "properties": {
+    "component": {
+     "const": "Toolbar"
+    },
+    "children": {
+     "$ref": "common_types.json#/$defs/ChildList"
+    }
+   },
+   "required": [
+    "component"
+   ]
+  },
+  "Tile": {
+   "type": "object",
+   "description": "A square thumbnail tile for one file or folder, in a Grid. With no media, or when it fails to load, the kind icon is drawn. A click sends the action.",
+   "properties": {
+    "component": {
+     "const": "Tile"
+    },
+    "media": {
+     "description": "The thumbnail: a URL or an asset reference",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "object",
+       "description": "A private file: the host turns it into a URL the viewer may load.",
+       "properties": {
+        "$asset": {
+         "type": "object",
+         "properties": {
+          "drive_id": {
+           "type": "string"
+          },
+          "path": {
+           "type": "string"
+          },
+          "variant": {
+           "type": "string",
+           "enum": [
+            "thumb",
+            "original"
+           ]
+          },
+          "mime": {
+           "type": "string"
+          },
+          "v": {
+           "type": "number"
+          }
+         },
+         "required": [
+          "drive_id",
+          "path",
+          "variant",
+          "mime"
+         ]
+        }
+       },
+       "required": [
+        "$asset"
+       ]
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "kind": {
+     "description": "What the entry is",
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "image",
+        "video",
+        "audio",
+        "pdf",
+        "folder",
+        "file"
+       ]
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "label": {
+     "description": "The file name",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "caption": {
+     "description": "Size, date or another short note",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "action": {
+     "$ref": "common_types.json#/$defs/Action",
+     "description": "Sent when the tile is clicked."
+    }
+   },
+   "required": [
+    "component",
+    "label"
+   ]
+  },
+  "FileView": {
+   "type": "object",
+   "description": "One file shown with the best viewer the host has (image, video, audio, PDF) and a download link.",
+   "properties": {
+    "component": {
+     "const": "FileView"
+    },
+    "src": {
+     "description": "The file: a URL or an asset reference",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "type": "object",
+       "description": "A private file: the host turns it into a URL the viewer may load.",
+       "properties": {
+        "$asset": {
+         "type": "object",
+         "properties": {
+          "drive_id": {
+           "type": "string"
+          },
+          "path": {
+           "type": "string"
+          },
+          "variant": {
+           "type": "string",
+           "enum": [
+            "thumb",
+            "original"
+           ]
+          },
+          "mime": {
+           "type": "string"
+          },
+          "v": {
+           "type": "number"
+          }
+         },
+         "required": [
+          "drive_id",
+          "path",
+          "variant",
+          "mime"
+         ]
+        }
+       },
+       "required": [
+        "$asset"
+       ]
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "name": {
+     "description": "The file name",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "mime": {
+     "description": "The MIME type",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "size": {
+     "description": "Size in bytes",
+     "anyOf": [
+      {
+       "type": "number"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    }
+   },
+   "required": [
+    "component",
+    "src",
+    "name"
+   ]
+  },
+  "Breadcrumbs": {
+   "type": "object",
+   "description": "A folder path trail. A click on an item sends the action with context.path set to that item's path. The last item is the current location and is not clickable.",
+   "properties": {
+    "component": {
+     "const": "Breadcrumbs"
+    },
+    "items": {
+     "description": "The trail, root first",
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "properties": {
+         "label": {
+          "type": "string"
+         },
+         "path": {
+          "type": "string"
+         }
+        },
+        "required": [
+         "label",
+         "path"
+        ]
+       }
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "action": {
+     "$ref": "common_types.json#/$defs/Action",
+     "description": "Sent with context.path when an item is clicked."
+    }
+   },
+   "required": [
+    "component",
+    "items"
+   ]
+  },
+  "Segmented": {
+   "type": "object",
+   "description": "A small segmented control, for example list / grid. A click writes the option to the value binding and sends the action with context.value.",
+   "properties": {
+    "component": {
+     "const": "Segmented"
+    },
+    "options": {
+     "type": "array",
+     "items": {
+      "type": "object",
+      "properties": {
+       "value": {
+        "type": "string"
+       },
+       "label": {
+        "type": "string"
+       }
+      },
+      "required": [
+       "value",
+       "label"
+      ]
+     },
+     "description": "The choices"
+    },
+    "value": {
+     "description": "Bind it with { \"@path\": \"/x\" }",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "action": {
+     "$ref": "common_types.json#/$defs/Action",
+     "description": "Sent with context.value when an option is chosen."
+    }
+   },
+   "required": [
+    "component",
+    "options"
+   ]
+  },
+  "FileUpload": {
+   "type": "object",
+   "description": "Lets the user pick a local file and sends it: the action gets name, content (base64) and encoding in its context. At most 8 MiB.",
+   "properties": {
+    "component": {
+     "const": "FileUpload"
+    },
+    "label": {
+     "description": "Button text",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "maxBytes": {
+     "type": "number",
+     "description": "Largest file accepted, in bytes; never more than 8 MiB"
+    },
+    "action": {
+     "$ref": "common_types.json#/$defs/Action",
+     "description": "Sent with the file when one is chosen."
+    }
+   },
+   "required": [
+    "component",
+    "action"
+   ]
+  },
+  "X402Payment": {
+   "type": "object",
+   "description": "Payment terms and a pay button. Rendering it moves no money: the action is sent only when the user clicks, and the host signs with the user's wallet. Use exactly the terms you were given.",
+   "properties": {
+    "component": {
+     "const": "X402Payment"
+    },
+    "amount": {
+     "description": "The amount, as a decimal string",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "currency": {
+     "description": "The currency symbol, for example USDC",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "network": {
+     "description": "The network, for example eip155:8453",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "payTo": {
+     "description": "The recipient address",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "action": {
+     "$ref": "common_types.json#/$defs/Action",
+     "description": "Sent when the user chooses to pay."
+    }
+   },
+   "required": [
+    "component",
+    "amount",
+    "currency",
+    "network",
+    "payTo",
+    "action"
+   ]
+  },
+  "FolderChat": {
+   "type": "object",
+   "description": "A chat with an agent about one folder: agent choice, progressive replies and stop. Bind value to the chat state.",
+   "properties": {
+    "component": {
+     "const": "FolderChat"
+    },
+    "value": {
+     "description": "The chat state: { driveId, path, agents, agentId, messages, busy }",
+     "anyOf": [
+      {
+       "type": "object"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "action": {
+     "$ref": "common_types.json#/$defs/Action",
+     "description": "Sent with context.operation: send, select or cancel."
+    }
+   },
+   "required": [
+    "component",
+    "value"
+   ]
+  },
+  "FilePicker": {
+   "type": "object",
+   "description": "The common file picker: scope tabs, search, one row per file with its share origin, role and availability, and paging. Sends ainui.picker.* actions.",
+   "properties": {
+    "component": {
+     "const": "FilePicker"
+    },
+    "items": {
+     "description": "The files, as FileListItem objects",
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "scope": {
+     "description": "Which list is shown",
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "mine",
+        "shared_with_me",
+        "shared_with_org",
+        "recent"
+       ]
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "selection": {
+     "description": "Pick one or several",
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "single",
+        "multiple"
+       ]
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "selected": {
+     "description": "Chosen file keys (issuer#driveId#fileId)",
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "query": {
+     "description": "The search text",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "cursor": {
+     "description": "Non-null while there is another page",
+     "anyOf": [
+      {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "asOf": {
+     "description": "When the list was read",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "cursorExpired": {
+     "description": "The list changed; ask again from the start",
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "context": {
+     "description": "Merged into every action this picker sends",
+     "anyOf": [
+      {
+       "type": "object"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    }
+   },
+   "required": [
+    "component",
+    "items",
+    "scope",
+    "selection"
+   ]
+  },
+  "AgentPicker": {
+   "type": "object",
+   "description": "The common agent picker: scope tabs, search, one row per agent with status, visibility, skills and which UI capabilities this host supports. Sends ainui.picker.* actions.",
+   "properties": {
+    "component": {
+     "const": "AgentPicker"
+    },
+    "items": {
+     "description": "The agents, as { ref, canInvoke } objects",
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "object"
+       }
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "scope": {
+     "description": "Which list is shown",
+     "anyOf": [
+      {
+       "type": "string",
+       "enum": [
+        "mine",
+        "shared_with_me",
+        "shared_with_org",
+        "public"
+       ]
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "selected": {
+     "description": "The chosen agent key (registryIssuer#agentId)",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "renders": {
+     "description": "UI capabilities this host can draw",
+     "anyOf": [
+      {
+       "type": "array",
+       "items": {
+        "type": "string"
+       }
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "query": {
+     "description": "The search text",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "cursor": {
+     "description": "Non-null while there is another page",
+     "anyOf": [
+      {
+       "type": [
+        "string",
+        "null"
+       ]
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "asOf": {
+     "description": "When the list was read",
+     "anyOf": [
+      {
+       "type": "string"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "cursorExpired": {
+     "description": "The list changed; ask again from the start",
+     "anyOf": [
+      {
+       "type": "boolean"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    },
+    "context": {
+     "description": "Merged into every action this picker sends",
+     "anyOf": [
+      {
+       "type": "object"
+      },
+      {
+       "$ref": "common_types.json#/$defs/DataBinding"
+      },
+      {
+       "$ref": "common_types.json#/$defs/FunctionCall"
+      }
+     ]
+    }
+   },
+   "required": [
+    "component",
+    "items",
+    "scope"
+   ]
+  }
+ },
+ "instructions": "## AIN-UI\n\n- Lay out with Column, Row and Grid; group with Card. Short text is Text, Title or Caption; prose is Markdown.\n- Files: a Grid of Tile for a folder, FileView for one file, Breadcrumbs for the path, FileUpload to add one. A private file is an asset reference in the data model ({\"$asset\": {...}}), never a URL you invent.\n- A payment is X402Payment with the exact terms you were given. Rendering it moves no money; the user clicks.\n- Pick a file with FilePicker and an agent with AgentPicker.\n- Give every Button an event name the agent will recognise, and put what it needs in the event context.\n- End a surface with FollowUp when there are obvious next questions."
+}

@@ -1,0 +1,29 @@
+# AIN-UI playground on ainize (kind: service). Built by the ainize node on every push; the `checks` in ainize.json
+# (library tests, playground tests) run from THIS image before the new container takes traffic, so the image keeps
+# devDependencies and the test sources.
+FROM node:24-bookworm-slim
+
+ENV NPM_CONFIG_UPDATE_NOTIFIER=false
+WORKDIR /app
+
+# The library first: the playground is built on the package exactly as it is published.
+COPY package.json package-lock.json ./
+RUN npm ci --include=dev --no-audit --no-fund
+COPY tsconfig.json ./
+COPY scripts ./scripts
+COPY src ./src
+COPY test ./test
+RUN npm run build
+
+COPY demo/package.json demo/package-lock.json ./demo/
+RUN cd demo && npm ci --include=dev --no-audit --no-fund
+COPY demo ./demo
+RUN cd demo && npm run build
+
+# The node starts the container read-only as uid 1000 and sends outbound requests through its proxy.
+ENV NODE_ENV=production \
+    NODE_USE_ENV_PROXY=1 \
+    PORT=3000
+USER node
+EXPOSE 3000
+CMD ["node", "demo/server/main.mjs"]

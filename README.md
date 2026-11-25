@@ -1,9 +1,18 @@
 # AIN-UI
 
-AIN-UI extends **A2UI v0.9** with grids, file tiles, private assets, file upload,
-and x402 payments. It carries these surfaces over standard **AG-UI** activity
-events, MCP metadata, or A2A DataParts. The React renderer extends the official
-`@a2ui/react` catalog; protocol state and bindings use `@a2ui/web_core`.
+AIN-UI is an **A2UI 1.0** component library, renderer and agent toolkit.
+
+- **One catalog, 79 components.** The 69 standard generative-UI components (the same names and props as
+  CopilotKit's Gen UI 2.0 standard catalog, so an agent written for one draws on the other) plus AIN's own for
+  files, upload, x402 payment, folder chat and pickers.
+- **Two renderers.** React (`ain-ui/react`, on the official `@a2ui/react` + `@a2ui/web_core`) and a
+  dependency-free DOM renderer (`ain-ui/renderer`) for MCP Apps and non-React hosts.
+- **The agent side.** `ain-ui/agent` gives a model the catalog, a `render_ui` tool, and checks and compiles what
+  the model writes — A2UI Express (one line per component) or JSON — before anything reaches a renderer.
+- **A playground.** <https://ainui.ainetwork.xyz> — ask for a UI, see what the model wrote and what was drawn.
+
+Surfaces travel over standard **AG-UI** activity events, MCP metadata, or A2A DataParts. v0.9 messages (and
+AINUI v1 surfaces) are upgraded to 1.0 on the way in, so existing producers keep working.
 
 ## Install
 
@@ -16,138 +25,186 @@ npm install ain-ui react react-dom
 import { AinuiSurface } from "ain-ui/react";
 import "ain-ui/styles.css";
 
-<AinuiSurface messages={messages} onAction={handleAction}
-  resolveAsset={(asset, options) => authorizedAssetUrl(asset, options)} />
+<AinuiSurface
+  messages={messages}
+  onAction={handleAction}
+  sendMessage={(text) => sendUserMessage(text)}
+  resolveAsset={(asset, options) => authorizedAssetUrl(asset, options)}
+  theme="ain"
+/>
 ```
 
-`messages` is an A2UI v0.9 message array. `onAction` receives the resolved A2UI
-`{name, surfaceId, sourceComponentId, timestamp, context}` and can return a Promise.
-The component mounts in the browser (the upstream renderer does not support SSR).
+- `messages` is an array of A2UI messages (1.0, or v0.9). **Appending** to the array updates the surfaces in
+  place — inputs keep their text, tabs their selection; any other change redraws.
+- `onAction` receives the resolved action `{name, surfaceId, sourceComponentId, timestamp, context}` and can return
+  a Promise. `onMessage` receives every renderer→agent message as the 1.0 envelope; `onError` what was rejected.
+- A message that does not match the catalog is **not drawn**: the surface shows the reason and `onError` is called.
+- `sendMessage` is called when a `FollowUp` suggestion is chosen.
+- `theme` picks a design system: `ain` (default), `plain`, `material`, `terminal`, or your own (below).
+- The component mounts in the browser (the upstream renderer does not render on the server).
+
+Tell the agent what this renderer draws with `ainuiCapabilities()` (catalog ids) or
+`ainuiCapabilities({ inline: true })` (the catalog documents themselves), sent as
+`a2uiRendererCapabilities` in the request metadata.
 
 ## Catalog
 
-Catalog ID: `https://aindrive.ainetwork.ai/ainui/v1/catalog.json`.
-The existing ID is retained for compatibility with aindrive clients.
+Catalog id: `https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json` (`AINUI_CATALOG`). The document is
+`ain-ui/catalog.json`, and `AINUI_CATALOG_DOCUMENT` in code.
 
-All basic A2UI components are available, plus:
-
-| Component | Purpose |
+| Group | Components |
 | --- | --- |
-| Toolbar | Wrapping file controls with mobile view toggles |
-| Grid | Responsive columns, including A2UI child templates |
-| Tile | File/folder thumbnail, label, caption and action |
-| FileView | Image, video, audio, PDF preview and download |
-| Breadcrumbs | Folder navigation |
-| Segmented | List/grid view selection |
-| FileUpload | Local file selection and upload action, up to 8 MiB per file |
-| X402Payment | Amount, currency, network, recipient and explicit payment action |
-| FolderChat | Per-folder agent chat with agent selection, progressive replies and stop |
-| FilePicker | Common file picker over the shared listing contract: scopes, search, paging, availability and entitlement badges |
-| AgentPicker | Common agent picker: scopes, search, status/visibility, skills and capability fallbacks |
+| Layout | Box, Column, Row, Grid, GridItem, Card, Flow, FlowItem, Carousel, CarouselItem, CarouselMediaItem, Spacer, Divider, Tabs |
+| Text | Title, Text, Caption, Label, Bold, Italic, Underline, Strikethrough, Badge, Blockquote, Code, Markdown, Math, ShimmerText, Link, Tooltip |
+| Inputs | Button, Pressable, Form, TextField, TextArea, Select, CheckBox, Radio, RadioGroup, Slider, SegmentedControl, ChoicePicker, DateTimeInput |
+| Data | Table, TableSection, TableRow, TableCell, List, ListItem, Chart, Map |
+| Media | Image, Icon, Favicon, Svg, Video, AudioPlayer, HtmlView |
+| Feedback | PulseIndicator, FlashcardFlip, Popover, PopoverTrigger, PopoverContent, Modal |
+| Composites | LinkCard, Citation, FollowUp, EntityCard, ImageGrid |
+| AIN | Toolbar, Tile, FileView, Breadcrumbs, Segmented, FileUpload, X402Payment, FolderChat, FilePicker, AgentPicker |
 
-Private files use `{$asset: {drive_id, path, variant, mime, v?}}` references.
-Hosts resolve them through their authenticated asset routes. Browser wallet
-keys and account credentials never belong in a surface.
+Functions: the A2UI basic ones (`required`, `regex`, `length`, `numeric`, `email`, `formatString`,
+`formatNumber`, `formatCurrency`, `formatDate`, `pluralize`, `openUrl`, `and`, `or`, `not`) plus `calc`
+(arithmetic over named values) and `series` (a generated list, for chart data). `calc` and `series` are evaluated
+by a parser, never by `eval`.
+
+Private files use `{$asset: {drive_id, path, variant, mime, v?}}` references. Hosts resolve them through their
+authenticated asset routes (`resolveAsset`). Browser wallet keys and account credentials never belong in a surface.
+
+Chart draws SVG itself; Map draws OpenStreetMap raster tiles (set `mapTileUrl` on the host to use another tile
+server); Icon loads Lucide icons on demand; Math uses KaTeX when the host has it installed and shows the TeX
+source otherwise.
+
+### Design systems
+
+Every colour, radius and font is a CSS variable on `.ain-ui` (`src/styles/00-tokens.css`). Set them, or scope a
+set under a theme name and pass it as `theme`:
+
+```css
+.ain-ui[data-ainui-theme="mine"] {
+  --ainui-primary: #0f766e; --ainui-primary-fg: #fff;
+  --ainui-radius: 6px; --ainui-font: "Inter", sans-serif;
+}
+```
+
+`data-ainui-scheme="light" | "dark"` on the same element pins the colour scheme; without it the system setting decides.
+
+## Agents
+
+```ts
+import { createUiAuthor, catalogsFor, rendererCapabilities } from "ain-ui/agent";
+import { AINUI_MACROS } from "ain-ui/macros";
+
+const capabilities = rendererCapabilities(request.metadata);   // undefined → the client did not ask for A2UI
+const author = createUiAuthor({ format: "json", catalogs: catalogsFor(capabilities), macros: AINUI_MACROS });
+
+const reply = await openai.chat.completions.create({
+  model, tools: [author.tool],
+  messages: [{ role: "system", content: `${systemPrompt}\n\n${author.prompt}` }, ...history],
+});
+for (const call of reply.choices[0].message.tool_calls ?? []) {
+  try { send(author.fromToolCall(call.function.arguments)); }      // validated A2UI 1.0 messages
+  catch (e) { if (e instanceof UiError) tellTheModel(call.id, e.message); else throw e; }
+}
+```
+
+- `format: "express"` — the model writes A2UI Express; `author.fromToolCall({ express })` compiles it.
+  `format: "json"` — the model passes `{ components, data }`; with `surfaceId` it updates an earlier surface.
+- What a model usually gets wrong is forgiven rather than refused: a prop the component does not have is dropped,
+  a number written as a string is converted, an id that is not an identifier is renamed (references follow),
+  a component no parent uses is left out. Pass an array as the second argument to collect what was tidied.
+  Everything else comes back as a `UiError` whose message is written for the model.
+- The prompt uses a compact catalog (containers without their twenty rarely used layout props); validation uses
+  the full one. `compact: false` lists everything.
+- `author.fromText(text)` reads fenced blocks (`<a2ui>…</a2ui>`, `<a2ui-json>…</a2ui-json>`) for models without
+  tool calling. `toExpress(messages)` turns messages back into Express. `exportSkills({ format })` returns the
+  Markdown skill files that teach a coding agent this catalog.
+
+### Macros
+
+A macro is one short call the model writes that the server expands into standard components before anything is
+sent — the renderer never sees its name. `ain-ui/macros` has `FileCard`, `PaymentCard` and `AgentCard`; write your
+own with `defineMacro({ name, description, props, expand })`.
 
 ## Producers and transports
 
-The package exports `ainuiFolder`, `ainuiFile`, `ainuiEditor`, `ainuiPayment`,
-`ainuiFilePicker`, `ainuiAgentPicker`, `ainuiForSkill`, and `dispatchAinuiAction`. File action execution is injected
-with `run`, `allowed`, and `env`; hosts enforce identity, roles and path bounds.
-Aindrive's server adapters implement those callbacks.
+The package exports `ainuiFolder`, `ainuiFile`, `ainuiEditor`, `ainuiPayment`, `ainuiFilePicker`,
+`ainuiAgentPicker`, `ainuiForSkill`, and `dispatchAinuiAction`. They emit A2UI 1.0. File action execution is
+injected with `run`, `allowed`, and `env`; hosts enforce identity, roles and path bounds. Aindrive's server
+adapters implement those callbacks.
 
 ```ts
-import { ainuiActivity, messagesFromActivity } from "ain-ui";
+import { ainuiActivity, messagesFromActivity, upgradeMessages } from "ain-ui";
 const event = ainuiActivity("files", messages);
 // ACTIVITY_SNAPSHOT / a2ui-surface / content.a2ui_operations
 ```
 
-Aindrive negotiation: MCP `X-AINUI: 1`, AG-UI `forwardedProps.ainui = true`,
-A2A `metadata.ainui = true`. Paid-share HTTP responses also accept `X-AINUI: 1`
-and include `messages` next to the unchanged x402 `PAYMENT-REQUIRED` header.
+`upgradeMessages(messages)` converts v0.9 messages to 1.0 (bindings `{path}` → `{"@path"}`, `checks` →
+`@checks`, heading `Text` → `Title`, the AINUI v1 catalog id → v2); `AinuiSurface` and the DOM renderer already
+do it on input. MIME type: `application/a2ui+json` (`A2UI_MIME`).
+
+Aindrive negotiation is unchanged: MCP `X-AINUI: 1`, AG-UI `forwardedProps.ainui = true`, A2A
+`metadata.ainui = true`. Paid-share HTTP responses also accept `X-AINUI: 1` and include `messages` next to the
+unchanged x402 `PAYMENT-REQUIRED` header.
 
 ## Upload
 
-`FileUpload` emits `aindrive.upload` with `{drive_id, path, name, content,
-encoding: "base64"}`. `path` is the destination folder. The dispatcher validates
-the name, encoding, decoded size, allow-list and write permission, then calls
-`write_file`. Existing names follow the storage host's overwrite policy.
-The 8 MiB limit keeps JSON transports bounded; larger files use the host's
-resumable upload endpoint. Do not put raw filesystem paths in client actions.
+`FileUpload` emits `aindrive.upload` with `{drive_id, path, name, content, encoding: "base64"}`. `path` is the
+destination folder. The dispatcher validates the name, encoding, decoded size, allow-list and write permission,
+then calls `write_file`. Existing names follow the storage host's overwrite policy. The 8 MiB limit keeps JSON
+transports bounded; larger files use the host's resumable upload endpoint. Do not put raw filesystem paths in
+client actions.
 
 ## x402
 
-`ainuiPayment` uses the exact requirements that produced `PAYMENT-REQUIRED`.
-`X402Payment` emits `aindrive.x402.pay` only after a user click. The host obtains
-the user's wallet and handles signing locally, then sends `PAYMENT-SIGNATURE`
-to the original authorized resource. The server revalidates price, recipient
-and entitlement. No transfer is made by rendering a surface.
+`ainuiPayment` uses the exact requirements that produced `PAYMENT-REQUIRED`. `X402Payment` emits
+`aindrive.x402.pay` only after a user click. The host obtains the user's wallet and handles signing locally, then
+sends `PAYMENT-SIGNATURE` to the original authorized resource. The server revalidates price, recipient and
+entitlement. No transfer is made by rendering a surface.
 
 ```ts
 import { signX402Payment } from "ain-ui/x402";
 const { header } = await signX402Payment(action.context.paymentRequired, signer);
 ```
 
-This adapter uses official `@x402/core` and `@x402/evm` SDKs. It supports EVM
-exact EIP-3009 authorizations; Permit2 requires the host's approval flow.
-Aindrive's native checkout also supports Permit2 through its existing SDK flow.
+This adapter uses official `@x402/core` and `@x402/evm` SDKs. It supports EVM exact EIP-3009 authorizations;
+Permit2 requires the host's approval flow.
 
 ## Other hosts
 
-`ain-ui/renderer` exports the dependency-free DOM renderer and its CSS for
-MCP Apps and non-React hosts. Both renderers understand the same catalog.
-The pure protocol/builders are available from `ain-ui` without importing React.
+`ain-ui/renderer` exports the dependency-free DOM renderer and its CSS for MCP Apps and non-React hosts. It
+reads 1.0 and v0.9 messages and draws the A2UI basic components and the AIN components (files, payment,
+pickers, folder chat); the rest of the standard catalog is React-only.
+
+### Host file previews
+
+`AinuiSurface` accepts `renderFile({ src, download, name, mime, size })` to render a `FileView` with the host's
+document, spreadsheet or other rich preview. The URLs have already passed the renderer's URL checks and asset
+resolver. Keep authentication and file permissions in the host's byte-serving routes.
+
+## Moving from 0.x
+
+- `AinuiSurface` takes the same props; `messages` may stay v0.9. Builders now return 1.0 messages
+  (`version: "1.0"`, `{"@path"}` bindings) — code that inspects their output must read the new shapes.
+- `AINUI_CATALOG` is the v2 id; `AINUI_CATALOG_V1` is the old one. Surfaces naming v1 are upgraded.
+- The React catalog replaces the A2UI basic components with the standard ones of the same name (a superset of
+  props). `Button` still accepts `action`, `confirm` and `tone`; `Grid` still accepts `minItemWidth`.
+- `@a2ui/react` and `@a2ui/web_core` are now `^0.16.1`.
 
 ## Development
 
 ```sh
 npm ci
-npm run build
+npm run build      # catalog → src/catalog/standard.gen.ts, tsc, styles, dist/catalog.json
 npm test
-npm pack --dry-run
 ```
 
-Source extracted from aindrive's existing AINUI implementation. aindrive and
-ainmem consume this package; protocol and component changes belong here.
+The playground is in `demo/` (`npm ci && npm run build && npm start` after building the library) and deploys to
+ainize from the repository's `ainize.json`. `demo/evals/run.mjs` measures models and formats on a fixed set of
+requests; `docs/PLAN-a2ui-1.0.md` is the plan this version followed.
 
-### Host file previews
-
-`AinuiSurface` accepts `renderFile({ src, download, name, mime, size })` to
-render a `FileView` with the host's document, spreadsheet or other rich preview.
-The URLs have already passed the renderer's URL checks and asset resolver.
-Keep authentication and file permissions in the host's byte-serving routes.
-Omit this callback to use the built-in media preview and download view.
-
-## Pickers
-
-`ainuiFilePicker(surfaceId, fileListResponse, { scope, selection })` and
-`ainuiAgentPicker(surfaceId, agentListResponse, { scope, renders })` build the
-`FilePicker` / `AgentPicker` surfaces from the cross-product listing contract
-(`FileListResponse` / `AgentListResponse`; minimal types are exported from `ain-ui`).
-Items live in the data model; both renderers draw scope tabs, search, `더 보기` paging
-and rows with share-origin, role, availability, status and capability badges.
-Offline, deleted, unentitled (`구매 필요`) or non-invocable rows stay visible but
-their pick control is disabled with the reason. Actions `ainui.picker.scope | search |
-more | pick | open | card` (`PICKER_ACTIONS`) go to the host untouched
-(`dispatchAinuiAction` answers `{kind: "host", action}`); `pick` carries the full
-`FileRef[]` / `AgentRef`. The "no credentials in surfaces" rule applies: refs carry a
-public `sourceUrl` / `agentCardUrl` only — never bytes, tokens or signed URLs.
-
-## Folder chat
-
-`ainuiFolderChat(state)` produces the `FolderChat` A2UI catalog component.
-`AinuiFolderChat` from `ain-ui/react` hosts agent selection, progressive replies,
-stop, errors and per-folder/per-agent conversation ids. Supply `onSend` to connect
-the host's authenticated API; it receives an AbortSignal and `onUpdate`.
-`readChatStream` reads AG-UI SSE, including `ainui.chat.snapshot` custom events;
-`ainuiActivity` wraps full folder-chat surfaces for other A2UI hosts.
-`A2aChatAccumulator` combines A2A status/task/artifact events without replaying
-a failed request or duplicating snapshot text. Native agents without streaming
-continue to return one final response.
-
-`listFolderTree` lists descendants within the selected root, with entry, depth
-and directory limits. It reports partial/error results instead of treating them
-as an empty or complete folder. No host credentials belong in UI messages.
+The standard components' names, props and descriptions come from CopilotKit's A2UI playground catalog (MIT);
+see `NOTICE`.
 
 ## AI Network integration versions
 
@@ -164,6 +221,6 @@ This repository takes part in the AI Network integration (shared files, shared a
 
 Product routes (`/api/ain/shared-files`, `/api/ain/shared-agents`, `/api/ain/invoke`, `/api/ain/events`) sit behind the `AIN_INTEGRATION_ENABLED` flag.
 
-This package is the renderer; its current version is 0.3.0. Consumers still on 0.2.3 need to upgrade.
+This package is the renderer; its current version is 1.0.0 (A2UI 1.0, catalog v2; v0.9 and catalog v1 surfaces are still drawn). The renderer pin in the table above is the integration proposal's and has not been revisited for 1.0. Consumers still on 0.2.3 need to upgrade; see "Moving from 0.x" above.
 
 The source of record is the integration plan's versioning note (`docs/20-versioning.md` in the ain-integration workspace, not yet published). This line will link to it once it is published.

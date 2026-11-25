@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Ridge at dawn">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffb37a"/><stop offset="1" stop-color="#ffe6c7"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#s)"/>
+<circle cx="470" cy="150" r="38" fill="#fff3d6"/>
+<path d="M0 260 L120 170 L230 250 L360 150 L500 240 L640 180 V400 H0Z" fill="#c2603f"/>
+<path d="M0 320 L160 250 L300 310 L460 240 L640 300 V400 H0Z" fill="#7a3327"/>
+<path d="M0 360 Q320 320 640 365 V400 H0Z" fill="#3f1a1c"/>
+</svg>

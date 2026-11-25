@@ -21,14 +21,14 @@
  */
 import type { SkillResult } from "./types.js";
 import {
-  A2UI_BASIC_CATALOG, A2UI_VERSION, a2uiForSkill, baseOf, humanSize, parentOf,
+  A2UI_BASIC_CATALOG, A2UI_V09, AINUI_CATALOG, AINUI_CATALOG_V1, upgradeMessages, a2uiForSkill, baseOf, humanSize, parentOf,
   type A2uiAction, type A2uiComponent, type A2uiMessage,
 } from "./basic.js";
 
 export const AINUI_UPLOAD_MAX_BYTES = 8 * 1024 * 1024;
 
 export const AINUI_VERSION = "v1" as const;
-export const AINUI_CATALOG = "https://aindrive.ainetwork.ai/ainui/v1/catalog.json";
+export const AINUI_PROTOCOL = "v2" as const;
 /** MCP request header a client sends to get AINUI surfaces. */
 export const AINUI_HEADER = "x-ainui";
 
@@ -175,18 +175,34 @@ const DRIVE = { path: "/drive_id" };
 
 function ainuiSurface(prefix: string, components: A2uiComponent[], data: Record<string, unknown>): A2uiMessage[] {
   const surfaceId = `aindrive-${prefix}-${Math.random().toString(36).slice(2, 10)}`;
-  return [
-    { version: A2UI_VERSION, createSurface: { surfaceId, catalogId: AINUI_CATALOG } },
-    { version: A2UI_VERSION, updateComponents: { surfaceId, components } },
-    { version: A2UI_VERSION, updateDataModel: { surfaceId, path: "/", value: data } },
-  ];
+  return upgradeMessages([
+    { version: A2UI_V09, createSurface: { surfaceId, catalogId: AINUI_CATALOG_V1 } },
+    { version: A2UI_V09, updateComponents: { surfaceId, components } },
+    { version: A2UI_V09, updateDataModel: { surfaceId, path: "/", value: data } },
+  ]);
 }
 
 /** A basic-catalog surface is a valid AINUI surface: only the declared catalog changes. */
 export function asAinui(messages: A2uiMessage[]): A2uiMessage[] {
-  return messages.map((m) => ("createSurface" in m && m.createSurface.catalogId === A2UI_BASIC_CATALOG
-    ? { ...m, createSurface: { ...m.createSurface, catalogId: AINUI_CATALOG } }
-    : m));
+  const moved = new Set<string>();
+  // The basic catalog writes a heading as Markdown marks in Text; the AINUI catalog has Title for it.
+  const heading = (c: A2uiComponent): A2uiComponent => {
+    if (c.component !== "Text") return c;
+    const t = c.text as unknown;
+    const call = t && typeof t === "object" ? (t as { "@call"?: string; args?: { value?: string } }) : null;
+    const m = typeof t === "string" ? /^(#{1,5}) (.*)$/s.exec(t) : call?.["@call"] === "formatString" ? /^(#{1,5}) \$\{(.+)\}$/.exec(call.args?.value ?? "") : null;
+    if (!m) return c.variant === "caption" ? { ...c, component: "Caption", variant: undefined } as A2uiComponent : c;
+    const size = ["2xl", "xl", "lg", "md", "sm"][m[1].length - 1];
+    return { ...c, component: "Title", size, text: typeof t === "string" ? m[2] : { "@path": m[2] } };
+  };
+  return messages.map((m) => {
+    if ("createSurface" in m && m.createSurface.catalogId === A2UI_BASIC_CATALOG) {
+      moved.add(m.createSurface.surfaceId);
+      return { ...m, createSurface: { ...m.createSurface, catalogId: AINUI_CATALOG, ...(m.createSurface.components ? { components: m.createSurface.components.map(heading) } : {}) } };
+    }
+    if ("updateComponents" in m && moved.has(m.updateComponents.surfaceId)) return { ...m, updateComponents: { ...m.updateComponents, components: m.updateComponents.components.map(heading) } };
+    return m;
+  });
 }
 
 export type Crumb = { label: string; path: string; is_dir: boolean };

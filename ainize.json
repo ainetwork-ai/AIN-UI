@@ -1,0 +1,68 @@
+{
+  "name": "ainui",
+  "kind": "service",
+  "build": {
+    "dockerfile": "demo/Dockerfile.ainize",
+    "context": ".",
+    "timeoutMinutes": 20
+  },
+  "port": 3000,
+  "healthcheck": {
+    "path": "/api/health",
+    "status": [
+      200
+    ],
+    "timeoutSeconds": 180
+  },
+  "access": "public",
+  "placement": "local",
+  "env": {
+    "NODE_ENV": "production",
+    "AINUI_PUBLIC_URL": "https://ainui.ainetwork.xyz",
+    "AINUI_MODEL_BASE_URL": "https://ainize.ai/v1",
+    "AINUI_MODELS": "Qwen3.8-Flash-Next,GLM-5.3-Flash",
+    "AINUI_MAX_MODEL_CALLS": "4",
+    "AINUI_MAX_COMPONENTS": "1000",
+    "AINUI_RUNS_PER_HOUR": "30",
+    "AINUI_RUNS_PER_DAY": "120"
+  },
+  "secrets": [
+    "AINIZE_API_KEY"
+  ],
+  "requiredSecrets": [
+    "AINIZE_API_KEY"
+  ],
+  "allowedHosts": [
+    "ainize.ai"
+  ],
+  "resources": {
+    "memory": "1g",
+    "cpus": 1,
+    "pids": 256
+  },
+  "checks": [
+    {
+      "name": "library tests",
+      "command": [
+        "env",
+        "NODE_ENV=test",
+        "npm",
+        "--prefix",
+        "/app",
+        "run",
+        "test:built"
+      ],
+      "timeoutSeconds": 900
+    },
+    {
+      "name": "playground tests",
+      "command": [
+        "npm",
+        "--prefix",
+        "/app/demo",
+        "test"
+      ],
+      "timeoutSeconds": 300
+    }
+  ]
+}

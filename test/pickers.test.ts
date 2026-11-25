@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import React, { act } from "react";
 import { createRoot } from "react-dom/client";
-import { JSDOM } from "jsdom";
+import { installDom } from "./support/dom.js";
 import {
   AINUI_CATALOG, PICKER_ACTIONS, ainuiAgentPicker, ainuiFilePicker, agentKey, agentPickReason, capabilityLines, dispatchAinuiAction,
   fileKey, filePickReason, type AgentListResponse, type AgentListItem, type FileListItem, type FileListResponse,
@@ -37,9 +37,9 @@ test("picker builders bind the listing through the data model and name the fixed
     assert.equal(messages[0].createSurface?.catalogId, AINUI_CATALOG);
     const c = messages[1].updateComponents!.components[0];
     assert.equal(c.component, component);
-    assert.deepEqual(c.items, { path: "/items" });
-    assert.deepEqual(c.scope, { path: "/scope" });
-    assert.deepEqual(c.cursor, { path: "/cursor" });
+    assert.deepEqual(c.items, { "@path": "/items" });
+    assert.deepEqual(c.scope, { "@path": "/scope" });
+    assert.deepEqual(c.cursor, { "@path": "/cursor" });
     assert.equal(JSON.stringify(c).includes("displayName"), false, "items live in the data model, not inline");
   }
   const fd = f[2].updateDataModel!.value as Record<string, unknown>;
@@ -76,8 +76,7 @@ test("dispatchAinuiAction hands picker actions to the host untouched", async () 
 });
 
 async function mountReact(id: string) {
-  const dom = new JSDOM(`<!doctype html><div id='${id}'></div>`, { url: "https://example.test" });
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document, IS_REACT_ACT_ENVIRONMENT: true });
+  const dom = installDom(`<!doctype html><div id='${id}'></div>`);
   const container = document.getElementById(id)!;
   const root = createRoot(container);
   const actions: any[] = [];
@@ -173,8 +172,7 @@ test("React AgentPicker: pick carries the full AgentRef, non-invocable rows disa
 });
 
 test("DOM renderer draws both pickers from the same messages and fires the same payloads", async () => {
-  const dom = new JSDOM("<!doctype html><div id='dom'></div>", { url: "https://example.test" });
-  Object.assign(globalThis, { window: dom.window, document: dom.window.document });
+  const dom = installDom("<!doctype html><div id='dom'></div>");
   const container = document.getElementById("dom")!;
   const actions: any[] = [];
   const r = createA2uiRenderer(container, { onAction: (a: any) => { actions.push(a); } });

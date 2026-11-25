@@ -1,0 +1,232 @@
+{
+ "title": "A recipe for kimchi fried rice",
+ "prompt": "A recipe for kimchi fried rice: ingredients as a list, steps in order, and the cooking time.",
+ "model": "Qwen3.8-Flash-Next",
+ "format": "json",
+ "recordedAt": "2026-11-25T02:35:16.677Z",
+ "events": [
+  {
+   "at": 0,
+   "event": {
+    "type": "RUN_STARTED",
+    "runId": "recipe",
+    "model": "Qwen3.8-Flash-Next",
+    "format": "json"
+   }
+  },
+  {
+   "at": 8199,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.source",
+    "value": {
+     "format": "json",
+     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"gap\": \"md\",\n   \"children\": [\n    \"title\",\n    \"meta\",\n    \"ing_head\",\n    \"ings\",\n    \"steps_head\",\n    \"steps\",\n    \"tip\",\n    \"followup\"\n   ]\n  },\n  {\n   \"id\": \"title\",\n   \"component\": \"Title\",\n   \"text\": \"Kimchi Fried Rice (Kimchi Bokkeumbap)\",\n   \"size\": \"lg\"\n  },\n  {\n   \"id\": \"meta\",\n   \"component\": \"Row\",\n   \"justify\": \"spaceBetween\",\n   \"children\": [\n    \"meta_time\",\n    \"meta_serv\"\n   ]\n  },\n  {\n   \"id\": \"meta_time\",\n   \"component\": \"Text\",\n   \"text\": \"**Total time:** 20 minutes\",\n   \"size\": \"sm\"\n  },\n  {\n   \"id\": \"meta_serv\",\n   \"component\": \"Caption\",\n   \"text\": \"Serves 2\"\n  },\n  {\n   \"id\": \"ing_head\",\n   \"component\": \"Title\",\n   \"text\": \"Ingredients\",\n   \"size\": \"md\"\n  },\n  {\n   \"id\": \"ings\",\n   \"component\": \"List\",\n   \"direction\": \"vertical\",\n   \"marker\": \"bullet\",\n   \"items\": [\n    {\n     \"label\": \"Day-old cooked short-grain rice\",\n     \"value\": \"400 g (2 cups)\"\n    },\n    {\n     \"label\": \"Aged kimchi, chopped\",\n     \"value\": \"150 g\"\n    },\n    {\n     \"label\": \"Kimchi juice\",\n     \"value\": \"2 tbsp\"\n    },\n    {\n     \"label\": \"Sesame oil\",\n     \"value\": \"2 tbsp\"\n    },\n    {\n     \"label\": \"Gochugaru (Korean chili flakes)\",\n     \"value\": \"1 tsp\"\n    },\n    {\n     \"label\": \"Soy sauce\",\n     \"value\": \"1 tbsp\"\n    },\n    {\n     \"label\": \"Sugar\",\n     \"value\": \"1 tsp\"\n    },\n    {\n     \"label\": \"Sesame seeds\",\n     \"value\": \"1 tsp\"\n    },\n    {\n     \"label\": \"Scallions, sliced\",\n     \"value\": \"2\"\n    },\n    {\n     \"label\": \"Eggs (one per serving)\",\n     \"value\": \"2\"\n    },\n    {\n     \"label\": \"Optional: diced spam, ham or tofu\",\n     \"value\": \"100 g\"\n    }\n   ]\n  },\n  {\n   \"id\": \"steps_head\",\n   \"component\": \"Title\",\n   \"text\": \"Steps\",\n   \"size\": \"md\"\n  },\n  {\n   \"id\": \"steps\",\n   \"component\": \"List\",\n   \"direction\": \"vertical\",\n   \"marker\": \"number\",\n   \"items\": [\n    {\n     \"label\": \"Prep\",\n     \"description\": \"Chop the kimchi coarse and break up any clumps of cold rice with your hands.\",\n     \"value\": \"2 min\"\n    },\n    {\n     \"label\": \"Sauté the kimchi\",\n     \"description\": \"Heat 1 tbsp sesame oil in a wok over medium-high heat. Fry the kimchi 2 minutes until caramelized; add gochugaru.\",\n     \"value\": \"3 min\"\n    },\n    {\n     \"label\": \"Add the rice\",\n     \"description\": \"Add rice, kimchi juice and soy sauce. Toss 3–4 minutes, pressing and flipping, until grains are coated and slightly crispy.\",\n     \"value\": \"4 min\"\n    },\n    {\n     \"label\": \"Season\",\n     \"description\": \"Stir in sugar and half the scallions. Taste and add a splash more kimchi juice if needed.\",\n     \"value\": \"1 min\"\n    },\n    {\n     \"label\": \"Fry the eggs\",\n     \"description\": \"Push the rice aside, add remaining oil and fry the eggs sunny-side up, edges crisp.\",\n     \"value\": \"3 min\"\n    },\n    {\n     \"label\": \"Serve\",\n     \"description\": \"Plate the rice, top with an egg, scatter sesame seeds and scallions. Drizzle sesame oil.\",\n     \"value\": \"1 min\"\n    }\n   ]\n  },\n  {\n   \"id\": \"tip\",\n   \"component\": \"Caption\",\n   \"text\": \"Cold, day-old rice fries best; fresh steamed rice turns mushy. Cooked times are illustrative.\",\n   \"color\": \"secondary\"\n  },\n  {\n   \"id\": \"followup\",\n   \"component\": \"FollowUp\",\n   \"items\": [\n    {\n     \"label\": \"Vegetarian version\",\n     \"message\": \"Show me a vegetarian kimchi fried rice\"\n    },\n    {\n     \"label\": \"Show a shopping list\",\n     \"message\": \"Turn this into a shopping list\"\n    },\n    {\n     \"label\": \"Spicier version\",\n     \"message\": \"Make the recipe spicier\"\n    }\n   ]\n  }\n ],\n \"data\": {\n  \"recipe\": \"kimchi-fried-rice\"\n }\n}",
+     "ms": 8148,
+     "attempt": 1
+    }
+   }
+  },
+  {
+   "at": 8308,
+   "event": {
+    "type": "ACTIVITY_SNAPSHOT",
+    "activityType": "a2ui-surface",
+    "content": {
+     "a2ui_operations": [
+      {
+       "version": "1.0",
+       "createSurface": {
+        "surfaceId": "ui-mwvig7mf-rxj3tx",
+        "catalogId": "https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json",
+        "components": [
+         {
+          "id": "root",
+          "component": "Column",
+          "gap": "md",
+          "children": [
+           "title",
+           "meta",
+           "ing_head",
+           "ings",
+           "steps_head",
+           "steps",
+           "tip",
+           "followup"
+          ]
+         },
+         {
+          "id": "title",
+          "component": "Title",
+          "text": "Kimchi Fried Rice (Kimchi Bokkeumbap)",
+          "size": "lg"
+         },
+         {
+          "id": "meta",
+          "component": "Row",
+          "justify": "spaceBetween",
+          "children": [
+           "meta_time",
+           "meta_serv"
+          ]
+         },
+         {
+          "id": "meta_time",
+          "component": "Text",
+          "text": "**Total time:** 20 minutes",
+          "size": "sm"
+         },
+         {
+          "id": "meta_serv",
+          "component": "Caption",
+          "text": "Serves 2"
+         },
+         {
+          "id": "ing_head",
+          "component": "Title",
+          "text": "Ingredients",
+          "size": "md"
+         },
+         {
+          "id": "ings",
+          "component": "List",
+          "direction": "vertical",
+          "marker": "bullet",
+          "items": [
+           {
+            "label": "Day-old cooked short-grain rice",
+            "value": "400 g (2 cups)"
+           },
+           {
+            "label": "Aged kimchi, chopped",
+            "value": "150 g"
+           },
+           {
+            "label": "Kimchi juice",
+            "value": "2 tbsp"
+           },
+           {
+            "label": "Sesame oil",
+            "value": "2 tbsp"
+           },
+           {
+            "label": "Gochugaru (Korean chili flakes)",
+            "value": "1 tsp"
+           },
+           {
+            "label": "Soy sauce",
+            "value": "1 tbsp"
+           },
+           {
+            "label": "Sugar",
+            "value": "1 tsp"
+           },
+           {
+            "label": "Sesame seeds",
+            "value": "1 tsp"
+           },
+           {
+            "label": "Scallions, sliced",
+            "value": "2"
+           },
+           {
+            "label": "Eggs (one per serving)",
+            "value": "2"
+           },
+           {
+            "label": "Optional: diced spam, ham or tofu",
+            "value": "100 g"
+           }
+          ]
+         },
+         {
+          "id": "steps_head",
+          "component": "Title",
+          "text": "Steps",
+          "size": "md"
+         },
+         {
+          "id": "steps",
+          "component": "List",
+          "direction": "vertical",
+          "marker": "number",
+          "items": [
+           {
+            "label": "Prep",
+            "description": "Chop the kimchi coarse and break up any clumps of cold rice with your hands.",
+            "value": "2 min"
+           },
+           {
+            "label": "Sauté the kimchi",
+            "description": "Heat 1 tbsp sesame oil in a wok over medium-high heat. Fry the kimchi 2 minutes until caramelized; add gochugaru.",
+            "value": "3 min"
+           },
+           {
+            "label": "Add the rice",
+            "description": "Add rice, kimchi juice and soy sauce. Toss 3–4 minutes, pressing and flipping, until grains are coated and slightly crispy.",
+            "value": "4 min"
+           },
+           {
+            "label": "Season",
+            "description": "Stir in sugar and half the scallions. Taste and add a splash more kimchi juice if needed.",
+            "value": "1 min"
+           },
+           {
+            "label": "Fry the eggs",
+            "description": "Push the rice aside, add remaining oil and fry the eggs sunny-side up, edges crisp.",
+            "value": "3 min"
+           },
+           {
+            "label": "Serve",
+            "description": "Plate the rice, top with an egg, scatter sesame seeds and scallions. Drizzle sesame oil.",
+            "value": "1 min"
+           }
+          ]
+         },
+         {
+          "id": "tip",
+          "component": "Caption",
+          "text": "Cold, day-old rice fries best; fresh steamed rice turns mushy. Cooked times are illustrative.",
+          "color": "secondary"
+         },
+         {
+          "id": "followup",
+          "component": "FollowUp",
+          "items": [
+           {
+            "label": "Vegetarian version",
+            "message": "Show me a vegetarian kimchi fried rice"
+           },
+           {
+            "label": "Show a shopping list",
+            "message": "Turn this into a shopping list"
+           },
+           {
+            "label": "Spicier version",
+            "message": "Make the recipe spicier"
+           }
+          ]
+         }
+        ],
+        "dataModel": {
+         "recipe": "kimchi-fried-rice"
+        }
+       }
+      }
+     ]
+    },
+    "format": "json",
+    "ms": 8148
+   }
+  },
+  {
+   "at": 8308,
+   "event": {
+    "type": "RUN_FINISHED",
+    "calls": 1,
+    "shown": 1,
+    "ms": 8308
+   }
+  }
+ ]
+}

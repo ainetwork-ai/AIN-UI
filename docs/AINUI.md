@@ -1,4 +1,19 @@
-# AINUI v1 — the AIN UI protocol (A2UI v0.9 + the components A2UI's basic catalog lacks)
+# AINUI v2 — the AIN UI protocol on A2UI 1.0
+
+> **Status (ain-ui 1.0):** AINUI is now written on **A2UI 1.0**. The catalog id is
+> `https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json`; the wire version is `"1.0"`; a data binding is
+> `{"@path": …}` and a function call `{"@call": …}`; the MIME type is `application/a2ui+json`. The catalog now
+> holds the 69 standard components (which replace the A2UI basic ones of the same name) and the AIN components
+> described below.
+>
+> Everything below was written for AINUI v1 on A2UI v0.9 and still describes the AIN components, the asset
+> references, the negotiation and the actions correctly — read `{path}` as `{"@path"}`, and the catalog id as the
+> v2 one. v0.9 messages and surfaces naming the v1 catalog are upgraded on input (`upgradeMessages`): a heading
+> `Text` (variant `h1`–`h5`) becomes `Title`, `caption` becomes `Caption`, `checks` becomes `@checks`, and
+> `createSurface.theme` is dropped. `Grid.minItemWidth` and `Button.action` / `confirm` / `tone` are kept as
+> aliases on the standard components.
+
+## AINUI v1 text (A2UI v0.9)
 
 AINUI is **not** a new wire format. It is A2UI v0.9 — the same messages
 (`createSurface`, `updateComponents`, `updateDataModel`, `deleteSurface`), the same

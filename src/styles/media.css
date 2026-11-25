@@ -1,0 +1,49 @@
+/* Standard catalog — media: Image, Icon, Favicon, Svg, Video, AudioPlayer, HtmlView. */
+.ain-ui .ainui-icon { display: block; flex: none; }
+.ain-ui .ainui-icon-inline { display: inline-block; vertical-align: -0.15em; }
+
+.ain-ui .ainui-image { position: relative; display: inline-block; max-width: 100%; overflow: hidden; vertical-align: middle; border-radius: var(--ainui-radius); line-height: 0; }
+.ain-ui .ainui-image img { display: block; width: 100%; height: 100%; max-width: 100%; }
+.ain-ui .ainui-image-open { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; cursor: zoom-in; }
+.ain-ui .ainui-image-icon { width: 24px; height: 24px; border-radius: 4px; }
+.ain-ui .ainui-image-avatar { width: 40px; height: 40px; border-radius: 9999px; }
+.ain-ui .ainui-image-small-feature { width: 160px; }
+.ain-ui .ainui-image-large-feature, .ain-ui .ainui-image-header { display: block; width: 100%; }
+.ain-ui .ainui-image-header { max-height: 240px; border-radius: 0; }
+.ain-ui .ainui-image-header img { max-height: 240px; }
+.ain-ui .ainui-image-frame { border: 1px solid var(--ainui-border); background: var(--ainui-surface-2); }
+.ain-ui .ainui-image-hover-zoom img { transition: transform .25s ease; }
+.ain-ui .ainui-image-hover-zoom:hover img { transform: scale(1.05); }
+.ain-ui .ainui-image-failed { display: inline-flex; align-items: center; justify-content: center; min-width: 24px; min-height: 24px; padding: 8px; box-sizing: border-box; background: var(--ainui-surface-2); color: var(--ainui-muted); font-size: 12px; line-height: 1.4; text-align: center; }
+.ain-ui .ainui-image-icon.ainui-image-failed, .ain-ui .ainui-image-avatar.ainui-image-failed { padding: 0; font-size: 10px; overflow: hidden; }
+.ain-ui .ainui-image-overlay { position: absolute; right: 8px; bottom: 8px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--ainui-border); border-radius: 9999px; background: var(--ainui-surface); color: var(--ainui-fg); font-size: 12px; font-weight: 500; line-height: 1.4; text-decoration: none; box-shadow: var(--ainui-shadow); }
+.ain-ui .ainui-image-overlay:hover { background: var(--ainui-hover); }
+
+.ain-ui .ainui-lightbox-caption { position: absolute; left: 50%; bottom: 16px; transform: translateX(-50%); max-width: 80%; padding: 4px 10px; border-radius: 8px; background: var(--ainui-surface); color: var(--ainui-fg); font-size: 13px; line-height: 1.4; text-align: center; }
+.ain-ui .ainui-lightbox-nav { top: 50%; transform: translateY(-50%); }
+.ain-ui .ainui-lightbox-prev { left: 12px; right: auto; }
+.ain-ui .ainui-lightbox-next { right: 12px; }
+
+.ain-ui .ainui-favicon { display: block; flex: none; border-radius: 3px; object-fit: contain; }
+.ain-ui .ainui-favicon-inline { display: inline-block; vertical-align: -0.15em; }
+.ain-ui .ainui-favicon-frame { padding: 3px; box-sizing: content-box; border: 1px solid var(--ainui-border); border-radius: 6px; background: var(--ainui-surface); }
+
+.ain-ui .ainui-svg { display: block; flex: none; max-width: 100%; color: var(--ainui-fg); }
+
+.ain-ui .ainui-video { display: block; position: relative; overflow: hidden; border-radius: var(--ainui-radius); background: var(--ainui-surface-2); }
+.ain-ui .ainui-video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.ain-ui .ainui-video-poster { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: transparent; }
+.ain-ui .ainui-video-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.ain-ui .ainui-video-play { display: inline-flex; align-items: center; justify-content: center; flex: none; border-radius: 9999px; background: var(--ainui-primary); color: var(--ainui-primary-fg); }
+.ain-ui .ainui-video-poster .ainui-video-play { position: absolute; top: 50%; left: 50%; width: 56px; height: 56px; transform: translate(-50%, -50%); box-shadow: var(--ainui-shadow); }
+.ain-ui .ainui-video-link { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 8px 12px; border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); color: var(--ainui-fg); text-decoration: none; font-size: 13px; }
+.ain-ui .ainui-video-link:hover { background: var(--ainui-hover); }
+.ain-ui .ainui-video-link .ainui-video-play { width: 24px; height: 24px; }
+.ain-ui .ainui-video-site { color: var(--ainui-muted); font-size: 12px; }
+
+.ain-ui .ainui-audio-player { display: flex; flex-direction: column; gap: 6px; margin: 0; min-width: 0; }
+.ain-ui .ainui-audio-player-description { font-size: 13px; color: var(--ainui-fg); }
+.ain-ui .ainui-audio-player audio { width: 100%; max-width: 480px; }
+
+.ain-ui .ainui-html-view { display: block; max-width: 100%; border: 1px solid var(--ainui-border); border-radius: var(--ainui-radius); background: var(--ainui-surface); }
+@media (prefers-reduced-motion: reduce) { .ain-ui .ainui-image-hover-zoom img { transition: none; } }

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Peaks at night">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#141a3c"/><stop offset="1" stop-color="#3a2f6b"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#s)"/>
+<circle cx="110" cy="90" r="38" fill="#f4f1ff"/>
+<path d="M0 280 L150 130 L250 240 L390 100 L520 230 L640 160 V400 H0Z" fill="#4a3f8a"/>
+<path d="M390 100 L425 133 L400 140 L378 160 L360 131Z" fill="#e8e4ff"/>
+<path d="M0 330 L200 250 L340 320 L500 260 L640 320 V400 H0Z" fill="#231d4d"/>
+</svg>

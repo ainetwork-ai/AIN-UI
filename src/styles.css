@@ -13,17 +13,10 @@
 .ain-ui p { margin-block:6px; }
 
 /* Shared file browser: neutral controls, clear focus and consistent media geometry. */
-.ain-ui { --ainui-muted: #667085; --ainui-line: #e4e7ec; --ainui-hover: #f5f6f8; --ainui-active: #fff; --ainui-accent: #2456d9; }
+/* tokens: src/styles/00-tokens.css */
 .ainui-toolbar { display:flex; flex-wrap:wrap; align-items:flex-end; gap:10px; padding:10px 0 14px; }
 .ainui-toolbar > :first-child { flex:1 1 200px; min-width:140px; }
 .ainui-toolbar label { font-size:12px; color:var(--ainui-muted); }
-.ain-ui .ainui-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:40px; padding:8px 14px; border:1px solid var(--ainui-line); border-radius:8px; background:transparent; color:inherit; font-size:13px; font-weight:500; line-height:20px; white-space:nowrap; transition:background .15s; }
-.ain-ui .ainui-button p { margin:0; }
-.ain-ui .ainui-button:hover { background:var(--ainui-hover); }
-.ain-ui .ainui-button-primary { color:#fff; background:var(--ainui-accent); border-color:var(--ainui-accent); }
-.ain-ui .ainui-button-primary:hover { background:#1d46b5; }
-.ain-ui .ainui-button-ghost { border-color:transparent; justify-content:flex-start; }
-.ain-ui .ainui-button-danger { color:#c13535; }
 .ainui-segmented { display:flex; gap:2px; padding:3px; border-radius:9px; background:var(--ainui-hover); border:1px solid var(--ainui-line); }
 .ainui-segmented button { display:flex; align-items:center; gap:6px; min-height:32px; padding:5px 10px; border:0; border-radius:6px; background:transparent; color:var(--ainui-muted); font-size:12px; }
 .ainui-segmented button[aria-pressed=true] { background:var(--ainui-active); color:inherit; box-shadow:0 1px 3px #00000014; }

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 400" role="img" aria-label="Coast line">
+<defs><linearGradient id="s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fe0d6"/><stop offset="1" stop-color="#e6fbf7"/></linearGradient></defs>
+<rect width="640" height="400" fill="url(#s)"/>
+<circle cx="500" cy="110" r="38" fill="#fff6c2"/>
+<path d="M0 230 H640 V400 H0Z" fill="#1f9c94"/>
+<path d="M0 262 Q160 246 320 262 T640 262 V276 Q480 262 320 276 T0 276Z" fill="#8fe6dc"/>
+<path d="M0 300 Q180 250 330 320 Q460 380 640 340 V400 H0Z" fill="#f0d9a0"/>
+<path d="M0 400 V240 Q70 250 90 310 Q110 370 40 400Z" fill="#5b4a3a"/>
+</svg>
