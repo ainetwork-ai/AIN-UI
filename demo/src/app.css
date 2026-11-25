@@ -98,3 +98,30 @@ button, input, select, textarea { font: inherit; }
 .watch-list span { color: var(--muted); font-size: 12px; }
 .watch-controls { margin: 0 0 16px; }
 .pg-writing { margin: 0; padding: 10px 12px; border: 1px dashed var(--line); border-radius: 12px; max-height: 132px; overflow: hidden; display: flex; flex-direction: column-reverse; color: var(--muted); font: 12px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; word-break: break-all; }
+
+/* Side pane: what the model wrote, beside the conversation (wide screens only). */
+.pg-with-pane { max-width: none; display: grid; grid-template-columns: minmax(0, 1fr); }
+.pg-column { display: flex; flex-direction: column; min-width: 0; width: 100%; max-width: 980px; margin: 0 auto; }
+.pg-pane { display: none; }
+@media (min-width: 1180px) {
+  .pg-with-pane { grid-template-columns: minmax(0, 1fr) minmax(340px, 440px); padding: 0; gap: 0; }
+  .pg-with-pane .pg-column { padding: 0 24px; }
+  .pg-with-pane .pg-source-inline { display: none; }
+  .pg-pane { display: flex; flex-direction: column; position: sticky; top: 49px; height: calc(100vh - 49px); border-left: 1px solid var(--line); background: var(--panel); min-width: 0; }
+}
+.pg-pane-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.pg-pane-meta { color: var(--muted); font: 12px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.pg-pane-tabs { display: flex; gap: 4px; padding: 8px 12px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.pg-pane-tabs button { padding: 4px 10px; border: 1px solid var(--line); border-radius: 999px; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; white-space: nowrap; }
+.pg-pane-tabs button[aria-selected=true] { background: var(--soft); color: var(--fg); font-weight: 600; }
+.pg-pane-tabs .pg-pane-tab-rejected { color: var(--danger); }
+.pg-pane-reason { margin: 0; padding: 10px 16px; color: var(--danger); font-size: 12px; border-bottom: 1px solid var(--line); }
+.pg-pane-note { padding: 16px; }
+.pg-pane-code { flex: 1; margin: 0; padding: 10px 0; overflow: auto; font: 12px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; }
+.pg-pane-line { display: block; padding: 0 16px 0 0; white-space: pre-wrap; word-break: break-word; }
+.pg-pane-line:hover { background: var(--soft); }
+.pg-pane-no { display: inline-block; width: 40px; padding-right: 10px; text-align: right; color: var(--muted); user-select: none; opacity: .7; }
+.pg-pane-notes { margin: 0; padding: 10px 16px 14px 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; }
+/* The composer stays at the bottom without covering the last surface. */
+.pg-main { padding-bottom: 32px; }
+.pg-composer { background: linear-gradient(transparent, var(--bg) 24px); }

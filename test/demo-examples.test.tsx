@@ -14,7 +14,7 @@ const all: Array<[string, { components: any[]; data?: Record<string, unknown> }]
 ];
 
 test("demo examples: one example for each of the catalog's components, and one per macro", () => {
-  assert.equal(catalogNames.length, 79);
+  assert.equal(catalogNames.length, 92);
   assert.deepEqual(Object.keys(EXAMPLES).sort(), [...catalogNames].sort());
   assert.deepEqual(MACRO_EXAMPLES.map((m) => m.name), ["FileCard", "PaymentCard", "AgentCard"]);
   for (const m of MACRO_EXAMPLES) assert.ok(m.description && m.express.startsWith(`root = ${m.name}(`), m.name);

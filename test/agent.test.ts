@@ -27,13 +27,13 @@ root = Column([title, tbl, go])`;
 test("what a model gets wrong comes back as a message it can act on, never as a surface", () => {
   const express = createUiAuthor({ format: "express" });
   assert.throws(() => express.fromToolCall({ express: `root = Nope("x")` }), (e: any) => e instanceof UiError && /Nope/.test(e.message) && /render_ui/.test(e.message));
-  assert.throws(() => express.fromToolCall({ express: `root = Column([missing])` }), UiError);
+  assert.deepEqual((express.fromToolCall({ express: `root = Column([missing])` }) as any[])[0].createSurface.components[0].children, [], "a list child never written is left out");
   assert.throws(() => express.fromToolCall({}), /needs `express`/);
   assert.throws(() => createUiAuthor({ format: "json" }).fromToolCall({ components: [{ id: "top", component: "Text", text: "x" }] }), /id "root"/);
   assert.throws(() => createUiAuthor({ format: "json" }).fromToolCall({ components: "[{not json" }), /not valid JSON/);
   const json = createUiAuthor({ format: "json" });
   assert.throws(() => json.fromToolCall({ messages: [{ createSurface: { surfaceId: "x", components: [{ id: "root", component: "Columnn" }] } }] }), (e: any) => e instanceof UiError && /Columnn/.test(e.message));
-  assert.throws(() => json.fromToolCall({ messages: [{ createSurface: { surfaceId: "x", components: [{ id: "root", component: "Column", children: ["ghost"] }] } }] }), UiError);
+  assert.throws(() => json.fromToolCall({ messages: [{ createSurface: { surfaceId: "x", components: [{ id: "root", component: "Card", child: "ghost" }] } }] }), UiError, "a single child that was never written is still refused");
   assert.throws(() => json.fromToolCall({ messages: "not json" }), /not valid JSON/);
 });
 
@@ -136,7 +136,28 @@ test("components passed as text, closed one bracket too many, are still read (se
   const notes: string[] = [];
   const out = author.fromToolCall({ components: JSON.stringify(list) + "}]" }, notes) as any[];
   assert.equal(out[0].createSurface.components.length, 2);
-  assert.match(notes[0], /extra character/);
+  assert.match(notes[0], /unmatched bracket/);
+  const middle = JSON.stringify(list).replace('"children":["t"]}', '"children":["t"]}}');
+  assert.equal((author.fromToolCall({ components: middle }) as any[])[0].createSurface.components.length, 2, "a stray closer inside the array (seen 11-25 from Qwen) is dropped too");
+  const short = '[{"id":"root","component":"Column","children":["t"],"x":{"y":{"@path":"/a"}},\n {"id":"t","component":"Title","text":"Hi"}]';
+  assert.equal((author.fromToolCall({ components: short }) as any[])[0].createSurface.components.length, 2, "an object left open before the next item is closed (seen 11-25 from Qwen)");
   assert.equal((author.fromToolCall({ components: JSON.stringify(list) }) as any[]).length, 1, "a string with nothing after it is read as before");
   assert.throws(() => author.fromToolCall({ components: JSON.stringify(list) + " and then some words" }), /not valid JSON/, "anything else after it is not guessed at");
+});
+
+test("small schema slips a model makes are repaired, not refused (seen 11-25 from Qwen)", () => {
+  const notes: string[] = [];
+  const out = createUiAuthor({ format: "json" }).fromToolCall({ components: [
+    { id: "root", component: "Column", children: ["card", "tbl", "f", "ghost"] },
+    { id: "card", component: "EntityCard", title: "Pro", badge: null },
+    { id: "tbl", component: "Table", columns: ["Name", "Action"], rows: [["Ada", { componentId: "b" }]], cellComponents: [{ componentId: "b" }] },
+    { id: "b", component: "Button", label: "Open" },
+    { id: "f", component: "TextField", label: "Email", value: { "@path": "/email" }, checks: [{ "@call": "email", args: { value: { "@path": "/email" } } }] },
+  ], data: { email: "" } }, notes) as any[];
+  const byId = Object.fromEntries(out[0].createSurface.components.map((c: any) => [c.id, c]));
+  assert.equal("badge" in byId.card, false);
+  assert.deepEqual(byId.tbl.cellComponents, ["b"]);
+  assert.equal(byId.f["checks"]?.[0]?.message ?? byId.f["@checks"]?.[0]?.message, "Enter a valid email address");
+  assert.deepEqual(byId.root.children, ["card", "tbl", "f"]);
+  assert.ok(notes.some((n) => /ghost/.test(n)));
 });

@@ -49,9 +49,9 @@ test("the catalog: one 1.0 document with every standard and AIN component, each 
   assert.equal(AINUI_CATALOG_DOCUMENT.protocolVersion, "1.0");
   assert.equal(AINUI_CATALOG_DOCUMENT.catalogId, AINUI_CATALOG);
   assert.equal(STANDARD_COMPONENT_NAMES.length, 69);
-  assert.equal(Object.keys(AINUI_CATALOG_DOCUMENT.components).length, 79);
+  assert.equal(Object.keys(AINUI_CATALOG_DOCUMENT.components).length, 92);
   assert.deepEqual(missingStandardViews, [], "no component falls back to the placeholder view");
-  assert.equal(ainuiCatalog.components.size, 79);
+  assert.equal(ainuiCatalog.components.size, 92);
   assert.equal(typeof AINUI_CATALOG_DOCUMENT.instructions, "string");
   const caps = ainuiCapabilities() as any;
   assert.ok(caps["1.0"].supportedCatalogIds.includes(AINUI_CATALOG), JSON.stringify(caps).slice(0, 200));

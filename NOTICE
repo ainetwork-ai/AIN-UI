@@ -5,7 +5,8 @@ This package includes material from other projects.
 
 1. CopilotKit — A2UI playground catalog
    src/catalog/standard.json holds the names, props and descriptions of the 69 standard components and of the
-   catalog functions, taken from the catalog published by CopilotKit's A2UI playground
+   catalog functions, and src/catalog/rich.json those of 13 of the playground's own components (Heading, Section,
+   Stat, …), taken from the catalog published by CopilotKit's A2UI playground
    (https://github.com/CopilotKit/CopilotKit, examples/showcases/a2ui-playground; https://a2ui.open.bot/catalog.json),
    so that surfaces written for that catalog are drawn by AIN-UI. The React views, styles and function
    implementations in this package are AIN-UI's own.
