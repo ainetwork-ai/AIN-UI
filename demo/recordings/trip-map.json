@@ -3,7 +3,7 @@
  "prompt": "A weekend plan for Seoul: a map with five places and the order to visit them.",
  "model": "Qwen3.8-Flash-Next",
  "format": "json",
- "recordedAt": "2026-11-25T02:35:16.676Z",
+ "recordedAt": "2026-11-25T06:33:54.013Z",
  "events": [
   {
    "at": 0,
@@ -15,20 +15,46 @@
    }
   },
   {
-   "at": 6888,
+   "at": 19746,
+   "event": {
+    "type": "RUN_ERROR"
+   }
+  },
+  {
+   "at": 21134,
+   "event": {
+    "type": "TEXT_MESSAGE_CONTENT",
+    "delta": "I'll put together a weekend Seoul itinerary with a map and the visit order."
+   }
+  },
+  {
+   "at": 21134,
    "event": {
     "type": "CUSTOM",
     "name": "ainui.source",
     "value": {
      "format": "json",
-     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"children\": [\n    \"title\",\n    \"subtitle\",\n    \"map\",\n    \"order\",\n    \"tip\",\n    \"next\"\n   ],\n   \"gap\": \"md\"\n  },\n  {\n   \"id\": \"title\",\n   \"component\": \"Title\",\n   \"text\": \"Seoul Weekend Plan\",\n   \"size\": \"xl\"\n  },\n  {\n   \"id\": \"subtitle\",\n   \"component\": \"Caption\",\n   \"text\": \"Saturday · 5 stops · best walked in this order\"\n  },\n  {\n   \"id\": \"map\",\n   \"component\": \"Map\",\n   \"markers\": [\n    {\n     \"label\": \"1. Gyeongbokgung Palace\",\n     \"lat\": 37.5792,\n     \"lng\": 126.977,\n     \"category\": \"culture\"\n    },\n    {\n     \"label\": \"2. Bukchon Hanok Village\",\n     \"lat\": 37.5826,\n     \"lng\": 126.9816,\n     \"category\": \"culture\"\n    },\n    {\n     \"label\": \"3. Ikseon-dong Hanok Cafe Street\",\n     \"lat\": 37.5741,\n     \"lng\": 126.9846,\n     \"category\": \"food\"\n    },\n    {\n     \"label\": \"4. Dongdaemun Design Plaza\",\n     \"lat\": 37.5669,\n     \"lng\": 127.0077,\n     \"category\": \"design\"\n    },\n    {\n     \"label\": \"5. Seongsu-dong Cafe District\",\n     \"lat\": 37.5445,\n     \"lng\": 127.0555,\n     \"category\": \"nightlife\"\n    }\n   ],\n   \"route\": true,\n   \"height\": 380\n  },\n  {\n   \"id\": \"order\",\n   \"component\": \"Table\",\n   \"caption\": \"Suggested order\",\n   \"columns\": [\n    {\n     \"label\": \"#\",\n     \"width\": 36\n    },\n    {\n     \"label\": \"Place\",\n     \"width\": 160\n    },\n    \"Area\",\n    {\n     \"label\": \"Suggested time\",\n     \"align\": \"start\"\n    },\n    {\n     \"label\": \"Why\",\n     \"align\": \"start\"\n    }\n   ],\n   \"rows\": [\n    [\n     \"1\",\n     \"Gyeongbokgung Palace\",\n     \"Jongno\",\n     \"09:00 – 10:30\",\n     \"Gates open early; watch the guard change\"\n    ],\n    [\n     \"2\",\n     \"Bukchon Hanok Village\",\n     \"Jongno\",\n     \"10:45 – 11:45\",\n     \"5 min walk north-east of the palace\"\n    ],\n    [\n     \"3\",\n     \"Ikseon-dong Cafe Street\",\n     \"Jongno\",\n     \"12:15 – 14:00\",\n     \"Lunch + hanok cafes\"\n    ],\n    [\n     \"4\",\n     \"Dongdaemun Design Plaza\",\n     \"Euljiro\",\n     \"14:30 – 16:00\",\n     \"Metro Line 2 or 10 min taxi\"\n    ],\n    [\n     \"5\",\n     \"Seongsu-dong Cafe District\",\n     \"Seongsu\",\n     \"16:30 – 20:00\",\n     \"End the day in the 'Brooklyn of Seoul'\"\n    ]\n   ]\n  },\n  {\n   \"id\": \"tip\",\n   \"component\": \"Caption\",\n   \"text\": \"Sample plan — opening hours and times are illustrative. Use T-money or a travel card; stops 1–3 are all within walking distance.\",\n   \"color\": \"subtle\"\n  },\n  {\n   \"id\": \"next\",\n   \"component\": \"FollowUp\",\n   \"items\": [\n    \"Make it a rainy-day plan\",\n    \"Add a second day for Hongdae\",\n    \"Show me the food spots only\"\n   ]\n  }\n ]\n}",
-     "ms": 6856,
+     "source": "{\n \"components\": [\n  {\n   \"id\": \"root\",\n   \"component\": \"Column\",\n   \"gap\": \"md\",\n   \"children\": [\n    \"head\",\n    \"stats\",\n    \"sec-sat\",\n    \"sat\",\n    \"sec-sun\",\n    \"sun\",\n    \"tip\",\n    \"next\"\n   ]\n  },\n  {\n   \"id\": \"head\",\n   \"component\": \"Heading\",\n   \"text\": \"Seoul: A Weekend in Five Places\",\n   \"eyebrow\": \"Weekend plan\",\n   \"subtitle\": \"Two days, five stops, ordered by geography to cut backtracking\"\n  },\n  {\n   \"id\": \"stats\",\n   \"component\": \"Grid\",\n   \"columns\": 3,\n   \"gap\": \"sm\",\n   \"children\": [\n    \"s1\",\n    \"s2\",\n    \"s3\"\n   ]\n  },\n  {\n   \"id\": \"s1\",\n   \"component\": \"Stat\",\n   \"label\": \"Stops\",\n   \"value\": \"5\",\n   \"caption\": \"Sat 3 + Sun 2\"\n  },\n  {\n   \"id\": \"s2\",\n   \"component\": \"Stat\",\n   \"label\": \"Total walking\",\n   \"value\": \"6.4 km\",\n   \"caption\": \"Between stops included\",\n   \"tone\": \"default\"\n  },\n  {\n   \"id\": \"s3\",\n   \"component\": \"Stat\",\n   \"label\": \"Subway hops\",\n   \"value\": \"3\",\n   \"caption\": \"Line 2, Line 3, Gyeongui-Jungang\",\n   \"tone\": \"info\"\n  },\n  {\n   \"id\": \"map\",\n   \"component\": \"Map\",\n   \"markers\": [\n    {\n     \"label\": \"1. Gyeongbokgung Palace\",\n     \"lat\": 37.5794,\n     \"lng\": 126.977,\n     \"category\": \"sight\"\n    },\n    {\n     \"label\": \"2. Bukchon Hanok Village\",\n     \"lat\": 37.5826,\n     \"lng\": 126.9816,\n     \"category\": \"sight\"\n    },\n    {\n     \"label\": \"3. Ikseon-dong Hanok Village\",\n     \"lat\": 37.5741,\n     \"lng\": 126.9866,\n     \"category\": \"food\"\n    },\n    {\n     \"label\": \"4. Seongsu-dong Cafes\",\n     \"lat\": 37.5446,\n     \"lng\": 127.0555,\n     \"category\": \"food\"\n    },\n    {\n     \"label\": \"5. Seoullo 7017 & Myeongdong\",\n     \"lat\": 37.5639,\n     \"lng\": 126.9797,\n     \"category\": \"shopping\"\n    }\n   ],\n   \"route\": true,\n   \"height\": 380\n  },\n  {\n   \"id\": \"sec-sat\",\n   \"component\": \"Section\",\n   \"title\": \"Saturday — Old Seoul, then Seongsu\",\n   \"description\": \"Start north at the palace and work your way east and south.\",\n   \"children\": [\n    \"sat\"\n   ]\n  },\n  {\n   \"id\": \"sat\",\n   \"component\": \"Timeline\",\n   \"items\": [\n    {\n     \"title\": \"Gyeongbokgung Palace\",\n     \"time\": \"Sat 09:30 – 11:15\",\n     \"description\": \"Gates open 09:00. Catch the royal guard change at 10:00 in the courtyard.\",\n     \"status\": \"upcoming\",\n     \"icon\": \"landmark\"\n    },\n    {\n     \"title\": \"Bukchon Hanok Village\",\n     \"time\": \"Sat 11:30 – 13:00\",\n     \"description\": \"10 min walk north-east. Quiet lanes, viewpoint at the top; keep voices low, people live here.\",\n     \"status\": \"upcoming\",\n     \"icon\": \"home\"\n    },\n    {\n     \"title\": \"Lunch in Ikseon-dong\",\n     \"time\": \"Sat 13:15 – 14:45\",\n     \"description\": \"15 min walk south. Kongguksu (cold soybean noodles) and a coffee break in the hanok alleys.\",\n     \"status\": \"upcoming\",\n     \"icon\": \"utensils\"\n    },\n    {\n     \"title\": \"Seongsu-dong Cafes & Shops\",\n     \"time\": \"Sat 15:30 – 18:30\",\n     \"description\": \"Line 2 from Euljiro 3-ga to Seongsu, 4 stops. Converted factory cafes and concept stores.\",\n     \"status\": \"upcoming\",\n     \"icon\": \"coffee\"\n    }\n   ]\n  },\n  {\n   \"id\": \"sec-sun\",\n   \"component\": \"Section\",\n   \"title\": \"Sunday — Skyline walk and shopping\",\n   \"description\": \"One elevated walk, then the Myeongdong crowds before you fly out.\",\n   \"children\": [\n    \"sun\"\n   ]\n  },\n  {\n   \"id\": \"sun\",\n   \"component\": \"Timeline\",\n   \"items\": [\n    {\n     \"title\": \"Seoullo 7017 Skywalk\",\n     \"time\": \"Sun 10:00 – 11:30\",\n     \"description\": \"Enter at Seoul Station Skygarden, walk west-to-east over the old overpass, exit at Namdaemun.\",\n     \"status\": \"upcoming\",\n     \"icon\": \"walk\"\n    },\n    {\n     \"title\": \"Myeongdong Shopping\",\n     \"time\": \"Sun 12:00 – 15:00\",\n     \"description\": \"5 min walk from the walkway exit. Skincare flagship stores, street food stalls on 8-gil.\",\n     \"status\": \"upcoming\",\n     \"icon\": \"shopping-bag\"\n    }\n   ]\n  },\n  {\n   \"id\": \"tip\",\n   \"component\": \"Callout\",\n   \"title\": \"Buy a T-money card at the airport\",\n   \"text\": \"Tap on and off for subway and bus, and it also pays at convenience stores. Subway is the fastest way between these five stops — taxis add 20–30 minutes in weekend traffic.\",\n   \"icon\": \"credit-card\",\n   \"actionLabel\": \"Show subway exits\",\n   \"onAction\": {\n    \"event\": {\n     \"name\": \"show_subway_exits\"\n    }\n   }\n  },\n  {\n   \"id\": \"next\",\n   \"component\": \"FollowUp\",\n   \"items\": [\n    \"Add restaurant picks for each stop\",\n    \"Swap in a day trip to Bukhansan\",\n    \"Show a rainy-day version\"\n   ]\n  }\n ],\n \"data\": {\n  \"plan\": {\n   \"city\": \"Seoul\",\n   \"days\": 2\n  }\n }\n}",
+     "ms": 21089,
      "attempt": 1
     }
    }
   },
   {
-   "at": 7047,
+   "at": 21259,
+   "event": {
+    "type": "CUSTOM",
+    "name": "ainui.forgiven",
+    "value": {
+     "notes": [
+      "ids renamed to identifiers: sec-sat → sec_sat, sec-sun → sec_sun",
+      "not used by any parent, left out: map"
+     ]
+    }
+   }
+  },
+  {
+   "at": 21259,
    "event": {
     "type": "ACTIVITY_SNAPSHOT",
     "activityType": "a2ui-surface",
@@ -37,163 +63,181 @@
       {
        "version": "1.0",
        "createSurface": {
-        "surfaceId": "ui-mwvig169-ahixs8",
+        "surfaceId": "ui-mwvqz7az-82qao6",
         "catalogId": "https://ainui.ainetwork.xyz/catalogs/ainui/v2/catalog.json",
         "components": [
          {
           "id": "root",
           "component": "Column",
+          "gap": "md",
           "children": [
-           "title",
-           "subtitle",
-           "map",
-           "order",
+           "head",
+           "stats",
+           "sec_sat",
+           "sat",
+           "sec_sun",
+           "sun",
            "tip",
            "next"
-          ],
-          "gap": "md"
+          ]
          },
          {
-          "id": "title",
-          "component": "Title",
-          "text": "Seoul Weekend Plan",
-          "size": "xl"
+          "id": "head",
+          "component": "Heading",
+          "text": "Seoul: A Weekend in Five Places",
+          "eyebrow": "Weekend plan",
+          "subtitle": "Two days, five stops, ordered by geography to cut backtracking"
          },
          {
-          "id": "subtitle",
-          "component": "Caption",
-          "text": "Saturday · 5 stops · best walked in this order"
+          "id": "stats",
+          "component": "Grid",
+          "columns": 3,
+          "gap": "sm",
+          "children": [
+           "s1",
+           "s2",
+           "s3"
+          ]
          },
          {
-          "id": "map",
-          "component": "Map",
-          "markers": [
+          "id": "s1",
+          "component": "Stat",
+          "label": "Stops",
+          "value": "5",
+          "caption": "Sat 3 + Sun 2"
+         },
+         {
+          "id": "s2",
+          "component": "Stat",
+          "label": "Total walking",
+          "value": "6.4 km",
+          "caption": "Between stops included",
+          "tone": "default"
+         },
+         {
+          "id": "s3",
+          "component": "Stat",
+          "label": "Subway hops",
+          "value": "3",
+          "caption": "Line 2, Line 3, Gyeongui-Jungang",
+          "tone": "info"
+         },
+         {
+          "id": "sec_sat",
+          "component": "Section",
+          "title": "Saturday — Old Seoul, then Seongsu",
+          "description": "Start north at the palace and work your way east and south.",
+          "children": [
+           "sat"
+          ]
+         },
+         {
+          "id": "sat",
+          "component": "Timeline",
+          "items": [
            {
-            "label": "1. Gyeongbokgung Palace",
-            "lat": 37.5792,
-            "lng": 126.977,
-            "category": "culture"
+            "title": "Gyeongbokgung Palace",
+            "time": "Sat 09:30 – 11:15",
+            "description": "Gates open 09:00. Catch the royal guard change at 10:00 in the courtyard.",
+            "status": "upcoming",
+            "icon": "landmark"
            },
            {
-            "label": "2. Bukchon Hanok Village",
-            "lat": 37.5826,
-            "lng": 126.9816,
-            "category": "culture"
+            "title": "Bukchon Hanok Village",
+            "time": "Sat 11:30 – 13:00",
+            "description": "10 min walk north-east. Quiet lanes, viewpoint at the top; keep voices low, people live here.",
+            "status": "upcoming",
+            "icon": "home"
            },
            {
-            "label": "3. Ikseon-dong Hanok Cafe Street",
-            "lat": 37.5741,
-            "lng": 126.9846,
-            "category": "food"
+            "title": "Lunch in Ikseon-dong",
+            "time": "Sat 13:15 – 14:45",
+            "description": "15 min walk south. Kongguksu (cold soybean noodles) and a coffee break in the hanok alleys.",
+            "status": "upcoming",
+            "icon": "utensils"
            },
            {
-            "label": "4. Dongdaemun Design Plaza",
-            "lat": 37.5669,
-            "lng": 127.0077,
-            "category": "design"
-           },
-           {
-            "label": "5. Seongsu-dong Cafe District",
-            "lat": 37.5445,
-            "lng": 127.0555,
-            "category": "nightlife"
+            "title": "Seongsu-dong Cafes & Shops",
+            "time": "Sat 15:30 – 18:30",
+            "description": "Line 2 from Euljiro 3-ga to Seongsu, 4 stops. Converted factory cafes and concept stores.",
+            "status": "upcoming",
+            "icon": "coffee"
            }
-          ],
-          "route": true,
-          "height": 380
+          ]
          },
          {
-          "id": "order",
-          "component": "Table",
-          "caption": "Suggested order",
-          "columns": [
+          "id": "sec_sun",
+          "component": "Section",
+          "title": "Sunday — Skyline walk and shopping",
+          "description": "One elevated walk, then the Myeongdong crowds before you fly out.",
+          "children": [
+           "sun"
+          ]
+         },
+         {
+          "id": "sun",
+          "component": "Timeline",
+          "items": [
            {
-            "label": "#",
-            "width": 36
+            "title": "Seoullo 7017 Skywalk",
+            "time": "Sun 10:00 – 11:30",
+            "description": "Enter at Seoul Station Skygarden, walk west-to-east over the old overpass, exit at Namdaemun.",
+            "status": "upcoming",
+            "icon": "walk"
            },
            {
-            "label": "Place",
-            "width": 160
-           },
-           "Area",
-           {
-            "label": "Suggested time",
-            "align": "start"
-           },
-           {
-            "label": "Why",
-            "align": "start"
+            "title": "Myeongdong Shopping",
+            "time": "Sun 12:00 – 15:00",
+            "description": "5 min walk from the walkway exit. Skincare flagship stores, street food stalls on 8-gil.",
+            "status": "upcoming",
+            "icon": "shopping-bag"
            }
-          ],
-          "rows": [
-           [
-            "1",
-            "Gyeongbokgung Palace",
-            "Jongno",
-            "09:00 – 10:30",
-            "Gates open early; watch the guard change"
-           ],
-           [
-            "2",
-            "Bukchon Hanok Village",
-            "Jongno",
-            "10:45 – 11:45",
-            "5 min walk north-east of the palace"
-           ],
-           [
-            "3",
-            "Ikseon-dong Cafe Street",
-            "Jongno",
-            "12:15 – 14:00",
-            "Lunch + hanok cafes"
-           ],
-           [
-            "4",
-            "Dongdaemun Design Plaza",
-            "Euljiro",
-            "14:30 – 16:00",
-            "Metro Line 2 or 10 min taxi"
-           ],
-           [
-            "5",
-            "Seongsu-dong Cafe District",
-            "Seongsu",
-            "16:30 – 20:00",
-            "End the day in the 'Brooklyn of Seoul'"
-           ]
           ]
          },
          {
           "id": "tip",
-          "component": "Caption",
-          "text": "Sample plan — opening hours and times are illustrative. Use T-money or a travel card; stops 1–3 are all within walking distance.",
-          "color": "subtle"
+          "component": "Callout",
+          "title": "Buy a T-money card at the airport",
+          "text": "Tap on and off for subway and bus, and it also pays at convenience stores. Subway is the fastest way between these five stops — taxis add 20–30 minutes in weekend traffic.",
+          "icon": "credit-card",
+          "actionLabel": "Show subway exits",
+          "onAction": {
+           "event": {
+            "name": "show_subway_exits"
+           }
+          }
          },
          {
           "id": "next",
           "component": "FollowUp",
           "items": [
-           "Make it a rainy-day plan",
-           "Add a second day for Hongdae",
-           "Show me the food spots only"
+           "Add restaurant picks for each stop",
+           "Swap in a day trip to Bukhansan",
+           "Show a rainy-day version"
           ]
          }
-        ]
+        ],
+        "dataModel": {
+         "plan": {
+          "city": "Seoul",
+          "days": 2
+         }
+        }
        }
       }
      ]
     },
     "format": "json",
-    "ms": 6856
+    "ms": 21089
    }
   },
   {
-   "at": 7047,
+   "at": 21259,
    "event": {
     "type": "RUN_FINISHED",
     "calls": 1,
     "shown": 1,
-    "ms": 7047
+    "ms": 21259
    }
   }
  ]

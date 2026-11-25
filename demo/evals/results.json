@@ -1,5 +1,5 @@
 {
- "ranAt": "2026-11-25T02:48:54.538Z",
+ "ranAt": "2026-11-25T06:45:59.332Z",
  "cases": [
   {
    "id": "kpi-dashboard",
@@ -101,17 +101,21 @@
    "cases": 12,
    "scored": 12,
    "valid": 11,
-   "firstTry": 8,
-   "componentChoice": 10,
-   "medianMs": 9202,
+   "firstTry": 10,
+   "componentChoice": 9,
+   "medianMs": 10036,
    "failures": [
     {
-     "id": "kpi-dashboard",
-     "reason": "The UI was not valid for the catalog: Component 'productRow' references non-existent component 'cName' in field 'children[0]' (Dangling reference 'cName' in component 'productRow'). Fix it and call render_ui again."
+     "id": "compare-table",
+     "reason": "The UI was not valid for the catalog: Component 'cell_model' is not reachable from 'root' (Orphaned component 'cell_model' is not reachable from root). Fix it and call render_ui again."
+    },
+    {
+     "id": "trip-map",
+     "reason": "valid, but without Map"
     },
     {
      "id": "pricing",
-     "reason": "valid, but without Card, Button"
+     "reason": "valid, but without Button"
     }
    ]
   },
@@ -120,18 +124,22 @@
    "format": "express",
    "cases": 12,
    "scored": 12,
-   "valid": 10,
-   "firstTry": 7,
-   "componentChoice": 10,
-   "medianMs": 7484,
+   "valid": 9,
+   "firstTry": 8,
+   "componentChoice": 9,
+   "medianMs": 7077,
    "failures": [
+    {
+     "id": "trip-map",
+     "reason": "The A2UI Express did not compile: Component 'MapItem' is not defined in the catalog. - Help: Please correct the syntax error in your Express DSL.. Correct the syntax and call render_ui again."
+    },
     {
      "id": "pricing",
      "reason": "The UI was not valid for the catalog: Validation failed for component 'EntityCard' (plan2): actions.0: Either '@path' or 'path' must be provided.. Fix it and call render_ui again."
     },
     {
      "id": "files",
-     "reason": "The UI was not valid for the catalog: Validation failed for component 'Breadcrumbs' (path): items.0.path: Expected string, received undefined; items.1.path: Expected string, received undefined; items.2.path: Expected string, received undefi"
+     "reason": "The A2UI Express did not compile: Failed to parse expression: Syntax error at line 1:24: mismatched input ':' expecting {',', ')'} (line 1) - Line 1, Col 24 - Help: Please correct the syntax error in your Express DSL.. Correct the syntax an"
     }
    ]
   },
@@ -139,15 +147,23 @@
    "model": "GLM-5.3-Flash",
    "format": "json",
    "cases": 12,
-   "scored": 11,
-   "valid": 11,
+   "scored": 12,
+   "valid": 12,
    "firstTry": 9,
-   "componentChoice": 11,
-   "medianMs": 67663,
+   "componentChoice": 9,
+   "medianMs": 132516,
    "failures": [
     {
-     "id": "kpi-dashboard",
-     "reason": "not scored: The model did not answer (Error)."
+     "id": "pricing",
+     "reason": "valid, but without Card"
+    },
+    {
+     "id": "order-status",
+     "reason": "valid, but without Badge"
+    },
+    {
+     "id": "files",
+     "reason": "valid, but without Tile"
     }
    ]
   },
@@ -156,20 +172,11 @@
    "format": "express",
    "cases": 12,
    "scored": 12,
-   "valid": 10,
-   "firstTry": 10,
-   "componentChoice": 10,
-   "medianMs": 35592,
-   "failures": [
-    {
-     "id": "signup-form",
-     "reason": "The A2UI Express did not compile: Component 'TextField' does not accept checks. - Help: Remove the check expressions, or use a component whose schema declares a list of CheckRule.. Correct the syntax and call render_ui again."
-    },
-    {
-     "id": "settings-tabs",
-     "reason": "The UI was not valid for the catalog: Validation failed for component 'TextField' (securityPanel_children_1): checks.1: Expected object, received string; checks.1: Expected object, received string; checks.1: Expected object, received string"
-    }
-   ]
+   "valid": 12,
+   "firstTry": 11,
+   "componentChoice": 12,
+   "medianMs": 86835,
+   "failures": []
   }
  ]
 }
