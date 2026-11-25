@@ -99,6 +99,24 @@ function upgradeComponent(c: A2uiComponent, toAinui: boolean): A2uiComponent {
 
 const catalogFor = (id: string | undefined) => (id === A2UI_BASIC_CATALOG_V09 ? A2UI_BASIC_CATALOG : id === AINUI_CATALOG_V1 ? AINUI_CATALOG : id);
 
+export type WireVersion = typeof A2UI_VERSION | typeof A2UI_V09;
+let wire: WireVersion = A2UI_VERSION;
+
+/**
+ * What the builders (ainuiFolder, a2uiForSkill, ainuiPayment, the pickers, …) emit. "1.0" by default. A host
+ * whose callers still speak A2UI v0.9 (an MCP client, an A2A agent that asked for the v0.9 extension) sets
+ * "v0.9" and gets exactly what ain-ui 0.x produced: v0.9 messages naming the v0.9 basic catalog or AINUI v1.
+ * The renderers read both, so a host's own pages are unaffected by this choice.
+ */
+export function setA2uiWireVersion(version: WireVersion): void {
+  if (version !== A2UI_VERSION && version !== A2UI_V09) throw new Error(`A2UI wire version must be "${A2UI_VERSION}" or "${A2UI_V09}"`);
+  wire = version;
+}
+export const a2uiWireVersion = (): WireVersion => wire;
+
+/** Builders write v0.9; this is where that becomes what the host asked for. */
+export const emitMessages = (messages: readonly unknown[]): A2uiMessage[] => (wire === A2UI_V09 ? (messages as A2uiMessage[]) : upgradeMessages(messages));
+
 /** Is this message written for a version before 1.0? */
 export const isLegacyMessage = (m: unknown) => isObject(m) && typeof m.version === "string" && m.version !== A2UI_VERSION;
 

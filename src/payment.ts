@@ -1,7 +1,7 @@
 /** Browser-wallet payment surface. The host executes the action locally;
  * signatures are submitted to the same authorized share resource via x402. */
 import type { PaymentRequired } from "@x402/core/types";
-import { A2UI_V09, AINUI_CATALOG_V1, upgradeMessages, type A2uiMessage } from "./basic.js";
+import { A2UI_V09, AINUI_CATALOG_V1, emitMessages, type A2uiMessage } from "./basic.js";
 
 export const X402_PAY_ACTION = "aindrive.x402.pay";
 
@@ -17,7 +17,7 @@ export function ainuiPayment(input: {
   const req = input.required.accepts[0];
   const digits = req.amount.padStart(input.decimals + 1, "0");
   const amount = input.decimals ? `${digits.slice(0, -input.decimals)}.${digits.slice(-input.decimals)}`.replace(/\.?0+$/, "") : digits;
-  return upgradeMessages([
+  return emitMessages([
     { version: A2UI_V09, createSurface: { surfaceId, catalogId: AINUI_CATALOG_V1 } },
     { version: A2UI_V09, updateComponents: { surfaceId, components: [
       { id: "root", component: "Column", children: ["title", "payment"] },

@@ -1,4 +1,4 @@
-import { A2UI_V09, AINUI_CATALOG_V1, upgradeMessages, type A2uiMessage } from './basic.js';
+import { A2UI_V09, AINUI_CATALOG_V1, emitMessages, type A2uiMessage } from './basic.js';
 
 export type FolderChatMessage = { role: 'user' | 'agent' | 'error'; text: string };
 export type FolderChatAgent = { id: string; label: string; remote?: boolean };
@@ -6,7 +6,7 @@ export type ChatUpdate = { text: string; contextId?: string; state?: string };
 export type FolderChatState = { driveId: string; path: string; agents: FolderChatAgent[]; agentId: string; messages: FolderChatMessage[]; busy: boolean };
 export function ainuiFolderChat(state: FolderChatState): A2uiMessage[] {
   const surfaceId = 'ainui-folder-chat';
-  return upgradeMessages([
+  return emitMessages([
     { version: A2UI_V09, createSurface: { surfaceId, catalogId: AINUI_CATALOG_V1 } },
     { version: A2UI_V09, updateComponents: { surfaceId, components: [{ id: 'root', component: 'FolderChat', value: { path: '/chat' }, action: { event: { name: 'aindrive.chat', context: { drive_id: state.driveId, path: state.path } } } }] } },
     { version: A2UI_V09, updateDataModel: { surfaceId, path: '/', value: { chat: state } } },

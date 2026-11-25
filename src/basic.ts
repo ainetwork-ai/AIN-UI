@@ -20,7 +20,7 @@
  */
 import type { SkillResult } from "./types.js";
 
-import { A2UI_BASIC_CATALOG_V09, A2UI_V09, upgradeMessages, type A2uiAction, type A2uiComponent, type A2uiMessage } from "./protocol.js";
+import { A2UI_BASIC_CATALOG_V09, A2UI_V09, emitMessages, type A2uiAction, type A2uiComponent, type A2uiMessage } from "./protocol.js";
 export * from "./protocol.js";
 /** A2A extension URI (A2UI over A2A), advertised in the agent card. */
 export const A2UI_A2A_EXTENSION = "https://a2ui.org/a2a-extension/a2ui/v1.0";
@@ -47,7 +47,7 @@ const column = (id: string, children: string[]): A2uiComponent => ({ id, compone
 function surface(prefix: string, components: A2uiComponent[], data: Record<string, unknown>): A2uiMessage[] {
   const surfaceId = `aindrive-${prefix}-${Math.random().toString(36).slice(2, 10)}`;
   // Written in the v0.9 layout the builders below use, sent as 1.0.
-  return upgradeMessages([
+  return emitMessages([
     { version: A2UI_V09, createSurface: { surfaceId, catalogId: A2UI_BASIC_CATALOG_V09 } },
     { version: A2UI_V09, updateComponents: { surfaceId, components } },
     { version: A2UI_V09, updateDataModel: { surfaceId, path: "/", value: data } },
