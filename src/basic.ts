@@ -83,10 +83,13 @@ function listSurface(prefix: string, opts: {
     rootChildren.push("toolbar");
     const tb = ["search_field", "search_btn"];
     if (opts.path) tb.unshift("up_btn");
-    comps.push(
-      row("toolbar", tb, { align: "center" }),
+    // ⬆ Up only below the top folder; its components go with it (1.0 refuses unreachable ones)
+    if (opts.path) comps.push(
       button("up_btn", "up_label", "aindrive.open", { drive_id: { path: "/drive_id" }, path: { path: "/parent" }, is_dir: true }),
       text("up_label", "⬆ Up"),
+    );
+    comps.push(
+      row("toolbar", tb, { align: "center" }),
       { id: "search_field", component: "TextField", label: "Search file names", value: { path: "/query" }, weight: 1 },
       button("search_btn", "search_label", "aindrive.search",
         { drive_id: { path: "/drive_id" }, query: { path: "/query" }, path: { path: "/path" } }, "primary"),
@@ -94,7 +97,9 @@ function listSurface(prefix: string, opts: {
     );
   }
   rootChildren.push(opts.items.length ? "list" : "empty");
-  comps.push(
+  // Only the branch the root shows: A2UI 1.0 refuses a surface with components the root cannot reach.
+  if (!opts.items.length) comps.push(text("empty", "(empty)", "caption"));
+  else comps.push(
     { id: "list", component: "List", children: { componentId: "item", path: "/items" } },
     row("item", ["item_open", "item_meta"], { align: "center", justify: "spaceBetween" }),
     button("item_open", "item_label", open,
@@ -104,7 +109,6 @@ function listSurface(prefix: string, opts: {
       "borderless"),
     text("item_label", { path: "label" }),
     text("item_meta", { path: "meta" }, "caption"),
-    text("empty", "(empty)", "caption"),
   );
   if (opts.note) { rootChildren.push("note"); comps.push(text("note", opts.note, "caption")); }
   comps.unshift(column("root", rootChildren));
