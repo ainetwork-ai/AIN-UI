@@ -180,7 +180,8 @@ const server = createServer(async (req, res) => {
   const path = url.pathname;
   try {
     if (req.method === "GET" && path === "/api/health") return send(res, 200, { ok: true, version: VERSION, models: client ? MODELS : [], catalog: AINUI_CATALOG_DOCUMENT.catalogId });
-    if (req.method === "GET" && path === "/catalog.json") return send(res, 200, AINUI_CATALOG_DOCUMENT, { "cache-control": "public, max-age=300", "access-control-allow-origin": "*" });
+    // The catalog's own id (AINUI_CATALOG) must resolve to the document, not to the playground page.
+    if (req.method === "GET" && (path === "/catalog.json" || path === new URL(AINUI_CATALOG_DOCUMENT.catalogId).pathname)) return send(res, 200, AINUI_CATALOG_DOCUMENT, { "cache-control": "public, max-age=300", "access-control-allow-origin": "*" });
     if (req.method === "GET" && path === "/api/models") return send(res, 200, { models: client ? MODELS : [], formats: ["express", "json"], limits: { modelCallsPerRun: MAX_CALLS, componentsPerRequest: MAX_COMPONENTS } });
     if (req.method === "GET" && path === "/api/skills") return skills(url, res);
     if (req.method === "GET" && path === "/api/evals") return existsSync(EVALS) ? send(res, 200, readFileSync(EVALS)) : send(res, 200, { runs: [] });
