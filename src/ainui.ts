@@ -191,7 +191,12 @@ export function asAinui(messages: A2uiMessage[]): A2uiMessage[] {
     const t = c.text as unknown;
     const call = t && typeof t === "object" ? (t as { "@call"?: string; args?: { value?: string } }) : null;
     const m = typeof t === "string" ? /^(#{1,5}) (.*)$/s.exec(t) : call?.["@call"] === "formatString" ? /^(#{1,5}) \$\{(.+)\}$/.exec(call.args?.value ?? "") : null;
-    if (!m) return c.variant === "caption" ? { ...c, component: "Caption", variant: undefined } as A2uiComponent : c;
+    if (!m) {
+      if (c.variant !== "caption") return c;
+      // leave the key out: an own `variant: undefined` is still an unknown property to a strict validator
+      const { variant: _variant, ...rest } = c;
+      return { ...rest, component: "Caption" } as A2uiComponent;
+    }
     const size = ["2xl", "xl", "lg", "md", "sm"][m[1].length - 1];
     return { ...c, component: "Title", size, text: typeof t === "string" ? m[2] : { "@path": m[2] } };
   };
